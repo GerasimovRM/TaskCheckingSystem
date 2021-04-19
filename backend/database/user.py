@@ -11,6 +11,9 @@ from .course import Course
 secret = hashlib.sha256(ENCRYPT_SECRET.encode()).digest()
 secret = base64.urlsafe_b64encode(secret)
 
+roles = ["student", "teacher"]
+statuses = ["undefined", "active", "locked"]
+
 
 class User(ormar.Model):
     class Meta(BaseMeta):
@@ -25,4 +28,6 @@ class User(ormar.Model):
                                  encrypt_secret=ENCRYPT_SECRET,
                                  encrypt_backend=ormar.EncryptBackends.HASH)
     vk_id: str = ormar.String(max_length=20)
+    role: str = ormar.String(max_length=10)
+    status: str = ormar.String(max_length=10)
     courses: Optional[List[Course]] = ormar.ManyToMany(Course)
