@@ -6,7 +6,7 @@ from .base_meta import metadata, BaseMeta, database
 
 from .user import User
 from .lesson import Lesson
-#from .course import Course
+from .course import Course
 from .task import Task
 
 

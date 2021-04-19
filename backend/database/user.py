@@ -1,3 +1,4 @@
+from typing import Optional, List
 import hashlib
 import base64
 
@@ -5,6 +6,7 @@ import ormar
 
 from .base_meta import BaseMeta
 from .database_settings import ENCRYPT_SECRET
+from .course import Course
 
 secret = hashlib.sha256(ENCRYPT_SECRET.encode()).digest()
 secret = base64.urlsafe_b64encode(secret)
@@ -23,4 +25,4 @@ class User(ormar.Model):
                                  encrypt_secret=ENCRYPT_SECRET,
                                  encrypt_backend=ormar.EncryptBackends.HASH)
     vk_id: str = ormar.String(max_length=20)
-    
+    courses: Optional[List[Course]] = ormar.ManyToMany(Course)
