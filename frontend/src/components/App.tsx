@@ -1,16 +1,23 @@
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Route } from 'react-router-dom';
 
-import 'antd/dist/antd.css';
+import { ChakraProvider } from '@chakra-ui/react';
+
 import Layout from './Layout';
+
+import HomePage from '../pages/home';
+import TaskPage from '../pages/task';
 
 function App() {
   return (
-    <div className="App">
+    <ChakraProvider>
       <BrowserRouter>
-        <Layout />
+        <Layout>
+          <Route path="/" exact component={HomePage} />
+          <Route path="/task" component={TaskPage} />
+        </Layout>
       </BrowserRouter>
-    </div>
+    </ChakraProvider>
   );
 }
 
