@@ -24,7 +24,6 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div>
       <Flex
-        bg="gray.100"
         style={{
           padding: '0.5vh 3vw 3vh 3vw',
         }}

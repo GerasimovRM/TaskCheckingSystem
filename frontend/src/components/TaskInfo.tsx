@@ -2,7 +2,6 @@ import React from 'react';
 
 import {
   Box,
-  Icon,
   Stat,
   StatHelpText,
   StatLabel,
@@ -12,7 +11,7 @@ import {
 import { CheckIcon } from '@chakra-ui/icons';
 
 export interface TaskInfoProps {
-  isSuccess: boolean;
+  isSuccess?: boolean;
   points: number;
   maxPoints: number;
   date: Date;
@@ -24,9 +23,17 @@ export default function TaskInfo({
   maxPoints,
   date,
 }: TaskInfoProps) {
+  const theme = {
+    bg: 'teal.500, teal.200',
+    text: 'Зачтено',
+  };
+  if (!isSuccess) {
+    theme.bg = 'red.500, red.300';
+    theme.text = 'Доработать';
+  }
   return (
     <Box
-      bg="teal.300"
+      bgGradient={`linear(to-r, ${theme.bg})`}
       style={{
         padding: '0.2em 1em',
         borderRadius: 'var(--chakra-radii-md) var(--chakra-radii-md) 0 0',
@@ -34,13 +41,17 @@ export default function TaskInfo({
     >
       <Stat>
         <StatLabel>
-          <Text fontSize="xl">Зачтено</Text>
+          <Text fontSize="xl" color="white">
+            {theme.text}
+          </Text>
         </StatLabel>
-        <StatNumber>
-          <Icon as={CheckIcon} /> {points}/{maxPoints}
+        <StatNumber color="white">
+          {points}/{maxPoints}
         </StatNumber>
         <StatHelpText>
-          <Text fontSize="md">Отправлено {date.toLocaleString()}</Text>
+          <Text fontSize="md" color="white">
+            Отправлено {date.toLocaleString()}
+          </Text>
         </StatHelpText>
       </Stat>
     </Box>
