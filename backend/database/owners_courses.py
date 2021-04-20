@@ -5,9 +5,8 @@ import ormar
 from .base_meta import BaseMeta
 
 
-class Course(ormar.Model):
+class OwnersCourses(ormar.Model):
     class Meta(BaseMeta):
-        tablename = "course"
+        tablename = "owners_courses"
 
     id: int = ormar.Integer(primary_key=True, autoincrement=True)
-    name: str = ormar.String(max_length=150)

@@ -7,6 +7,8 @@ import ormar
 from .base_meta import BaseMeta
 from .database_settings import ENCRYPT_SECRET
 from .course import Course
+from .owners_courses import OwnersCourses
+from .students_courses import StudentsCourses
 
 secret = hashlib.sha256(ENCRYPT_SECRET.encode()).digest()
 secret = base64.urlsafe_b64encode(secret)
@@ -30,4 +32,13 @@ class User(ormar.Model):
     vk_id: str = ormar.String(max_length=20)
     role: str = ormar.String(max_length=10)
     status: str = ormar.String(max_length=10)
-    courses: Optional[List[Course]] = ormar.ManyToMany(Course)
+    owner_courses: Optional[List[Course]] = ormar.ManyToMany(Course,
+                                                             through=OwnersCourses,
+                                                             through_relation_name="owner_id",
+                                                             through_reverse_relation_name="course_id",
+                                                             related_name="owners_courses")
+    student_courses: Optional[List[Course]] = ormar.ManyToMany(Course,
+                                                               through=StudentsCourses,
+                                                               through_relation_name="student_id",
+                                                               through_reverse_relation_name="course_id",
+                                                               related_name="students_courses")
