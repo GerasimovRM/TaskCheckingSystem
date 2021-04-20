@@ -4,14 +4,21 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from typing import Optional
 from datetime import datetime, timedelta
+from pydantic import BaseModel
 
 from database.user import User, UserStatus
-from models.token import Token, TokenData
+from models import TokenData
 from config import SECRET_KEY, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+
+class ResponseVkAccessToken(BaseModel):
+    access_token: str
+    expires_in: int
+    user_id: int
 
 
 def verify_password(plain_password, hashed_password):
@@ -27,7 +34,7 @@ async def get_user(vk_id: str) -> User:
     return user
 
 
-async def authenticate_user( vk_id: str, password: str):
+async def authenticate_user(vk_id: str, password: str):
     user = await get_user(vk_id)
     if not user:
         return None

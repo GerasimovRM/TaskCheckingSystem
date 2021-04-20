@@ -3,9 +3,12 @@ from starlette.config import Config
 
 config = Config(".env")
 
-PROJECT_NAME = "TaskCheckingSystem"
-VERSION = "1.0.0"
-API_PREFIX = "/api"
+PROJECT_NAME = config("PROJECT_NAME", cast=str)
+VERSION = config("VERSION", cast=str)
+
+VK_CLIENT_ID = config("VK_CLIENT_ID", cast=str)
+VK_CLIENT_SECRET = config("VK_CLIENT_SECRET", cast=str)
+VK_REDIRECT_URI = config("VK_REDIRECT_URI", cast=str)
 
 SECRET_KEY = config("SECRET_KEY", cast=str)
 ACCESS_TOKEN_EXPIRE_MINUTES = config("ACCESS_TOKEN_EXPIRE_MINUTES", cast=int)

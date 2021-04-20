@@ -1,7 +1,6 @@
 import sqlalchemy
 
 from config import DATABASE_URL
-from config import DATABASE_URL
 from .base_meta import metadata, BaseMeta, database
 
 
