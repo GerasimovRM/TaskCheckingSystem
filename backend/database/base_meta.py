@@ -1,5 +1,5 @@
 import ormar
-from .database_settings import DATABASE_URL
+from config import DATABASE_URL
 import databases
 import sqlalchemy
 
