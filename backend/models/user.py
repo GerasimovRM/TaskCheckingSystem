@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel
 
 
@@ -8,6 +9,6 @@ class UserDto(BaseModel):
     middle_name: str
     vk_id: str
     status: int
-    jwt_token: str
+    jwt_token: Optional[str]
 
 
