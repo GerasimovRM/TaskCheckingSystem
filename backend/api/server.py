@@ -5,8 +5,7 @@ from datetime import timedelta
 
 from database.base_meta import database
 from models.token import Token
-from config import ACCESS_TOKEN_EXPIRE_MINUTES
-from services import create_access_token, authenticate_user
+from services import create_token_user, authenticate_user
 from api.routers import user_router, auth_router
 
 
@@ -25,11 +24,8 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"vk_id": user.vk_id}, expires_delta=access_token_expires
-    )
-    return {"access_token": access_token, "token_type": "bearer"}
+    jwt_token = create_token_user(user)
+    return {"access_token": jwt_token, "token_type": "bearer"}
 
 
 @app.on_event("startup")

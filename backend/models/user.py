@@ -8,3 +8,6 @@ class UserDto(BaseModel):
     middle_name: str
     vk_id: str
     status: int
+    jwt_token: str
+
+

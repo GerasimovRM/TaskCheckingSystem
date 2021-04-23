@@ -18,7 +18,14 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 class ResponseVkAccessToken(BaseModel):
     access_token: str
     expires_in: int
-    user_id: int
+    user_id: str
+
+
+def create_token_user(user: User):
+    jwt_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    jwt_token = create_access_token(
+        data={"vk_id": user.vk_id}, expires_delta=jwt_token_expires)
+    return jwt_token
 
 
 def verify_password(plain_password, hashed_password):
