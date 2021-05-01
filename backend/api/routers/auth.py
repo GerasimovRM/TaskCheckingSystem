@@ -4,7 +4,7 @@ import json
 from pydantic import ValidationError
 from fastapi import APIRouter, status, HTTPException
 
-from services import ResponseVkAccessToken
+from models import ResponseVkAccessToken
 from config import VK_CLIENT_ID, VK_CLIENT_SECRET, VK_REDIRECT_URI
 from database import User
 from services import create_token_user, get_vk_user_with_photo, get_password_hash
