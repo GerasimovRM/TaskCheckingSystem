@@ -9,5 +9,4 @@ class UserDto(BaseModel):
     middle_name: Optional[str]
     vk_id: str
     status: int
-    jwt_token: Optional[str]
     avatar_url: Optional[str]

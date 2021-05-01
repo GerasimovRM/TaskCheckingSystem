@@ -6,12 +6,14 @@ from datetime import timedelta
 from database.base_meta import database
 from models.token import Token
 from services import create_token_user, authenticate_user
-from api.routers import user_router, auth_router
+from api.routers import user_router, auth_router, admin_router
 
 
 app = FastAPI()
-app.include_router(user_router)
+app.include_router(admin_router)
 app.include_router(auth_router)
+app.include_router(user_router)
+
 app.state.database = database
 
 
@@ -30,16 +32,15 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 @app.on_event("startup")
 async def startup() -> None:
-    database_ = app.state.database
-    if not database_.is_connected:
-        await database_.connect()
+    if not app.state.database.is_connected:
+        await app.state.database.connect()
 
 
 @app.on_event("shutdown")
 async def shutdown() -> None:
-    database_ = app.state.database
-    if database_.is_connected:
-        await database_.disconnect()
+
+    if app.state.database.is_connected:
+        await app.state.database.disconnect()
 
 
 if __name__ == "__main__":

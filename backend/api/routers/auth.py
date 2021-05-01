@@ -7,7 +7,8 @@ from fastapi import APIRouter, status, HTTPException
 from services import ResponseVkAccessToken
 from config import VK_CLIENT_ID, VK_CLIENT_SECRET, VK_REDIRECT_URI
 from database import User
-from services import create_token_user, get_vk_user_with_photo
+from services import create_token_user, get_vk_user_with_photo, get_password_hash
+from services.auth_service import get_admin
 from models import UserDto
 
 
@@ -17,7 +18,7 @@ router = APIRouter(
 )
 
 
-@router.get("/login", response_model=UserDto)
+@router.get("/login", response_model=str)
 async def login(vk_code: str):
     async with aiohttp.ClientSession() as session:
         data = {
@@ -34,18 +35,19 @@ async def login(vk_code: str):
             except ValidationError as e:
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="bad access token")
+                    detail=response_data)
     try:
         db_user = await User.objects.get_or_none(vk_id=response_vk_access_token.user_id)
+        await get_admin(db_user)
         if db_user:
             db_user.access_token = response_vk_access_token.access_token
-            db_user.jwt_token = create_token_user(db_user)
+            await db_user.update()
         else:
             vk_user = await get_vk_user_with_photo(response_vk_access_token.access_token)
             db_user = User(**vk_user.dict(), access_token=response_vk_access_token.access_token)
-            db_user.jwt_token = create_token_user(db_user)
             await db_user.save()
-        return UserDto(**db_user.dict())
+
+        return create_token_user(db_user)
     except ValidationError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

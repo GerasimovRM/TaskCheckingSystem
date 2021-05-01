@@ -29,7 +29,6 @@ class User(ormar.Model):
     vk_id: str = ormar.String(max_length=20, nullable=True)
     status: int = ormar.Integer(default=UserStatus.UNDEFINED)
     access_token: str = ormar.String(max_length=200, nullable=True)
-    jwt_token: str = ormar.String(max_length=200, nullable=True)
     avatar_url: str = ormar.String(max_length=200, nullable=True)
     owner_courses: Optional[List[Course]] = ormar.ManyToMany(Course,
                                                              through=OwnersCourses,
@@ -41,3 +40,5 @@ class User(ormar.Model):
                                                                through_relation_name="student_id",
                                                                through_reverse_relation_name="course_id",
                                                                related_name="students_courses")
+    is_admin: bool = ormar.Boolean(default=False)
+

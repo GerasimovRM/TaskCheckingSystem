@@ -69,14 +69,14 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[JWT_ALGORITHM])
-        print(payload)
+        # print(payload)
         vk_id: str = payload.get("vk_id")
         if vk_id is None:
             raise credentials_exception
         token_data = TokenData(vk_id=vk_id)
     except JWTError:
         raise credentials_exception
-    print(token_data, 'hah')
+    # print(token_data, 'hah')
     user = await get_user(token_data.vk_id)
     if user is None:
         raise credentials_exception
@@ -85,5 +85,11 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
 async def get_current_active_user(current_user: User = Depends(get_current_user)):
     if current_user.status != UserStatus.ACTIVE:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
+    return current_user
+
+
+async def get_admin(current_user: User = Depends(get_current_active_user)):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Bad access")
     return current_user

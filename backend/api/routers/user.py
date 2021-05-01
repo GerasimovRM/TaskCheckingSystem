@@ -7,8 +7,8 @@ from services import get_current_active_user, get_current_user, get_password_has
 
 
 router = APIRouter(
-    prefix="/users",
-    tags=["users"]
+    prefix="/user",
+    tags=["user"]
 )
 
 
@@ -32,4 +32,19 @@ async def change_password(new_password: str,
 async def get_user_data(current_user: User = Depends(get_current_user)):
     return UserDto(**current_user.dict())
 
-# @router.post("/")
+
+@router.get("/change_user_data", response_model=UserDto)
+async def change_user_data(first_name: Optional[str] = None,
+                           last_name: Optional[str] = None,
+                           middle_name: Optional[str] = None,
+                           avatar_url: Optional[str] = None,
+                           current_user: User = Depends(get_current_active_user)):
+    if first_name:
+        current_user.first_name = first_name
+    if last_name:
+        current_user.last_name = last_name
+    if middle_name:
+        current_user.middle_name = middle_name
+    if avatar_url:
+        current_user.avatar_url = avatar_url
+    return UserDto(**current_user.dict())
