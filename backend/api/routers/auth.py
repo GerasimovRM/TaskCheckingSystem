@@ -6,7 +6,7 @@ from fastapi import APIRouter, status, HTTPException
 
 from models import ResponseVkAccessToken, Token
 from config import VK_CLIENT_ID, VK_CLIENT_SECRET, VK_REDIRECT_URI
-from database import User
+from database import User, RefreshToken
 from services.auth_service import create_access_token_user, create_refresh_token_user
 from services.auth_service import get_password_hash, get_admin
 from services.vk_service import get_vk_user_with_photo
@@ -65,8 +65,10 @@ async def login(vk_code: str):
 
 @router.get("/refresh_token", response_model=Token)
 async def login(refresh_token: str):
-    db_user = await User.objects.get_or_none(refresh_token=refresh_token)
-    if db_user:
+    db_refresh_token = await RefreshToken.objects.get_or_none(token=refresh_token)
+    if db_refresh_token:
+        db_user = db_refresh_token.user
+        await db_refresh_token.delete()
         return Token(access_token=await create_access_token_user(db_user),
                      refresh_token=await create_refresh_token_user(db_user))
     else:

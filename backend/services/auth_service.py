@@ -8,6 +8,7 @@ from pydantic import BaseModel
 
 from database.user import User, UserStatus
 from database.admin import Admin
+from database.refresh_token import RefreshToken
 from models import TokenData, Token
 from config import SECRET_KEY, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
@@ -25,8 +26,8 @@ async def create_access_token_user(user: User) -> str:
 
 async def create_refresh_token_user(user: User) -> str:
     jwt_token = create_jwt_token(data={"vk_id": user.vk_id}, verify_exp=False)
-    user.refresh_token = jwt_token
-    await user.update()
+    db_refresh_token = RefreshToken(token=jwt_token, user=user)
+    await db_refresh_token.save()
     return jwt_token
 
 

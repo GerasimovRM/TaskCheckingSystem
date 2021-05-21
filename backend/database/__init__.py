@@ -13,6 +13,7 @@ from .lessons_tasks import LessonsTasks
 from .lessons_courses import LessonsCourses
 from .users_tasks import UsersTasks
 from .admin import Admin
+from .refresh_token import RefreshToken
 
 # metadata.drop_all(engine)
 # metadata.create_all(engine)
