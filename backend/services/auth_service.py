@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from database.user import User, UserStatus
 from database.admin import Admin
-from models import TokenData
+from models import TokenData, Token
 from config import SECRET_KEY, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
 
@@ -16,10 +16,17 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
-def create_token_user(user: User) -> str:
+async def create_access_token_user(user: User) -> str:
     jwt_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    jwt_token = create_access_token(
+    jwt_token = create_jwt_token(
         data={"vk_id": user.vk_id}, expires_delta=jwt_token_expires)
+    return jwt_token
+
+
+async def create_refresh_token_user(user: User) -> str:
+    jwt_token = create_jwt_token(data={"vk_id": user.vk_id}, verify_exp=False)
+    user.refresh_token = jwt_token
+    await user.update()
     return jwt_token
 
 
@@ -45,12 +52,17 @@ async def authenticate_user(vk_id: str, password: str) -> Optional[User]:
     return user
 
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+def create_jwt_token(data: dict,
+                     expires_delta: Optional[timedelta] = None,
+                     verify_exp: bool = True) -> str:
     to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+    if verify_exp:
+        if expires_delta:
+            expire = datetime.utcnow() + expires_delta
+        else:
+            expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     else:
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.utcnow()
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=JWT_ALGORITHM)
     return encoded_jwt

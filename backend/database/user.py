@@ -30,7 +30,8 @@ class User(ormar.Model):
     password: Optional[str] = ormar.String(max_length=1000, nullable=True)
     vk_id: str = ormar.String(max_length=20, nullable=True)
     status: int = ormar.Integer(default=UserStatus.UNDEFINED)
-    access_token: str = ormar.String(max_length=200, nullable=True)
+    vk_access_token: str = ormar.String(max_length=200, nullable=True)
+    refresh_token: str = ormar.String(max_length=200, nullable=True)
     avatar_url: str = ormar.String(max_length=200, nullable=True)
     courses = ormar.ManyToMany(Course,
                                through=UsersCourses,
