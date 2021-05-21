@@ -53,7 +53,7 @@ async def login(vk_code: str):
             await db_user.update()
         else:
             vk_user = await get_vk_user_with_photo(response_vk_access_token.access_token)
-            db_user = User(**vk_user.dict(), access_token=response_vk_access_token.access_token)
+            db_user = User(**vk_user.dict(), vk_access_token=response_vk_access_token.access_token)
             await db_user.save()
 
         return Token(access_token=await create_access_token_user(db_user),
