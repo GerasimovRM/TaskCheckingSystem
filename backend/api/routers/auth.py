@@ -1,8 +1,9 @@
 import aiohttp
 import json
+from typing import Optional
 
 from pydantic import ValidationError
-from fastapi import APIRouter, status, HTTPException
+from fastapi import APIRouter, status, HTTPException, Cookie
 
 from models import ResponseVkAccessToken, Token
 from config import VK_CLIENT_ID, VK_CLIENT_SECRET, VK_REDIRECT_URI
@@ -64,7 +65,7 @@ async def login(vk_code: str):
 
 
 @router.get("/refresh_token", response_model=Token)
-async def login(refresh_token: str):
+async def refresh(refresh_token: Optional[str] = Cookie(None)):
     db_refresh_token = await RefreshToken.objects.get_or_none(token=refresh_token)
     if db_refresh_token:
         db_user = db_refresh_token.user
