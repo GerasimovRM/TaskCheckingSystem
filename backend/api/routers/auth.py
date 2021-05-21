@@ -7,8 +7,8 @@ from fastapi import APIRouter, status, HTTPException
 from models import ResponseVkAccessToken
 from config import VK_CLIENT_ID, VK_CLIENT_SECRET, VK_REDIRECT_URI
 from database import User
-from services import create_token_user, get_vk_user_with_photo, get_password_hash
-from services.auth_service import get_admin
+from services.auth_service import create_token_user, get_password_hash, get_admin
+from services.vk_service import get_vk_user_with_photo
 from models import UserDto
 
 
@@ -20,6 +20,14 @@ router = APIRouter(
 
 @router.get("/login", response_model=str)
 async def login(vk_code: str):
+    """
+    usr = await User.objects.get(id=1)
+    print(usr)
+    usr.password = get_password_hash("123")
+    print(usr)
+    await usr.update()
+    return "123"
+    """
     async with aiohttp.ClientSession() as session:
         data = {
             "client_id": VK_CLIENT_ID,
@@ -38,7 +46,6 @@ async def login(vk_code: str):
                     detail=response_data)
     try:
         db_user = await User.objects.get_or_none(vk_id=response_vk_access_token.user_id)
-        await get_admin(db_user)
         if db_user:
             db_user.access_token = response_vk_access_token.access_token
             await db_user.update()

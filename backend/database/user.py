@@ -1,24 +1,26 @@
 from typing import Optional, List
-import hashlib
-import base64
+from enum import IntEnum
+
+from pydantic import BaseModel
 
 import ormar
 
 from .base_meta import BaseMeta
 from .course import Course
-from .owners_courses import OwnersCourses
-from .students_courses import StudentsCourses
+from .users_courses import UsersCourses
+from .task import Task
+from .users_tasks import UsersTasks
 
 
-class UserStatus:
-    ACTIVE = 1
-    BLOCKED = 2
-    UNDEFINED = -1
+class UserStatus(IntEnum):
+    ACTIVE: int = 1
+    BLOCKED: int = 2
+    UNDEFINED: int = -1
 
 
 class User(ormar.Model):
     class Meta(BaseMeta):
-        tablename = "user"
+        tablename = "dbo_user"
 
     id: int = ormar.Integer(primary_key=True,
                             autoincrement=True)
@@ -30,15 +32,12 @@ class User(ormar.Model):
     status: int = ormar.Integer(default=UserStatus.UNDEFINED)
     access_token: str = ormar.String(max_length=200, nullable=True)
     avatar_url: str = ormar.String(max_length=200, nullable=True)
-    owner_courses: Optional[List[Course]] = ormar.ManyToMany(Course,
-                                                             through=OwnersCourses,
-                                                             through_relation_name="owner_id",
-                                                             through_reverse_relation_name="course_id",
-                                                             related_name="owners_courses")
-    student_courses: Optional[List[Course]] = ormar.ManyToMany(Course,
-                                                               through=StudentsCourses,
-                                                               through_relation_name="student_id",
-                                                               through_reverse_relation_name="course_id",
-                                                               related_name="students_courses")
-    is_admin: bool = ormar.Boolean(default=False)
+    courses = ormar.ManyToMany(Course,
+                               through=UsersCourses,
+                               through_relation_name="user",
+                               through_reverse_relation_name="course")
+    tasks = ormar.ManyToMany(Task,
+                             through=UsersTasks,
+                             through_relation_name="user",
+                             through_reverse_relation_name="task")
 

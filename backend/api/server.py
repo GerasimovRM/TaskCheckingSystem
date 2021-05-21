@@ -5,14 +5,16 @@ from datetime import timedelta
 
 from database.base_meta import database
 from models.token import Token
-from services import create_token_user, authenticate_user
-from api.routers import user_router, auth_router, admin_router
+from services.auth_service import create_token_user, authenticate_user
+from api.routers import user_router, auth_router, admin_router, help_models_router, course_router
 
 
 app = FastAPI()
 app.include_router(admin_router)
 app.include_router(auth_router)
 app.include_router(user_router)
+app.include_router(help_models_router)
+app.include_router(course_router)
 
 app.state.database = database
 

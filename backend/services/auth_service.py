@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from pydantic import BaseModel
 
 from database.user import User, UserStatus
+from database.admin import Admin
 from models import TokenData
 from config import SECRET_KEY, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
@@ -82,6 +83,7 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
 
 
 async def get_admin(current_user: User = Depends(get_current_active_user)) -> User:
-    if not current_user.is_admin:
+    admin = await Admin.objects.get_or_none(user=current_user)
+    if not admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Bad access")
     return current_user
