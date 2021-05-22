@@ -1,18 +1,20 @@
 import sqlalchemy
 
-from .database_settings import DATABASE_URL
-from .base_meta import metadata, BaseMeta
-import ormar
-
-from typing import Optional, List
+from config import DATABASE_URL
+from .base_meta import metadata, BaseMeta, database, engine
 
 
 from .user import User
 from .lesson import Lesson
 from .course import Course
+from .task import Task
+from .users_courses import UsersCourses
+from .lessons_tasks import LessonsTasks
+from .lessons_courses import LessonsCourses
+from .users_tasks import UsersTasks
+from .admin import Admin
+from .refresh_token import RefreshToken
 
+# metadata.drop_all(engine)
+# metadata.create_all(engine)
 
-engine = sqlalchemy.create_engine(DATABASE_URL)
-
-metadata.drop_all(engine)
-metadata.create_all(engine)

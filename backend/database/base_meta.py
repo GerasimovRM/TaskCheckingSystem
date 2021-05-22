@@ -1,11 +1,11 @@
 import ormar
-from .database_settings import DATABASE_URL
+from config import DATABASE_URL
 import databases
 import sqlalchemy
 
-
-database = databases.Database(DATABASE_URL)
 metadata = sqlalchemy.MetaData()
+database = databases.Database(str(DATABASE_URL))
+engine = sqlalchemy.create_engine(str(DATABASE_URL))
 
 
 class BaseMeta(ormar.ModelMeta):
