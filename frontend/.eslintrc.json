@@ -1,23 +1,17 @@
 {
   "root": true,
   "extends": [
-    "react-app",
-    "plugin:@typescript-eslint/recommended",
     "airbnb",
-    "plugin:prettier/recommended",
-    "prettier"
+    "plugin:prettier/recommended"
   ],
   "plugins": [
-    "@typescript-eslint",
+    "prettier",
+    "import",
     "react",
-    "prettier"
+    "jsx-a11y"
   ],
   "parserOptions": {
     "project": ["./tsconfig.json"]
-  },
-  "globals": {
-    "React": true,
-    "ReactDOM": true
   },
   "env": {
     "browser": true,
@@ -33,17 +27,28 @@
     }
   },
   "rules": {
-    "no-use-before-define": 0,
+    "no-use-before-define": "off",
     "@typescript-eslint/no-use-before-define": ["error"],
     "react/jsx-filename-extension": [1, {
       "extensions": [".jsx", ".tsx"]
     }],
-    "import/extensions": 0,
-    "linebreak-style": 0,
+    "import/extensions": "off",
+    "linebreak-style": "off",
+    "arrow-parens": "off",
+    "object-curly-newline": "off",
+    "no-mixed-operators": "off",
+    "arrow-body-style": "off",
+    "function-paren-newline": "off",
+    "no-plusplus": "off",
+    "space-before-function-paren": "off",
+    "no-param-reassign": "off",
+    "radix": "off",
+    "react/require-default-props": "off",
+    "react/forbid-prop-types": "off",
+    "prefer-destructuring": "warn",
+    "prettier/prettier": "warn",
+    "react/jsx-props-no-spreading": "off",
     "no-unused-vars": "warn",
-    "@typescript-eslint/explicit-module-boundary-types": 0,
-    "no-shadow": 0,
-    "@typescript-eslint/no-shadow": ["error"],
-    "class-methods-use-this": 0
+    "import/prefer-default-export": "off"
   }
 }

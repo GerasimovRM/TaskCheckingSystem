@@ -10,16 +10,22 @@ interface IRequest {
   body?: Record<any, any>;
 }
 
-interface IResponse {
+interface IResponse<T = Record<any, any>> {
   res: Response;
-  json: Record<any, any>;
+  json: T;
 }
 
-export const request = async (
+type RequestFunction = <T>(
+  method: string,
+  path: string,
+  requestParams: IRequest,
+) => Promise<IResponse<T>>;
+
+export const request: RequestFunction = async <T = Record<any, any>>(
   method: string,
   path: string,
   requestParams: IRequest = {},
-): Promise<IResponse> => {
+): Promise<IResponse<T>> => {
   const httpMethod = method.toUpperCase();
   const params = {
     ...requestParams,
@@ -55,3 +61,59 @@ export const request = async (
     json: await res.json(),
   };
 };
+
+export const bindRequest = (
+  prefix: string,
+  preparedParams: IRequest,
+  requestFunction: RequestFunction,
+): RequestFunction => {
+  return (method: string, path: string, requestParams: IRequest) =>
+    requestFunction(method, prefix + path, {
+      ...preparedParams,
+      ...requestParams,
+    });
+};
+
+type RequestWithoutBody = <T>(
+  path: string,
+  params: IRequest,
+) => Promise<IResponse<T>>;
+type RequestWithBody = <T>(
+  path: string,
+  params: IRequest,
+) => Promise<IResponse<T>>;
+
+interface IRequestMethods {
+  get: RequestWithoutBody;
+  post: RequestWithBody;
+  put: RequestWithBody;
+  delete: RequestWithoutBody;
+  request: RequestFunction;
+}
+
+export const bindMethods = (
+  requestFunction: RequestFunction,
+): IRequestMethods => {
+  const bodyRequest = <T>(
+    method: string,
+    path: string,
+    body: any,
+    params: IRequest = {},
+  ) => requestFunction<T>(method, path, { ...params, body });
+  return {
+    get: <T>(path: string, params: IRequest = {}) =>
+      requestFunction<T>('get', path, params),
+    post: <T>(path: string, body: any, params: IRequest = {}) =>
+      bodyRequest<T>('post', path, body, params),
+    put: <T>(path: string, body: any, params: IRequest = {}) =>
+      bodyRequest<T>('put', path, body, params),
+    delete: <T>(path: string, params: IRequest = {}) =>
+      requestFunction<T>('delete', path, params),
+    request: requestFunction,
+  };
+};
+
+export const createApi = (apiPath: string, preparedParams: IRequest = {}) =>
+  bindMethods(bindRequest(apiPath, preparedParams, request));
+
+export default request;
