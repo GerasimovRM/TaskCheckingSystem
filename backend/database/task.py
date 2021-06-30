@@ -14,6 +14,7 @@ class Task(ormar.Model):
     id: int = ormar.Integer(primary_key=True, autoincrement=True)
     name: str = ormar.String(max_length=100)
     description: str = ormar.String(max_length=3000)
+    max_score: float = ormar.Float(default=0.0, nullable=False)
     lessons: Optional[List[Lesson]] = ormar.ManyToMany(Lesson,
                                                        through=LessonsTasks,
                                                        through_relation_name="task",
