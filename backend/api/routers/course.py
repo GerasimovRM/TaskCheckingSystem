@@ -16,10 +16,15 @@ router = APIRouter(
 @router.get("/{course_id}", response_model=CourseDto)
 async def get_course(course_id: int,
                      current_user: User = Depends(get_current_active_user)) -> CourseDto:
+    course = await Course.objects.get_or_none(id=course_id)
+    if not course:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Course not found")
     user_course: UsersCourses = await UsersCourses.objects.get_or_none(user=current_user, course=course_id)
     if not user_course:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail="User don't have access to this course")
 
     if user_course.user_course_role == UserCourseRole.STUDENT:

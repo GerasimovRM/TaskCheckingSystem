@@ -14,6 +14,7 @@ from .lessons_courses import LessonsCourses
 from .users_tasks import UsersTasks
 from .admin import Admin
 from .refresh_token import RefreshToken
+from .teacher import Teacher
 
 # metadata.drop_all(engine)
 # metadata.create_all(engine)

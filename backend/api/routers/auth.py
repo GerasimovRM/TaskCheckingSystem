@@ -21,15 +21,8 @@ router = APIRouter(
 
 
 @router.get("/login", response_model=Token)
-async def login(vk_code: str):
-    """
-    usr = await User.objects.get(id=1)
-    print(usr)
-    usr.password = get_password_hash("123")
-    print(usr)
-    await usr.update()
-    return "123"
-    """
+async def login(vk_code: str, password: Optional[str] = None):
+
     async with aiohttp.ClientSession() as session:
         data = {
             "client_id": VK_CLIENT_ID,
@@ -49,12 +42,24 @@ async def login(vk_code: str):
     try:
         db_user = await User.objects.get_or_none(vk_id=response_vk_access_token.user_id)
         if db_user:
-            db_user.vk_access_token = response_vk_access_token.access_token
-            await db_user.update()
+            if password:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Bad field password. Use /user/change_password")
+            else:
+                db_user.vk_access_token = response_vk_access_token.access_token
+                await db_user.update()
         else:
-            vk_user = await get_vk_user_with_photo(response_vk_access_token.access_token)
-            db_user = User(**vk_user.dict(), vk_access_token=response_vk_access_token.access_token)
-            await db_user.save()
+            if not password:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Password is required field for new user")
+            else:
+                vk_user = await get_vk_user_with_photo(response_vk_access_token.access_token)
+                db_user = User(**vk_user.dict(),
+                               vk_access_token=response_vk_access_token.access_token,
+                               password=get_password_hash(password))
+                await db_user.save()
 
         return Token(access_token=await create_access_token_user(db_user),
                      refresh_token=await create_refresh_token_user(db_user))
