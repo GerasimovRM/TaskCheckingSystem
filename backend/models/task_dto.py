@@ -7,5 +7,6 @@ class TaskDto(BaseModel):
     id: int
     name: str
     description: str
-    grade: int
+    max_score: float
+    score: float
     status: int

@@ -6,7 +6,7 @@ from datetime import timedelta
 from database.base_meta import database
 from models.token import Token
 from services.auth_service import create_access_token_user, create_refresh_token_user, authenticate_user
-from api.routers import user_router, auth_router, admin_router, help_models_router, course_router
+from api.endpoints import user_router, auth_router, admin_router, help_models_router, course_router
 
 
 app = FastAPI()

@@ -6,10 +6,8 @@ from pydantic import BaseModel
 import ormar
 
 from .base_meta import BaseMeta
-from .course import Course
-from .users_courses import UsersCourses
-from .task import Task
-from .users_tasks import UsersTasks
+from .group import Group
+from .users_groups import UsersGroups
 
 
 class UserStatus(IntEnum):
@@ -32,6 +30,12 @@ class User(ormar.Model):
     status: int = ormar.Integer(default=UserStatus.UNDEFINED)
     vk_access_token: str = ormar.String(max_length=200, nullable=True)
     avatar_url: str = ormar.String(max_length=200, nullable=True)
+
+    groups = ormar.ManyToMany(Group,
+                              through=UsersGroups,
+                              through_relation_name="user",
+                              through_reverse_relation_name="group")
+    """
     courses = ormar.ManyToMany(Course,
                                through=UsersCourses,
                                through_relation_name="user",
@@ -40,4 +44,5 @@ class User(ormar.Model):
                              through=UsersTasks,
                              through_relation_name="user",
                              through_reverse_relation_name="task")
+     """
 
