@@ -3,7 +3,7 @@ from typing import Optional, List
 import itertools
 
 from models import UserDto, CourseDto, LessonDto, TaskDto, UserGroupDto
-from database import User, Group, UsersGroups, CoursesGroups, Course, LessonsCourses, Lesson, UsersCoursesTasks
+from database import User, Group, UsersGroups, CoursesGroups, Course, LessonsCourses, Lesson, UsersTasks
 from services.auth_service import get_current_active_user, get_current_user, get_password_hash
 from services.auth_service import verify_password
 
@@ -30,12 +30,12 @@ async def change_password(new_password: str,
     return {"status": "Ok"}
 
 
-@router.get("/get_user_data/", response_model=UserDto)
+@router.get("/user_data/", response_model=UserDto)
 async def get_user_data(current_user: User = Depends(get_current_user)) -> UserDto:
     return UserDto(**current_user.dict())
 
 
-@router.get("/change_user_data", response_model=UserDto)
+@router.post("/user_data", response_model=UserDto)
 async def change_user_data(first_name: Optional[str] = None,
                            last_name: Optional[str] = None,
                            middle_name: Optional[str] = None,
@@ -53,7 +53,7 @@ async def change_user_data(first_name: Optional[str] = None,
     return UserDto(**current_user.dict())
 
 
-@router.get("/get_courses", response_model=List[UserGroupDto])
+@router.get("/courses", response_model=List[UserGroupDto])
 async def get_courses(current_user: User = Depends(get_current_active_user)):
     user_groups = await UsersGroups.objects.select_related("group").all(user=current_user)
     groups = [await Group.objects.select_related("courses").get(id=g.group) for g in user_groups]
@@ -61,7 +61,7 @@ async def get_courses(current_user: User = Depends(get_current_active_user)):
                     zip(groups, user_groups)))
 
 
-@router.get("/get_course_lessons", response_model=List[LessonDto])
+@router.get("/course_lessons", response_model=List[LessonDto])
 async def get_course_lessons(course_id: int,
                              group_id: int,
                              current_user: User = Depends(get_current_active_user)):
