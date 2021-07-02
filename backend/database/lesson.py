@@ -12,7 +12,7 @@ class Lesson(ormar.Model):
 
     id: int = ormar.Integer(primary_key=True, autoincrement=True)
     name: str = ormar.String(max_length=100)
-    description: str = ormar.String(max_length=3000)
+    description: str = ormar.String(max_length=3000)  # TODO: can be nullable
     courses: Optional[List[Course]] = ormar.ManyToMany(Course,
                                                        through=LessonsCourses,
                                                        through_relation_name="lesson",
