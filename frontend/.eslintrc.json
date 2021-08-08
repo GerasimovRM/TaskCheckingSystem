@@ -8,7 +8,8 @@
     "prettier",
     "import",
     "react",
-    "jsx-a11y"
+    "jsx-a11y",
+    "only-warn"
   ],
   "parserOptions": {
     "project": ["./tsconfig.json"]
@@ -28,7 +29,7 @@
   },
   "rules": {
     "no-use-before-define": "off",
-    "@typescript-eslint/no-use-before-define": ["error"],
+    "@typescript-eslint/no-use-before-define": ["warn"],
     "react/jsx-filename-extension": [1, {
       "extensions": [".jsx", ".tsx"]
     }],
@@ -45,10 +46,7 @@
     "radix": "off",
     "react/require-default-props": "off",
     "react/forbid-prop-types": "off",
-    "prefer-destructuring": "warn",
-    "prettier/prettier": "warn",
     "react/jsx-props-no-spreading": "off",
-    "no-unused-vars": "warn",
     "import/prefer-default-export": "off"
   }
 }
