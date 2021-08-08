@@ -1,4 +1,5 @@
 import React from 'react';
+import { encode } from 'querystring';
 import { Link, useLocation } from 'react-router-dom';
 
 import {
@@ -12,7 +13,8 @@ import {
   WrapItem,
   Wrap,
 } from '@chakra-ui/react';
-import { BsGear, BsGearFill } from 'react-icons/all';
+import { FiSettings, SiVk } from 'react-icons/all';
+import { vkClientId } from '../vk';
 
 export interface LayoutProps {
   children: React.ReactNode;
@@ -39,28 +41,38 @@ export default function Layout({ children }: LayoutProps) {
         </Wrap>
 
         <Spacer />
-        <Image
-          borderRadius="full"
-          boxSize="48px"
-          src="https://avatars.githubusercontent.com/u/26022093?v=4"
-        />
-        <Wrap
-          style={{
-            paddingLeft: '0.5vw',
-          }}
-        >
-          <WrapItem>
-            <Center w="48px" h="48px">
-              <Link to="/settings">
-                <Icon
-                  as={location.pathname === '/settings' ? BsGearFill : BsGear}
-                  w="10"
-                  h="10"
+        <Flex>
+          <Center w="48px" h="48px">
+            <a
+              href={
+                'https://oauth.vk.com/authorize?' +
+                encode({
+                  client_id: vkClientId,
+                  redirect_uri: 'https://oauth.vk.com/blank.html',
+                  display: 'page',
+                  scope: 'offline',
+                  response_type: 'code',
+                  v: '5.131',
+                })
+              }
+            >
+              {false ? (
+                <Image
+                  borderRadius="full"
+                  boxSize="48px"
+                  src="https://avatars.githubusercontent.com/u/26022093?v=4"
                 />
-              </Link>
-            </Center>
-          </WrapItem>
-        </Wrap>
+              ) : (
+                <Icon as={SiVk} w="10" h="10" />
+              )}
+            </a>
+          </Center>
+          <Center w="48px" h="48px">
+            <Link to="/settings">
+              <Icon as={FiSettings} w="10" h="10" />
+            </Link>
+          </Center>
+        </Flex>
       </Flex>
       <Container
         maxW="container.xl"
