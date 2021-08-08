@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { encode } from 'querystring';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -16,11 +17,7 @@ import {
 import { FiSettings, SiVk } from 'react-icons/all';
 import { vkClientId } from '../vk';
 
-export interface LayoutProps {
-  children: React.ReactNode;
-}
-
-export default function Layout({ children }: LayoutProps) {
+export default function Layout({ children }) {
   const location = useLocation();
 
   return (
@@ -85,3 +82,7 @@ export default function Layout({ children }: LayoutProps) {
     </div>
   );
 }
+
+Layout.propTypes = {
+  children: PropTypes.node,
+};

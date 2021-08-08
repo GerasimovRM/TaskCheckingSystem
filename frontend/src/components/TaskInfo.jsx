@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import {
   Box,
@@ -10,19 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { CheckIcon } from '@chakra-ui/icons';
 
-export interface TaskInfoProps {
-  isSuccess?: boolean;
-  points: number;
-  maxPoints: number;
-  date: Date;
-}
-
-export default function TaskInfo({
-  isSuccess,
-  points,
-  maxPoints,
-  date,
-}: TaskInfoProps) {
+export default function TaskInfo({ isSuccess, points, maxPoints, date }) {
   const theme = {
     bg: 'teal.500, teal.200',
     text: 'Зачтено',
@@ -57,3 +46,10 @@ export default function TaskInfo({
     </Box>
   );
 }
+
+TaskInfo.propTypes = {
+  isSuccess: PropTypes.bool,
+  points: PropTypes.number,
+  maxPoints: PropTypes.number,
+  date: PropTypes.instanceOf(Date),
+};

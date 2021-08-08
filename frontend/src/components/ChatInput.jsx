@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 
 import {
   InputGroup,
@@ -10,13 +11,9 @@ import {
 
 import { MdSend } from 'react-icons/all';
 
-export interface ChatInputProps {
-  onSend?: (text: string) => Promise<boolean>;
-}
-
-export default function ChatInput({ onSend }: ChatInputProps) {
-  const [value, setValue] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
+export default function ChatInput({ onSend }) {
+  const [value, setValue] = useState('');
+  const [loading, setLoading] = useState(false);
   const toast = useToast();
 
   return (
@@ -59,3 +56,7 @@ export default function ChatInput({ onSend }: ChatInputProps) {
     </InputGroup>
   );
 }
+
+ChatInput.propTypes = {
+  onSend: PropTypes.func,
+};

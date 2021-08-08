@@ -1,16 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import { Box, Flex, Image } from '@chakra-ui/react';
 
 import ChatBlob from './ChatBlob';
 
-export interface ChatMessageProps {
-  userId: number;
-  text: string;
-}
-
-export default function ChatMessage({ userId, text }: ChatMessageProps) {
-  // Будет получено из mobx
+export default function ChatMessage({ userId, text }) {
   const image = 'https://avatars.githubusercontent.com/u/26022093?v=4';
   const clientId = 1;
   const clientName = 'Dungeon Master';
@@ -49,3 +44,8 @@ export default function ChatMessage({ userId, text }: ChatMessageProps) {
     </Flex>
   );
 }
+
+ChatMessage.propTypes = {
+  userId: PropTypes.number,
+  text: PropTypes.string,
+};

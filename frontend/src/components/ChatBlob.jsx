@@ -1,14 +1,9 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import { Box, Text } from '@chakra-ui/react';
 
-export interface ChatBlobProps {
-  name: string;
-  text: string;
-  isSelf?: boolean;
-}
-
-export default function ChatBlob({ name, text, isSelf }: ChatBlobProps) {
+export default function ChatBlob({ name, text, isSelf }) {
   return (
     <Box
       bg="white"
@@ -30,3 +25,9 @@ export default function ChatBlob({ name, text, isSelf }: ChatBlobProps) {
     </Box>
   );
 }
+
+ChatBlob.propTypes = {
+  name: PropTypes.string.isRequired,
+  text: PropTypes.bool.isRequired,
+  isSelf: PropTypes.bool,
+};
