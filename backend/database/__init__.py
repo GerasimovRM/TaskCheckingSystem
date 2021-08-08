@@ -10,7 +10,6 @@ from .course import Course
 from .task import Task
 from .lessons_tasks import LessonsTasks
 from .lessons_courses import LessonsCourses
-from .users_tasks import UsersTasks
 from .admin import Admin
 from .refresh_token import RefreshToken
 from .group import Group
