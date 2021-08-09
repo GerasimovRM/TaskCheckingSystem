@@ -1,13 +1,35 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Spinner } from '@chakra-ui/react';
 
-export default function Redirect() {
+import { login } from '../api/auth';
+import CreateAccountForm from '../components/CreateAccountForm';
+
+export default function RedirectPage() {
+  const [needPassword, setNeedPassword] = useState(null);
   const params = new URLSearchParams(window.location.search);
   const code = params.get('code');
+  if (!code) {
+    window.location.href = '/';
+  }
+
   useEffect(() => {
     (async () => {
-      // вызов к api на этом месте
-      window.location.href = '/';
+      const result = await login(code);
+      if (
+        !result.status &&
+        result.detail === 'Password is required field for new user'
+      ) {
+        setNeedPassword(true);
+      } else {
+        window.location.href = '/';
+      }
     })();
-  });
-  return <div />; // spinner будет
+  }, []);
+
+  if (needPassword === null) {
+    return <Spinner />;
+  }
+  if (needPassword) {
+    return <CreateAccountForm code={code} />;
+  }
 }

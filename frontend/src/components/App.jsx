@@ -9,6 +9,7 @@ import CoursesPage from '../pages/courses';
 import CoursePage from '../pages/course';
 import LessonPage from '../pages/lesson';
 import TaskPage from '../pages/task';
+import RedirectPage from '../pages/redirect';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
       <BrowserRouter>
         <Layout>
           <Route path="/" exact component={CoursesPage} />
+          <Route path="/redirect" component={RedirectPage} />
           <Route path="/course/:id" exact component={CoursePage} />
           <Route
             path="/course/:courseId/lesson/:lessonId"

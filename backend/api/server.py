@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from datetime import timedelta
 
@@ -43,6 +44,15 @@ async def shutdown() -> None:
 
     if app.state.database.is_connected:
         await app.state.database.disconnect()
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "https://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 
 if __name__ == "__main__":
