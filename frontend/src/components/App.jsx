@@ -5,7 +5,9 @@ import { ChakraProvider } from '@chakra-ui/react';
 
 import Layout from './Layout';
 
-import HomePage from '../pages/home';
+import CoursesPage from '../pages/courses';
+import CoursePage from '../pages/course';
+import LessonPage from '../pages/lesson';
 import TaskPage from '../pages/task';
 
 function App() {
@@ -13,8 +15,18 @@ function App() {
     <ChakraProvider>
       <BrowserRouter>
         <Layout>
-          <Route path="/" exact component={HomePage} />
-          <Route path="/task" component={TaskPage} />
+          <Route path="/" exact component={CoursesPage} />
+          <Route path="/course/:id" exact component={CoursePage} />
+          <Route
+            path="/course/:courseId/lesson/:lessonId"
+            exact
+            component={LessonPage}
+          />
+          <Route
+            path="/course/:courseId/lesson/:lessonId/task/:taskId"
+            exact
+            component={TaskPage}
+          />
         </Layout>
       </BrowserRouter>
     </ChakraProvider>

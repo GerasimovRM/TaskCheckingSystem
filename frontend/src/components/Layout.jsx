@@ -41,17 +41,14 @@ export default function Layout({ children }) {
         <Flex>
           <Center w="48px" h="48px">
             <a
-              href={
-                'https://oauth.vk.com/authorize?' +
-                encode({
-                  client_id: vkClientId,
-                  redirect_uri: 'https://oauth.vk.com/blank.html',
-                  display: 'page',
-                  scope: 'offline',
-                  response_type: 'code',
-                  v: '5.131',
-                })
-              }
+              href={`https://oauth.vk.com/authorize?${encode({
+                client_id: vkClientId,
+                redirect_uri: 'http://localhost:3000/redirect',
+                display: 'page',
+                scope: 'offline',
+                response_type: 'code',
+                v: '5.131',
+              })}`}
             >
               {false ? (
                 <Image
