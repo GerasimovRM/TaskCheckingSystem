@@ -2,7 +2,7 @@ from fastapi import Depends, APIRouter, HTTPException, status
 from typing import Optional, List
 import itertools
 
-from models import UserDto, CourseDto, LessonDto, TaskDto, UserGroupDto
+from models import UserDto, CourseDto, LessonDto, TaskDto, UserGroupDto, GroupDto
 from database import User, Group, UsersGroups, CoursesGroups, Course, LessonsCourses, Lesson, UsersTasks
 from services.auth_service import get_current_active_user, get_current_user, get_password_hash
 from services.auth_service import verify_password
@@ -53,14 +53,14 @@ async def change_user_data(first_name: Optional[str] = None,
     return UserDto(**current_user.dict())
 
 
-@router.get("/courses", response_model=List[UserGroupDto])
-async def get_courses(current_user: User = Depends(get_current_active_user)):
+@router.get("/groups") #, response_model=List[UserGroupDto])
+async def get_groups(current_user: User = Depends(get_current_active_user)):
     user_groups = await UsersGroups.objects.select_related("group").all(user=current_user)
-    groups = [await Group.objects.select_related("courses").get(id=g.group) for g in user_groups]
-    return list(map(lambda t: UserGroupDto(**t[0].dict(), role=t[1].user_group_role),
-                    zip(groups, user_groups)))
+    groups = [await Group.objects.get(id=g.group) for g in user_groups]
+    return list(map(lambda x: GroupDto(**x.dict()), groups))
 
 
+"""
 @router.get("/course_lessons", response_model=List[LessonDto])
 async def get_course_lessons(course_id: int,
                              group_id: int,
@@ -110,3 +110,4 @@ async def get_course_lessons(course_id: int,
     #                                                        course=check_course,
     #                                                        task=)
     return lesson_tasks.tasks
+"""

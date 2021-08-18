@@ -46,7 +46,7 @@ async def get_course(course_id: int,
                          students=list(map(lambda s: UserDto(**s.dict()), students)),
                          teachers=list(map(lambda s: UserDto(**s.dict()), teachers)))
 
-
+"""
 @router.post("/{course_id}/add_lesson", response_model=CourseDto)
 async def add_lesson_to_course(course_id: int,
                                current_user: User = Depends(get_current_active_user)) -> CourseDto:
@@ -57,3 +57,5 @@ async def add_lesson_to_course(course_id: int,
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User don't have access to edit this course")
     # TODO: add lesson to course
+"""
+

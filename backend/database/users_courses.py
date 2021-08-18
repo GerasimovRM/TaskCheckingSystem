@@ -8,7 +8,6 @@ from .base_meta import BaseMeta
 class UserCourseRole(IntEnum):
     OWNER: int = 1
     TEACHER: int = 2
-    STUDENT: int = 3
 
 
 class UsersCourses(ormar.Model):
@@ -16,5 +15,5 @@ class UsersCourses(ormar.Model):
         tablename = "dbo_users_courses"
 
     id: int = ormar.Integer(primary_key=True, autoincrement=True)
-    user_course_role: int = ormar.Integer(nullable=False, default=int(UserCourseRole.STUDENT))
+    user_course_role: int = ormar.Integer(nullable=False)
 

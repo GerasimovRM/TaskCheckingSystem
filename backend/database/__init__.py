@@ -18,6 +18,7 @@ from .courses_groups import CoursesGroups
 from .users_tasks import UsersTasks
 from .solution import Solution
 from .teacher import Teacher
+from .users_courses import UserCourseRole, UsersCourses
 
 # metadata.drop_all(engine)
 # metadata.create_all(engine)

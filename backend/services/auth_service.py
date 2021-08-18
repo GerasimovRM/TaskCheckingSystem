@@ -111,9 +111,15 @@ async def get_teacher(current_user: User = Depends(get_current_active_user)) -> 
 
 
 async def get_teacher_or_admin(current_user: User = Depends(get_current_active_user)) -> User:
-    teacher = await get_teacher(current_user)
-    admin = await get_admin(current_user)
-    if all([teacher, admin]):
+    try:
+        teacher = await get_teacher(current_user)
+    except HTTPException:
+        teacher = None
+    try:
+        admin = await get_admin(current_user)
+    except HTTPException:
+        admin = None
+    if any([teacher, admin]):
         return current_user
     else:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Bad access")
