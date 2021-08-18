@@ -1,23 +1,18 @@
 {
   "root": true,
   "extends": [
-    "react-app",
-    "plugin:@typescript-eslint/recommended",
     "airbnb",
-    "plugin:prettier/recommended",
-    "prettier"
+    "plugin:prettier/recommended"
   ],
   "plugins": [
-    "@typescript-eslint",
+    "prettier",
+    "import",
     "react",
-    "prettier"
+    "jsx-a11y",
+    "only-warn"
   ],
   "parserOptions": {
     "project": ["./tsconfig.json"]
-  },
-  "globals": {
-    "React": true,
-    "ReactDOM": true
   },
   "env": {
     "browser": true,
@@ -28,19 +23,29 @@
   "settings": {
     "import/resolver": {
       "node": {
-        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+        "extensions": [".js", ".jsx"]
       }
     }
   },
   "rules": {
-    "no-use-before-define": 0,
-    "@typescript-eslint/no-use-before-define": ["error"],
+    "no-use-before-define": "off",
     "react/jsx-filename-extension": [1, {
-      "extensions": [".jsx", ".tsx"]
+      "extensions": [".jsx"]
     }],
-    "import/extensions": 0,
-    "linebreak-style": 0,
-    "no-unused-vars": "warn",
-    "@typescript-eslint/explicit-module-boundary-types": 0
+    "import/extensions": "off",
+    "linebreak-style": "off",
+    "arrow-parens": "off",
+    "object-curly-newline": "off",
+    "no-mixed-operators": "off",
+    "arrow-body-style": "off",
+    "function-paren-newline": "off",
+    "no-plusplus": "off",
+    "space-before-function-paren": "off",
+    "no-param-reassign": "off",
+    "radix": "off",
+    "react/require-default-props": "off",
+    "react/forbid-prop-types": "off",
+    "react/jsx-props-no-spreading": "off",
+    "import/prefer-default-export": "off"
   }
 }
