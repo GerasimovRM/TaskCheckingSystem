@@ -1,11 +1,12 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 from database.base_meta import database
 from models.token import Token
 from services.auth_service import create_access_token_user, create_refresh_token_user, authenticate_user
-from api.endpoints import user_router, auth_router, admin_router, help_models_router, course_router
+from api.endpoints import user_router, auth_router, admin_router, help_models_router, course_router, teacher_router
 
 
 app = FastAPI()
@@ -14,6 +15,7 @@ app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(help_models_router)
 app.include_router(course_router)
+app.include_router(teacher_router)
 
 app.state.database = database
 
@@ -42,6 +44,15 @@ async def shutdown() -> None:
 
     if app.state.database.is_connected:
         await app.state.database.disconnect()
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "https://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 
 if __name__ == "__main__":

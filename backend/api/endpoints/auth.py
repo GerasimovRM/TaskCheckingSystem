@@ -22,7 +22,6 @@ router = APIRouter(
 
 @router.get("/login", response_model=Token)
 async def login(vk_code: str, password: Optional[str] = None):
-
     async with aiohttp.ClientSession() as session:
         data = {
             "client_id": VK_CLIENT_ID,

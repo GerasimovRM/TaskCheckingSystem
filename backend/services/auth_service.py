@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 
 from database.user import User, UserStatus
 from database.admin import Admin
+from database.teacher import Teacher
 from database.refresh_token import RefreshToken
 from models import TokenData
 from config import SECRET_KEY, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
@@ -99,3 +100,27 @@ async def get_admin(current_user: User = Depends(get_current_active_user)) -> Us
     if not admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Bad access")
     return current_user
+
+
+async def get_teacher(current_user: User = Depends(get_current_active_user)) -> User:
+    teacher = await Teacher.objects.get_or_none(user=current_user)
+    if not teacher:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Bad access")
+    return current_user
+
+
+async def get_teacher_or_admin(current_user: User = Depends(get_current_active_user)) -> User:
+    try:
+        teacher = await get_teacher(current_user)
+    except HTTPException:
+        teacher = None
+    try:
+        admin = await get_admin(current_user)
+    except HTTPException:
+        admin = None
+    if any([teacher, admin]):
+        return current_user
+    else:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Bad access")
+
+

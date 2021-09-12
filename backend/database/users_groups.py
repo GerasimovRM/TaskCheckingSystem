@@ -18,5 +18,3 @@ class UsersGroups(ormar.Model):
     id: int = ormar.Integer(primary_key=True, autoincrement=True)
     user_group_role: int = ormar.Integer(nullable=False, default=int(UserGroupRole.STUDENT))
 
-
-print(UserGroupRole.STUDENT)
