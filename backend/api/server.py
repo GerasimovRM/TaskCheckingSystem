@@ -1,7 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 import uvicorn
-from datetime import timedelta
 
 from database.base_meta import database
 from models.token import Token

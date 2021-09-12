@@ -50,16 +50,15 @@ async def login(vk_code: str, password: Optional[str] = None):
                 db_user.vk_access_token = response_vk_access_token.access_token
                 await db_user.update()
         else:
-            if not password:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Password is required field for new user")
-            else:
-                vk_user = await get_vk_user_with_photo(response_vk_access_token.access_token)
+            vk_user = await get_vk_user_with_photo(response_vk_access_token.access_token)
+            if password:
                 db_user = User(**vk_user.dict(),
                                vk_access_token=response_vk_access_token.access_token,
                                password=get_password_hash(password))
-                await db_user.save()
+            else:
+                db_user = User(**vk_user.dict(),
+                               vk_access_token=response_vk_access_token.access_token)
+            await db_user.save()
 
         return Token(access_token=await create_access_token_user(db_user),
                      refresh_token=await create_refresh_token_user(db_user))

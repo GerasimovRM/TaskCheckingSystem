@@ -1,15 +1,14 @@
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from typing import Optional
 from datetime import datetime, timedelta
-from pydantic import BaseModel
 
 from database.user import User, UserStatus
 from database.admin import Admin
 from database.refresh_token import RefreshToken
-from models import TokenData, Token
+from models import TokenData
 from config import SECRET_KEY, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
 

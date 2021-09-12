@@ -16,5 +16,5 @@ class Lesson(ormar.Model):
     courses: Optional[List[Course]] = ormar.ManyToMany(Course,
                                                        through=LessonsCourses,
                                                        through_relation_name="lesson",
-                                                       through_reverse_relation_name="course",
+                                                       through_reverse_relation_name="course"
                                                        )

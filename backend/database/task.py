@@ -5,6 +5,7 @@ import ormar
 from .base_meta import BaseMeta
 from .lesson import Lesson
 from .lessons_tasks import LessonsTasks
+from .solution import Solution
 
 
 class Task(ormar.Model):

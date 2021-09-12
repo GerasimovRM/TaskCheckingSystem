@@ -3,7 +3,7 @@ from typing import Optional, List
 import itertools
 
 from models import UserDto, CourseDto, LessonDto, TaskDto, UserGroupDto
-from database import User, Group, UsersGroups, CoursesGroups, Course, LessonsCourses, Lesson, UsersCoursesTasks
+from database import User, Group, UsersGroups, CoursesGroups, Course, LessonsCourses, Lesson
 from services.auth_service import get_current_active_user, get_current_user, get_password_hash
 from services.auth_service import verify_password
 

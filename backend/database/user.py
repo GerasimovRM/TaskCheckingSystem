@@ -8,6 +8,8 @@ import ormar
 from .base_meta import BaseMeta
 from .group import Group
 from .users_groups import UsersGroups
+from .users_tasks import UsersTasks
+from .task import Task
 
 
 class UserStatus(IntEnum):
@@ -35,6 +37,11 @@ class User(ormar.Model):
                               through=UsersGroups,
                               through_relation_name="user",
                               through_reverse_relation_name="group")
+    tasks = ormar.ManyToMany(Task,
+                             through=UsersTasks,
+                             through_relation_name="user",
+                             through_reverse_relation_name="task")
+
     """
     courses = ormar.ManyToMany(Course,
                                through=UsersCourses,

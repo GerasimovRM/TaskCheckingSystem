@@ -12,4 +12,3 @@ class Course(ormar.Model):
     id: int = ormar.Integer(primary_key=True, autoincrement=True)
     name: str = ormar.String(max_length=150)
     description: str = ormar.String(max_length=2000, nullable=True)
-

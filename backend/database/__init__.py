@@ -15,10 +15,10 @@ from .refresh_token import RefreshToken
 from .group import Group
 from .users_groups import UsersGroups
 from .courses_groups import CoursesGroups
-from .users_courses_tasks import UsersCoursesTasks
 from .solution import Solution
 from .teacher import Teacher
+from .users_tasks import UsersTasks
 
-# metadata.drop_all(engine)
-# metadata.create_all(engine)
+#metadata.drop_all(engine)
+#metadata.create_all(engine)
 
