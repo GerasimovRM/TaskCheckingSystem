@@ -8,10 +8,27 @@ import database
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 
-engine = None #create_async_engine(DATABASE_URL, future=True, echo=True)
-async_session = None #sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+engine = create_async_engine(DATABASE_URL, future=True, echo=True)
 Base = declarative_base()
 metadata = Base.metadata
+
+
+async def initialize_database():
+    async with engine.begin() as database_connection:
+        # await database_connection.run_sync(metadata.drop_all)
+        # await database_connection.run_sync(metadata.create_all)
+        pass
+
+
+async def get_session() -> AsyncSession:
+    async_session = sessionmaker(engine,
+                                 expire_on_commit=False,
+                                 class_=AsyncSession)
+    async with async_session() as session:
+        yield session
+
+
+
 
 
 
