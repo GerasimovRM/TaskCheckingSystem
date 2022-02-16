@@ -1,24 +1,14 @@
-from typing import Optional, List
-from enum import IntEnum
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import relationship
 
-from pydantic import BaseModel
-
-import ormar
-
-from .base_meta import BaseMeta
-from .courses_groups import CoursesGroups
-from .course import Course
+from database import Base
 
 
-class Group(ormar.Model):
-    class Meta(BaseMeta):
-        tablename = "dbo_group"
+class Group(Base):
+    __tablename__ = "dbo_group"
 
-    id: int = ormar.Integer(primary_key=True,
-                            autoincrement=True)
-    name: str = ormar.String(max_length=100, nullable=False, unique=True)
-    courses = ormar.ManyToMany(Course,
-                               through=CoursesGroups,
-                               through_relation_name="group",
-                               through_reverse_relation_name="course")
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(40))
 
+    users = relationship("UsersGroups", back_populates="group")
+    courses = relationship("GroupsCourses", back_populates="group")

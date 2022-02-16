@@ -1,19 +1,12 @@
-from typing import Optional, List
-from enum import IntEnum
+from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy.orm import relationship, backref
 
-from pydantic import BaseModel
-
-import ormar
-
-from .base_meta import BaseMeta
-from .user import User
+from database import Base
 
 
-class Admin(ormar.Model):
-    class Meta(BaseMeta):
-        tablename = "dbo_admin"
+class Admin(Base):
+    __tablename__ = "dbo_admin"
 
-    id: int = ormar.Integer(primary_key=True,
-                            autoincrement=True)
-    user: User = ormar.ForeignKey(User)
-
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("dbo_user.id"))
+    user = relationship("User", backref=backref("admin", uselist=False))

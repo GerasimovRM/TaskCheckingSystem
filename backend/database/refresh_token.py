@@ -1,16 +1,13 @@
-from typing import Optional, List
-from enum import IntEnum
-import ormar
+from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy.orm import relationship, backref
 
-from .base_meta import BaseMeta
-from .user import User
+from database import Base
 
 
-class RefreshToken(ormar.Model):
-    class Meta(BaseMeta):
-        tablename = "dbo_refresh_token"
+class RefreshToken(Base):
+    __tablename__ = "dbo_refresh_token"
 
-    id: int = ormar.Integer(primary_key=True,
-                            autoincrement=True)
-    token: str = ormar.String(max_length=200)
-    user: User = ormar.ForeignKey(User, related_name="refresh_tokens")
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    token = Column(String(100))
+    user_id = Column(Integer, ForeignKey("dbo_user.id"))
+    user = relationship("User", backref=backref("refresh_token", uselist=False))

@@ -1,24 +1,16 @@
-import sqlalchemy
-
-from config import DATABASE_URL
-from .base_meta import metadata, BaseMeta, database, engine
+from .base_meta import Base, engine, async_session, metadata
 
 
-from .user import User
-from .lesson import Lesson
-from .course import Course
-from .task import Task
-from .lessons_tasks import LessonsTasks
-from .lessons_courses import LessonsCourses
 from .admin import Admin
-from .refresh_token import RefreshToken
+from .course import Course
 from .group import Group
-from .users_groups import UsersGroups
-from .courses_groups import CoursesGroups
-from .solution import Solution
+from .lesson import Lesson
+from .refresh_token import RefreshToken
+from .task import Task
 from .teacher import Teacher
+from .user import User
+from .users_groups import UsersGroups
+from .groups_courses import GroupsCourses
+from .courses_lessons import CoursesLessons
+from .lessons_tasks import LessonsTasks
 from .users_tasks import UsersTasks
-
-#metadata.drop_all(engine)
-#metadata.create_all(engine)
-

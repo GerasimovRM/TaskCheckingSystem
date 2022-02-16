@@ -1,20 +1,15 @@
-from typing import List, Optional
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import relationship
 
-import ormar
-from .base_meta import BaseMeta
-from .course import Course
-from .lessons_courses import LessonsCourses
+from database import Base
 
 
-class Lesson(ormar.Model):
-    class Meta(BaseMeta):
-        tablename = "dbo_lesson"
+class Lesson(Base):
+    __tablename__ = "dbo_lesson"
 
-    id: int = ormar.Integer(primary_key=True, autoincrement=True)
-    name: str = ormar.String(max_length=100)
-    description: str = ormar.String(max_length=3000)  # TODO: can be nullable
-    courses: Optional[List[Course]] = ormar.ManyToMany(Course,
-                                                       through=LessonsCourses,
-                                                       through_relation_name="lesson",
-                                                       through_reverse_relation_name="course"
-                                                       )
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(40))
+    description = Column(String(2000), nullable=True)
+
+    courses = relationship("CoursesLessons", back_populates="lesson")
+    tasks = relationship("LessonsTasks", back_populates="lesson")

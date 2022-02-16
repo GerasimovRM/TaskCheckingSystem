@@ -1,20 +1,25 @@
 from enum import IntEnum
 
-import ormar
+from sqlalchemy import Column, Integer, String, ForeignKey, Enum
+from sqlalchemy.orm import relationship
 
-from .base_meta import BaseMeta
+from database import Base
 
 
 class UserGroupRole(IntEnum):
-    OWNER: int = 1
-    TEACHER: int = 2
-    STUDENT: int = 3
+    STUDENT: int = 0
+    TEACHER: int = 1
+    OWNER: int = 2
 
 
-class UsersGroups(ormar.Model):
-    class Meta(BaseMeta):
-        tablename = "dbo_users_groups"
+class UsersGroups(Base):
+    __tablename__ = "dbo_users_groups"
 
-    id: int = ormar.Integer(primary_key=True, autoincrement=True)
-    user_group_role: int = ormar.Integer(nullable=False, default=int(UserGroupRole.STUDENT))
+    user_id = Column(ForeignKey("dbo_user.id"), primary_key=True)
+    group_id = Column(ForeignKey("dbo_group.id"), primary_key=True)
+    role = Column(Enum(UserGroupRole))
+
+    user = relationship("User", back_populates="groups")
+    group = relationship("Group", back_populates="users")
+
 
