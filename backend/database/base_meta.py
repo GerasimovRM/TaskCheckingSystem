@@ -8,7 +8,7 @@ import database
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 
-engine = create_async_engine(DATABASE_URL, future=True, echo=True)
+engine = create_async_engine(DATABASE_URL, future=True, echo=SQL_ECHO)
 Base = declarative_base()
 metadata = Base.metadata
 
