@@ -1,4 +1,3 @@
-from typing import Optional
 from fastapi import APIRouter, status, HTTPException, Depends
 
 from services.auth_service import get_admin, get_password_hash

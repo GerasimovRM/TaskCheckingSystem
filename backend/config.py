@@ -1,7 +1,10 @@
 from databases import DatabaseURL
 from starlette.config import Config
+from pathlib import Path
+import os
 
-config = Config(".env")
+
+config = Config(os.path.join(os.path.split(os.path.abspath(__file__))[0], ".env"))
 
 VK_CLIENT_ID = config("VK_CLIENT_ID", cast=str)
 VK_CLIENT_SECRET = config("VK_CLIENT_SECRET", cast=str)
@@ -18,9 +21,8 @@ POSTGRES_PORT = config("POSTGRES_PORT", cast=int)
 POSTGRES_DB = config("POSTGRES_DB", cast=str)
 
 SQL_ECHO = config("SQL_ECHO", cast=bool)
-
 DATABASE_URL = config(
     "DATABASE_URL",
     cast=str,
-    default=f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}:{POSTGRES_PORT}/{POSTGRES_DB}",
+    default=f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}:{POSTGRES_PORT}/{POSTGRES_DB}?async_fallback=true",
 )

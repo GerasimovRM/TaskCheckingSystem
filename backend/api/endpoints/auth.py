@@ -3,16 +3,16 @@ import json
 from typing import Optional
 
 from pydantic import ValidationError
-from fastapi import APIRouter, status, HTTPException, Cookie
+from fastapi import APIRouter, status, HTTPException, Cookie, Depends
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from models import ResponseVkAccessToken, Token
 from config import VK_CLIENT_ID, VK_CLIENT_SECRET, VK_REDIRECT_URI
-from database import User, RefreshToken
+from database import User, RefreshToken, get_session
 from services.auth_service import create_access_token_user, create_refresh_token_user
-from services.auth_service import get_password_hash, get_admin
+from services.auth_service import get_password_hash
 from services.vk_service import get_vk_user_with_photo
-from models import UserDto
-
 
 router = APIRouter(
     prefix="/auth",
@@ -21,16 +21,19 @@ router = APIRouter(
 
 
 @router.get("/login", response_model=Token)
-async def login(vk_code: str, password: Optional[str] = None):
-    async with aiohttp.ClientSession() as session:
+async def login(vk_code: str, password: Optional[str] = None,
+                session: AsyncSession = Depends(get_session)):
+    async with aiohttp.ClientSession() as http_session:
         data = {
             "client_id": VK_CLIENT_ID,
             "client_secret": VK_CLIENT_SECRET,
             "redirect_uri": VK_REDIRECT_URI,
             "code": vk_code,
-            "scope": "offline"
+            "scopes": "photos"
         }
-        async with session.get("https://oauth.vk.com/access_token", params=data) as response:
+
+        async with http_session.get("https://oauth.vk.com/access_token", params=data) as response:
+            print(response.url)
             response_data = await response.json()
             try:
                 response_vk_access_token = ResponseVkAccessToken(**response_data)
@@ -39,7 +42,8 @@ async def login(vk_code: str, password: Optional[str] = None):
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail=response_data)
     try:
-        db_user = await User.objects.get_or_none(vk_id=response_vk_access_token.user_id)
+        query = await session.execute(select(User).where(User.vk_id == response_vk_access_token.user_id))
+        db_user = query.scalars().first()
         if db_user:
             if password:
                 raise HTTPException(
@@ -47,7 +51,7 @@ async def login(vk_code: str, password: Optional[str] = None):
                     detail="Bad field password. Use /user/change_password")
             else:
                 db_user.vk_access_token = response_vk_access_token.access_token
-                await db_user.update()
+                await session.commit()
         else:
             vk_user = await get_vk_user_with_photo(response_vk_access_token.access_token)
             if password:
@@ -57,24 +61,26 @@ async def login(vk_code: str, password: Optional[str] = None):
             else:
                 db_user = User(**vk_user.dict(),
                                vk_access_token=response_vk_access_token.access_token)
-            await db_user.save()
+            await session.commit()
 
         return Token(access_token=await create_access_token_user(db_user),
-                     refresh_token=await create_refresh_token_user(db_user))
+                     refresh_token=await create_refresh_token_user(db_user, session))
     except ValidationError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=json.loads(e.json()))
 
 
+# TODO: Rework. Use: https://indominusbyte.github.io/fastapi-jwt-auth/usage/refresh/
 @router.get("/refresh_token", response_model=Token)
-async def refresh(refresh_token: Optional[str] = Cookie(None)):
-    db_refresh_token = await RefreshToken.objects.get_or_none(token=refresh_token)
+async def refresh(refresh_token: Optional[str] = Cookie(None),
+                  session: AsyncSession = Depends(get_session)):
+    query = await session.execute(select(RefreshToken).where(RefreshToken.token == refresh_token))
+    db_refresh_token = query.scalars().first()
     if db_refresh_token:
         db_user = db_refresh_token.user
-        await db_refresh_token.delete()
         return Token(access_token=await create_access_token_user(db_user),
-                     refresh_token=await create_refresh_token_user(db_user))
+                     refresh_token=await create_refresh_token_user(db_user, session))
     else:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

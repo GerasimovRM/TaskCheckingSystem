@@ -19,7 +19,7 @@ class UsersGroups(Base):
     group_id = Column(ForeignKey("dbo_group.id"), primary_key=True)
     role = Column(Enum(UserGroupRole))
 
-    user = relationship("User", back_populates="groups")
-    group = relationship("Group", back_populates="users")
+    user = relationship("User", back_populates="groups", lazy="selectin")
+    group = relationship("Group", back_populates="users", lazy="selectin")
 
 

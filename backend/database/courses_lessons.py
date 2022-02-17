@@ -10,5 +10,5 @@ class CoursesLessons(Base):
     lesson_id = Column(ForeignKey("dbo_lesson.id"), primary_key=True)
     course_id = Column(ForeignKey("dbo_course.id"), primary_key=True)
 
-    lesson = relationship("Lesson", back_populates="courses")
-    course = relationship("Course", back_populates="lessons")
+    lesson = relationship("Lesson", back_populates="courses", lazy="selectin")
+    course = relationship("Course", back_populates="lessons", lazy="selectin")

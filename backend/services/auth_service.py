@@ -5,6 +5,10 @@ from passlib.context import CryptContext
 from typing import Optional
 from datetime import datetime, timedelta
 
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from database import get_session
 from database.user import User, UserStatus
 from database.admin import Admin
 from database.teacher import Teacher
@@ -24,10 +28,14 @@ async def create_access_token_user(user: User) -> str:
     return jwt_token
 
 
-async def create_refresh_token_user(user: User) -> str:
+# TODO: async session context
+async def create_refresh_token_user(user: User, session: AsyncSession) -> str:
     jwt_token = create_jwt_token(data={"vk_id": user.vk_id}, verify_exp=False)
+    # get user refresh token if existing
+
     db_refresh_token = RefreshToken(token=jwt_token, user=user)
-    await db_refresh_token.save()
+    session.add(db_refresh_token)
+    await session.commit()
     return jwt_token
 
 
@@ -39,13 +47,15 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-async def get_user(vk_id: str) -> User:
-    user = await User.objects.get(vk_id=vk_id)
+# TODO: async context
+async def get_user(vk_id: str, session: AsyncSession) -> Optional[User]:
+    query = await session.execute(select(User).where(User.vk_id == vk_id))
+    user = query.scalars().first()
     return user
 
 
-async def authenticate_user(vk_id: str, password: str) -> Optional[User]:
-    user = await get_user(vk_id)
+async def authenticate_user(vk_id: str, password: str, session: AsyncSession) -> Optional[User]:
+    user = await get_user(vk_id, session)
     if not user:
         return None
     if not verify_password(password, user.password):
@@ -69,7 +79,7 @@ def create_jwt_token(data: dict,
     return encoded_jwt
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
+async def get_current_user(token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -83,7 +93,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
         token_data = TokenData(vk_id=vk_id)
     except JWTError:
         raise credentials_exception
-    user = await get_user(token_data.vk_id)
+    user = await get_user(token_data.vk_id, session)
     if user is None:
         raise credentials_exception
     return user

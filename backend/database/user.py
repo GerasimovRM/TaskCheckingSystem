@@ -25,5 +25,5 @@ class User(Base):
     vk_access_token = Column(String(200), nullable=True)
     avatar_url = Column(String(200), nullable=True)
 
-    groups = relationship("UsersGroups", back_populates="user")
-    tasks = relationship("UsersTasks", back_populates="user")
+    groups = relationship("UsersGroups", back_populates="user", lazy="selectin")
+    tasks = relationship("UsersTasks", back_populates="user", lazy="selectin")

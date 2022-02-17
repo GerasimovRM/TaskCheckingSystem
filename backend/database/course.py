@@ -4,12 +4,13 @@ from sqlalchemy.orm import relationship
 from database import Base
 
 
-class Lesson(Base):
-    __tablename__ = "dbo_lesson"
+class Course(Base):
+    __tablename__ = "dbo_course"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(40))
     description = Column(String(2000), nullable=True)
 
-    courses = relationship("CoursesLessons", back_populates="lesson", lazy="selectin")
-    tasks = relationship("LessonsTasks", back_populates="lesson", lazy="selectin")
+    groups = relationship("GroupsCourses", back_populates="course", lazy="selectin")
+    lessons = relationship("CoursesLessons", back_populates="course", lazy="selectin")
+

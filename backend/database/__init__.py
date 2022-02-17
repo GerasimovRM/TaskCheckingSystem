@@ -1,4 +1,4 @@
-from .base_meta import Base, engine, metadata
+from .base_meta import Base, engine, metadata, get_session
 
 
 from .admin import Admin

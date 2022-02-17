@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from services.auth_service import get_admin, get_current_active_user
-from database import User, Course, LessonsCourses, Lesson, Group
+from database import User, Course
 from database.user import UserStatus
 
 

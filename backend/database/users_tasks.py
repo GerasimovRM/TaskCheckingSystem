@@ -9,5 +9,5 @@ class UsersTasks(Base):
     task_id = Column(ForeignKey("dbo_task.id"), primary_key=True)
     user_id = Column(ForeignKey("dbo_user.id"), primary_key=True)
 
-    user = relationship("User", back_populates="tasks")
-    task = relationship("Task", back_populates="users")
+    user = relationship("User", back_populates="tasks", lazy="selectin")
+    task = relationship("Task", back_populates="users", lazy="selectin")

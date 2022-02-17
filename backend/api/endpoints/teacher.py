@@ -2,10 +2,9 @@ from typing import Optional
 from fastapi import APIRouter, status, HTTPException, Depends
 
 from services.auth_service import get_teacher_or_admin, get_admin
-from database import User, Admin, Group, UsersGroups, Course, UsersCourses
+from database import User, Group, UsersGroups, Course
 from database.users_groups import UserGroupRole
-from database.users_courses import UserCourseRole
-from models import GroupDto, CourseDto, CourseForTeacherOrAdminDto, UserInCourseDto, UserDto
+from models import GroupDto, CourseDto, CourseForTeacherOrAdminDto, UserDto
 
 
 router = APIRouter(

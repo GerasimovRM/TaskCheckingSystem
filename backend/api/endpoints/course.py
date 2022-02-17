@@ -1,10 +1,8 @@
-from typing import Optional, List
 from fastapi import APIRouter, status, HTTPException, Depends
 
-from services.auth_service import get_admin, get_password_hash, get_current_active_user
+from services.auth_service import get_current_active_user
 from database import User, Course
-from models import CourseDto, UserDto, LessonDto
-
+from models import CourseDto, UserDto
 
 router = APIRouter(
     prefix="/course",

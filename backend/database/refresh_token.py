@@ -8,6 +8,6 @@ class RefreshToken(Base):
     __tablename__ = "dbo_refresh_token"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    token = Column(String(100))
+    token = Column(String(200))
     user_id = Column(Integer, ForeignKey("dbo_user.id"))
-    user = relationship("User", backref=backref("refresh_token", uselist=False))
+    user = relationship("User", backref=backref("refresh_token", uselist=False, lazy="selectin"))

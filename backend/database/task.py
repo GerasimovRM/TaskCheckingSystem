@@ -9,8 +9,8 @@ class Task(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(40))
-    description = Column(String(2000), nullable=True)
+    description = Column(String(4000), nullable=True)
     max_score = Column(Float)
 
-    lessons = relationship("LessonsTasks", back_populates="task")
-    users = relationship("UsersTasks", back_populates="task")
+    lessons = relationship("LessonsTasks", back_populates="task", lazy="selectin")
+    users = relationship("UsersTasks", back_populates="task", lazy="selectin")

@@ -9,4 +9,4 @@ class Teacher(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("dbo_user.id"))
-    user = relationship("User", backref=backref("teacher", uselist=False))
+    user = relationship("User", backref=backref("teacher", uselist=False, lazy="selectin"))
