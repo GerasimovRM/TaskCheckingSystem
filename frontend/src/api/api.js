@@ -1,6 +1,7 @@
-export const request = async (method, url, params) => {
+const baseRequest = async (method, url, params) => {
   const requestParams = {
     headers: {},
+    credentials: 'include',
   };
   if (params.headers) {
     requestParams.headers = {
@@ -16,8 +17,11 @@ export const request = async (method, url, params) => {
   if (params.auth === true) {
     const token = localStorage.getItem('access_token');
     if (token) {
-      params.headers.Authorization = `Bearer ${token}`;
+      requestParams.headers.Authorization = `Bearer ${token}`;
     }
+  }
+  else {
+    requestParams.credentials = 'include';
   }
 
   if (typeof params.body === 'object' && params.body !== null) {
@@ -33,6 +37,23 @@ export const request = async (method, url, params) => {
     req,
     json: await req.json(),
   };
+};
+
+export const request = async (method, url, params) => {
+  const resp = await baseRequest(method, url, params);
+  if (resp.req.status === 401 && resp.json.detail === "Could not validate credentials") {
+    const refresh_resp = await baseRequest(
+      'get',
+      `${baseApi}/auth/refresh_token`,
+      { auth: false },
+    );
+    if (refresh_resp.req.status === 200) {
+      localStorage.setItem('access_token', refresh_resp.json.access_token);
+      return await baseRequest(method, url, params);
+    }
+    return refresh_resp;
+  }
+  return resp;
 };
 
 export const requestBind = (apiPath, preparedParam) => {

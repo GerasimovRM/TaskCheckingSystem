@@ -16,7 +16,7 @@ export const login = async (code, password) => {
 
   if (resp.req.status === 200) {
     localStorage.setItem('access_token', resp.json.access_token);
-    document.cookie = `refresh_token=${resp.json.refresh_token}`;
+    // document.cookie = `refresh_token=${resp.json.refresh_token}`;
     return {
       status: true,
     };

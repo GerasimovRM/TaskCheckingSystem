@@ -1,3 +1,3 @@
-__all__ = ["vk_service", "auth_service"]
+__all__ = ["vk_service", "auth_service", "group_service"]
 
 

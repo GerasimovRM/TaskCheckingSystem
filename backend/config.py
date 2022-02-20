@@ -26,3 +26,6 @@ DATABASE_URL = config(
     cast=str,
     default=f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}:{POSTGRES_PORT}/{POSTGRES_DB}?async_fallback=true",
 )
+
+SERVER_HOST = config("SERVER_HOST", cast=str)
+SERVER_PORT = config("SERVER_PORT", cast=int)

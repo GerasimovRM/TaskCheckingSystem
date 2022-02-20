@@ -15,6 +15,7 @@ from database.teacher import Teacher
 from database.refresh_token import RefreshToken
 from models import TokenData
 from config import SECRET_KEY, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+from fastapi import Response
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -29,12 +30,18 @@ async def create_access_token_user(user: User) -> str:
 
 
 # TODO: async session context
-async def create_refresh_token_user(user: User, session: AsyncSession) -> str:
+async def create_refresh_token_user(user: User,
+                                    session: AsyncSession,
+                                    refresh_token: Optional[str] = None) -> str:
     jwt_token = create_jwt_token(data={"vk_id": user.vk_id}, verify_exp=False)
-    # get user refresh token if existing
-
-    db_refresh_token = RefreshToken(token=jwt_token, user=user)
-    session.add(db_refresh_token)
+    new_refresh_token = RefreshToken(token=jwt_token, user=user)
+    if refresh_token:
+        query = await session.execute(select(RefreshToken).where(RefreshToken.token == refresh_token,
+                                                                 RefreshToken.user == user))
+        old_refresh_token = query.scalars().first()
+        await session.delete(old_refresh_token)
+        #   await session.commit()
+    session.add(new_refresh_token)
     await session.commit()
     return jwt_token
 
@@ -79,7 +86,8 @@ def create_jwt_token(data: dict,
     return encoded_jwt
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)) -> User:
+async def get_current_user(token: str = Depends(oauth2_scheme),
+                           session: AsyncSession = Depends(get_session)) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -106,16 +114,16 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
 
 
 async def get_admin(current_user: User = Depends(get_current_active_user)) -> User:
-    admin = await Admin.objects.get_or_none(user=current_user)
+    admin = current_user.admin
     if not admin:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Bad access")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not admin")
     return current_user
 
 
 async def get_teacher(current_user: User = Depends(get_current_active_user)) -> User:
-    teacher = await Teacher.objects.get_or_none(user=current_user)
+    teacher = current_user.teacher
     if not teacher:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Bad access")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not teacher")
     return current_user
 
 
@@ -131,6 +139,6 @@ async def get_teacher_or_admin(current_user: User = Depends(get_current_active_u
     if any([teacher, admin]):
         return current_user
     else:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Bad access")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not teacher or admin")
 
 

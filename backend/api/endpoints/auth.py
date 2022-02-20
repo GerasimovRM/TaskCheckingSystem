@@ -3,7 +3,7 @@ import json
 from typing import Optional
 
 from pydantic import ValidationError
-from fastapi import APIRouter, status, HTTPException, Cookie, Depends
+from fastapi import APIRouter, status, HTTPException, Cookie, Depends, Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -21,7 +21,8 @@ router = APIRouter(
 
 
 @router.get("/login", response_model=Token)
-async def login(vk_code: str, password: Optional[str] = None,
+async def login(response: Response,
+                vk_code: str, password: Optional[str] = None,
                 session: AsyncSession = Depends(get_session)):
     async with aiohttp.ClientSession() as http_session:
         data = {
@@ -32,9 +33,9 @@ async def login(vk_code: str, password: Optional[str] = None,
             "scopes": "photos"
         }
 
-        async with http_session.get("https://oauth.vk.com/access_token", params=data) as response:
-            print(response.url)
-            response_data = await response.json()
+        async with http_session.get("https://oauth.vk.com/access_token", params=data) as response_session:
+            print(response_session.url)
+            response_data = await response_session.json()
             try:
                 response_vk_access_token = ResponseVkAccessToken(**response_data)
             except ValidationError as e:
@@ -62,9 +63,10 @@ async def login(vk_code: str, password: Optional[str] = None,
                 db_user = User(**vk_user.dict(),
                                vk_access_token=response_vk_access_token.access_token)
             await session.commit()
-
-        return Token(access_token=await create_access_token_user(db_user),
-                     refresh_token=await create_refresh_token_user(db_user, session))
+        jwt_access_token = await create_access_token_user(db_user)
+        jwt_refresh_token = await create_refresh_token_user(db_user, session)
+        response.set_cookie("refresh_token", jwt_refresh_token, httponly=True)
+        return Token(access_token=jwt_access_token)
     except ValidationError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -73,14 +75,17 @@ async def login(vk_code: str, password: Optional[str] = None,
 
 # TODO: Rework. Use: https://indominusbyte.github.io/fastapi-jwt-auth/usage/refresh/
 @router.get("/refresh_token", response_model=Token)
-async def refresh(refresh_token: Optional[str] = Cookie(None),
+async def refresh(response: Response,
+                  refresh_token: Optional[str] = Cookie(None),
                   session: AsyncSession = Depends(get_session)):
     query = await session.execute(select(RefreshToken).where(RefreshToken.token == refresh_token))
     db_refresh_token = query.scalars().first()
     if db_refresh_token:
         db_user = db_refresh_token.user
-        return Token(access_token=await create_access_token_user(db_user),
-                     refresh_token=await create_refresh_token_user(db_user, session))
+        jwt_access_token = await create_access_token_user(db_user)
+        jwt_refresh_token = await create_refresh_token_user(db_user, session, refresh_token)
+        response.set_cookie("refresh_token", jwt_refresh_token, httponly=True)
+        return Token(access_token=jwt_access_token)
     else:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

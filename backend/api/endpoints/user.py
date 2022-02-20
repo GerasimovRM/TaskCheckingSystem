@@ -1,11 +1,11 @@
-from fastapi import Depends, APIRouter, HTTPException, status
+from fastapi import Depends, APIRouter, HTTPException, status, Cookie
 from typing import Optional, List, Any
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from models import UserDto, GroupDto, UserGroupDto, LessonDto, TaskDto
+from models import UserDto, GroupDto, UserGroupDto, LessonDto, TaskDto, CourseDto
 from database import User, Group, UsersGroups, Course, CoursesLessons, Lesson, get_session
 from services.auth_service import get_current_active_user, get_current_user, get_password_hash
 from services.auth_service import verify_password
@@ -34,12 +34,12 @@ async def change_password(new_password: str,
     return {"status": "Ok"}
 
 
-@router.get("/get_user_data/", response_model=UserDto)
+@router.get("/get_data/", response_model=UserDto)
 async def get_user_data(current_user: User = Depends(get_current_user)) -> UserDto:
     return UserDto.from_orm(current_user)
 
 
-@router.get("/change_user_data", response_model=UserDto)
+@router.post("/change_data", response_model=UserDto)
 async def change_user_data(first_name: Optional[str] = None,
                            last_name: Optional[str] = None,
                            middle_name: Optional[str] = None,
@@ -67,9 +67,9 @@ async def get_groups(current_user: User = Depends(get_current_active_user)) -> L
                     zip(groups_dto, map(lambda t: t.role, current_user.groups))))
 
 
-@router.get("/group/{group_id}/courses", response_model=List[GroupDto])
+@router.get("/group/{group_id}/courses", response_model=List[CourseDto])
 async def get_group_courses(group_id: int,
-                            current_user: User = Depends(get_current_active_user)) -> List[GroupDto]:
+                            current_user: User = Depends(get_current_active_user)) -> List[CourseDto]:
     # check group access
     user_group = next(filter(lambda t: t.group.id == group_id, current_user.groups), None)
     if not user_group:
@@ -77,7 +77,7 @@ async def get_group_courses(group_id: int,
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Bad access to group")
     group = user_group.group
-    courses_dto = list(map(lambda t: GroupDto.from_orm(t.course), group.courses))
+    courses_dto = list(map(lambda t: CourseDto.from_orm(t.course), group.courses))
     return courses_dto
 
 
