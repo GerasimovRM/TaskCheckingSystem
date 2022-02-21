@@ -4,9 +4,14 @@ import { Link } from 'react-router-dom';
 
 import { Box, Stat, StatNumber, StatHelpText } from '@chakra-ui/react';
 
-export default function CoursePreview({ id, name, description }) {
+export default function CoursePreview({
+  groupId,
+  courseId,
+  name,
+  description,
+}) {
   return (
-    <Link to={`/course/${id}`}>
+    <Link to={`group/${groupId}/course/${courseId}`}>
       <Box borderWidth="1px" borderRadius="lg" maxW="sm" padding="1vw">
         <Stat>
           <StatNumber>{name}</StatNumber>
@@ -18,7 +23,8 @@ export default function CoursePreview({ id, name, description }) {
 }
 
 CoursePreview.propTypes = {
-  id: PropTypes.number.isRequired,
+  courseId: PropTypes.number.isRequired,
+  groupId: PropTypes.number.isRequired,
   name: PropTypes.string.isRequired,
   description: PropTypes.string.isRequired,
 };

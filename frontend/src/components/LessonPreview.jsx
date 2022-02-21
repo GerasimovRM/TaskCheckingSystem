@@ -4,9 +4,9 @@ import { Link } from 'react-router-dom';
 
 import { ListItem, Text } from '@chakra-ui/react';
 
-export default function LessonPreview({ id, courseId, name, putHr }) {
+export default function LessonPreview({ groupId, courseId, lessonId, name, putHr }) {
   return (
-    <Link to={`/course/${courseId}/lesson/${id}`}>
+    <Link to={`/group/${groupId}/course/${courseId}/lesson/${lessonId}`}>
       <ListItem>
         <Text
           fontSize="3xl"
@@ -23,7 +23,8 @@ export default function LessonPreview({ id, courseId, name, putHr }) {
 }
 
 LessonPreview.propTypes = {
-  id: PropTypes.number.isRequired,
+  groupId: PropTypes.number.isRequired,
+  lessonId: PropTypes.number.isRequired,
   courseId: PropTypes.number.isRequired,
   name: PropTypes.string.isRequired,
   putHr: PropTypes.bool,

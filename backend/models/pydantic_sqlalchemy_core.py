@@ -1,14 +1,22 @@
+from typing import Optional
+
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
-from database import User, Group, Course, Lesson, Task
+from database import User, Group, Course, Lesson, Task, Solution
 
 CourseDto = sqlalchemy_to_pydantic(Course)
-print(CourseDto.__fields__)
 LessonDto = sqlalchemy_to_pydantic(Lesson)
-TaskDto = sqlalchemy_to_pydantic(Task)
+TasksDto = sqlalchemy_to_pydantic(Task)
 GroupDto = sqlalchemy_to_pydantic(Group)
 UserDto = sqlalchemy_to_pydantic(User)
+SolutionDto = sqlalchemy_to_pydantic(Solution)
 UserDto.__fields__.pop("password")
 
 
 class UserGroupDto(GroupDto):
-    role: int
+    role: str
+
+
+class TaskDto(TasksDto):
+    score: Optional[int]
+    attachments: Optional[list]
+    solution: Optional[SolutionDto]

@@ -35,13 +35,20 @@ export default function TaskPage() {
       You got it. Get out of that uh, jabroni outfit.
       Yeah, smart ass.
       I'll show you who's the boss of this gym.
-    `.trim(),
+    `,
     attachments: [
       {
         attachment_type: 'input_output',
         data: {
           input: ['123', 'dfgdfg', 'bucks'],
           output: ['bucks', 'dfgdfg', '123'],
+        },
+      },
+      {
+        attachment_type: 'input_output',
+        data: {
+          input: ['112312323', 'dfasfasfgdfg', 'buasfsafcks'],
+          output: ['buck123213s', 'd123213213fgdfg', '123asdfsafd'],
         },
       },
       {

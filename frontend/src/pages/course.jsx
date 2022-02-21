@@ -1,39 +1,38 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 
-import { List } from '@chakra-ui/react';
+import { Spinner, List } from '@chakra-ui/react';
+import { createApi, baseApi } from '../api/api';
+
 import LessonPreview from '../components/LessonPreview';
 
+const {get} = createApi(`${baseApi}/page_data`);
+
 export default function CoursePage() {
-  const { id } = useParams();
-  const lessons = [
-    {
-      id: 1,
-      name: 'lesson 1',
-    },
-    {
-      id: 2,
-      name: 'lesson 2',
-    },
-    {
-      id: 3,
-      name: 'lesson 3',
-    },
-  ];
-  return (
-    <List spacing={3}>
-      {lessons.map((v, i) => (
-        <>
-          <LessonPreview
-            id={v.id}
-            name={v.name}
-            status={v.status}
-            courseId={id}
-            key={v.id}
-            putHr={i !== lessons.length - 1}
-          />
-        </>
-      ))}
-    </List>
-  );
+  const { courseId, groupId } = useParams();
+  const [lessons, setLessons] = useState([]);
+
+  useEffect(async () => {
+    const response = await get(`/group/${groupId}/course/${courseId}/lessons`);
+    setLessons(response.json);
+  }, []);
+  if (lessons.length !== 0)
+    return (
+      <List spacing={3}>
+        {lessons.map((v, i) => (
+          <>
+            <LessonPreview
+              groupId={groupId}
+              lessonId={v.id}
+              name={v.name}
+              status={v.status}
+              courseId={courseId}
+              key={v.id}
+              putHr={i !== lessons.length - 1}
+            />
+          </>
+        ))}
+      </List>
+    );
+  return <Spinner />;
 }

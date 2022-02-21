@@ -15,7 +15,7 @@ from models import UserDto
 from models.token import Token
 from services.auth_service import create_access_token_user, create_refresh_token_user, \
     authenticate_user, get_current_active_user, get_password_hash, get_user
-from api.endpoints import user_router, auth_router, group_router
+from api.endpoints import user_router, auth_router, group_router, page_data_router
 # , admin_router, help_models_router, course_router, teacher_router
 """
 import logging
@@ -27,6 +27,7 @@ app = FastAPI(docs_url="/")
 app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(group_router)
+app.include_router(page_data_router)
 #app.include_router(help_models_router)
 #=app.include_router(course_router)
 #app.include_router(teacher_router)
@@ -50,11 +51,6 @@ async def login_for_access_token(response: Response,
     jwt_refresh_token = await create_refresh_token_user(user, session, refresh_token)
     response.set_cookie("refresh_token", jwt_refresh_token, httponly=True)
     return Token(access_token=jwt_access_token)
-
-
-@app.get("/users/me")
-async def read_users_me(current_user: User = Depends(get_current_active_user)) -> UserDto:
-    return UserDto.from_orm(current_user)
 
 
 @app.on_event("startup")
