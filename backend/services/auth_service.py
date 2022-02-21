@@ -24,8 +24,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 async def create_access_token_user(user: User) -> str:
     jwt_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    jwt_token = create_jwt_token(
-        data={"vk_id": user.vk_id}, expires_delta=jwt_token_expires)
+    jwt_data = {"vk_id": user.vk_id, "is_admin": bool(user.admin), "is_teacher": bool(user.teacher)}
+    jwt_token = create_jwt_token(data=jwt_data, expires_delta=jwt_token_expires)
     return jwt_token
 
 
@@ -40,7 +40,7 @@ async def create_refresh_token_user(user: User,
                                                                  RefreshToken.user == user))
         old_refresh_token = query.scalars().first()
         await session.delete(old_refresh_token)
-        #   await session.commit()
+        await session.commit()
     session.add(new_refresh_token)
     await session.commit()
     return jwt_token

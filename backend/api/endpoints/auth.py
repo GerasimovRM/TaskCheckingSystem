@@ -23,7 +23,8 @@ router = APIRouter(
 @router.get("/login", response_model=Token)
 async def login(response: Response,
                 vk_code: str, password: Optional[str] = None,
-                session: AsyncSession = Depends(get_session)):
+                session: AsyncSession = Depends(get_session),
+                refresh_token: Optional[str] = Cookie(None)):
     async with aiohttp.ClientSession() as http_session:
         data = {
             "client_id": VK_CLIENT_ID,
@@ -64,7 +65,7 @@ async def login(response: Response,
                                vk_access_token=response_vk_access_token.access_token)
             await session.commit()
         jwt_access_token = await create_access_token_user(db_user)
-        jwt_refresh_token = await create_refresh_token_user(db_user, session)
+        jwt_refresh_token = await create_refresh_token_user(db_user, session, refresh_token)
         response.set_cookie("refresh_token", jwt_refresh_token, httponly=True)
         return Token(access_token=jwt_access_token)
     except ValidationError as e:
