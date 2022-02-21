@@ -26,5 +26,5 @@ class User(Base):
     avatar_url = Column(String(200), nullable=True)
 
     groups = relationship("UsersGroups", back_populates="user", lazy="selectin")
-    tasks = relationship("UsersTasks", back_populates="user", lazy="selectin")
     refresh_token = relationship("RefreshToken", back_populates="user", lazy="selectin")
+    user_tcg = relationship("UsersTasksCoursesGroups", back_populates="user", lazy="selectin")

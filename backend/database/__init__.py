@@ -9,8 +9,9 @@ from .refresh_token import RefreshToken
 from .task import Task
 from .teacher import Teacher
 from .user import User
+from .solution import Solution
 from .users_groups import UsersGroups
 from .groups_courses import GroupsCourses
 from .courses_lessons import CoursesLessons
 from .lessons_tasks import LessonsTasks
-from .users_tasks import UsersTasks
+from .users_tasks_courses_groups import UsersTasksCoursesGroups

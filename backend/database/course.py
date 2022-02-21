@@ -13,4 +13,5 @@ class Course(Base):
 
     groups = relationship("GroupsCourses", back_populates="course", lazy="selectin")
     lessons = relationship("CoursesLessons", back_populates="course", lazy="selectin")
+    user_tcg = relationship("UsersTasksCoursesGroups", back_populates="course", lazy="selectin")
 

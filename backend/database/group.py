@@ -12,3 +12,4 @@ class Group(Base):
 
     users = relationship("UsersGroups", back_populates="group", lazy="selectin")
     courses = relationship("GroupsCourses", back_populates="group", lazy="selectin")
+    user_tcg = relationship("UsersTasksCoursesGroups", back_populates="group", lazy="selectin")

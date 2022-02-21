@@ -13,4 +13,4 @@ class Task(Base):
     max_score = Column(Float)
 
     lessons = relationship("LessonsTasks", back_populates="task", lazy="selectin")
-    users = relationship("UsersTasks", back_populates="task", lazy="selectin")
+    user_tcg = relationship("UsersTasksCoursesGroups", back_populates="task", lazy="selectin")
