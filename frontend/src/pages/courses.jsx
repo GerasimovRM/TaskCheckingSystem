@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Spinner, SimpleGrid, useMediaQuery, Heading } from '@chakra-ui/react';
+import { SimpleGrid, useMediaQuery, Heading } from '@chakra-ui/react';
 
 import CoursePreview from '../components/CoursePreview';
 import { createApi, baseApi } from '../api/api';
+import BaseSpinner from '../components/BaseSpinner';
 
 const {get} = createApi(`${baseApi}/page_data`);
 
@@ -61,5 +62,5 @@ export default function CoursesPage() {
         ))}
       </div>
     );
-  return <Spinner />;
+  return <BaseSpinner />;
 }

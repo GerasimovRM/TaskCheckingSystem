@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 
-import { Spinner, List } from '@chakra-ui/react';
+import { List } from '@chakra-ui/react';
 import { createApi, baseApi } from '../api/api';
 
 import LessonPreview from '../components/LessonPreview';
+import BaseSpinner from '../components/BaseSpinner';
 
-const {get} = createApi(`${baseApi}/page_data`);
+const { get } = createApi(`${baseApi}/page_data`);
 
 export default function CoursePage() {
   const { courseId, groupId } = useParams();
@@ -34,5 +35,5 @@ export default function CoursePage() {
         ))}
       </List>
     );
-  return <Spinner />;
+  return <BaseSpinner />;
 }

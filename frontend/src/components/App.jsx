@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 
-import { ChakraProvider} from '@chakra-ui/react';
+import { ChakraProvider } from '@chakra-ui/react';
 
 import Layout from './Layout';
 
@@ -11,7 +11,6 @@ import LessonPage from '../pages/lesson';
 import TaskPage from '../pages/task';
 import RedirectPage from '../pages/redirect';
 import Page404 from '../pages/page404';
-import { Redirect } from 'react-router';
 
 function App() {
   return (

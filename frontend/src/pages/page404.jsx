@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 import {
   Button,
@@ -15,19 +15,23 @@ import {
 
 export default function Page404() {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [buttonText, setButtonText] = useState('Понял');
+  const closeHelper = () => {
+    setButtonText('Понял');
+    onClose();
+  };
   return (
     <>
       <Heading as="h1" size="2xl" mb={5}>
         Страница не найдена
       </Heading>
-      <Button colorScheme="red" size="lg" variant="outline" onClick={onOpen}>
+      <Button colorScheme="blue" size="lg" variant="outline" onClick={onOpen}>
         ПОМОГИТЕ :(
       </Button>
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={closeHelper}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Виджет помощи</ModalHeader>
-          <ModalCloseButton />
           <ModalBody>
             Exorcizo te, immundissime spiritus, omnis incursio adversarii, omne
             phantasma, omnis legio, in nomine Domini nostri Jesu Christi
@@ -48,11 +52,18 @@ export default function Page404() {
             saeculorum. Et cum spiritu tuo. Amen.
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={onClose}>
-              Понял
-            </Button>
-            <Button colorScheme="blue" mr={3} onClick={onClose}>
-              Принял
+            <Button
+              colorScheme="blue"
+              mr={3}
+              onClick={() => {
+                if (buttonText === 'Понял') {
+                  setButtonText('Принял');
+                } else {
+                  closeHelper();
+                }
+              }}
+            >
+              {buttonText}
             </Button>
           </ModalFooter>
         </ModalContent>
