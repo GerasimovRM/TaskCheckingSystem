@@ -6,7 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from models import UserDto, GroupDto, UserGroupDto, LessonDto, TaskDto, CourseDto
+from models.site import GroupCourseResponse
 from database import User, Group, UsersGroups, Course, CoursesLessons, Lesson, get_session
+from models.site.home_response import HomeResponse
 from services.auth_service import get_current_active_user, get_current_user, get_password_hash
 from services.auth_service import verify_password
 
@@ -24,9 +26,9 @@ async def get_groups(current_user: User = Depends(get_current_active_user)) -> L
                     zip(groups_dto, map(lambda t: t.role.name, current_user.groups))))
 
 
-@router.get("/group/{group_id}/courses", response_model=List[CourseDto])
+@router.get("/group/{group_id}/courses", response_model=HomeResponse)
 async def get_group_courses(group_id: int,
-                            current_user: User = Depends(get_current_active_user)) -> List[CourseDto]:
+                            current_user: User = Depends(get_current_active_user)) -> HomeResponse:
     # check group access
     user_group = next(filter(lambda t: t.group.id == group_id, current_user.groups), None)
     if not user_group:
@@ -35,13 +37,13 @@ async def get_group_courses(group_id: int,
             detail="Bad access to group")
     group = user_group.group
     courses_dto = list(map(lambda t: CourseDto.from_orm(t.course), group.courses))
-    return courses_dto
+    return HomeResponse(courses=courses_dto)
 
 
-@router.get("/group/{group_id}/course/{course_id}/lessons", response_model=List[LessonDto])
+@router.get("/group/{group_id}/course/{course_id}/lessons", response_model=GroupCourseResponse)
 async def get_group_course_lessons(group_id: int,
                                    course_id: int,
-                                   current_user: User = Depends(get_current_active_user)) -> List[LessonDto]:
+                                   current_user: User = Depends(get_current_active_user)) -> GroupCourseResponse:
     # check group access
     user_group = next(filter(lambda t: t.group.id == group_id, current_user.groups), None)
     if not user_group:
@@ -57,7 +59,9 @@ async def get_group_course_lessons(group_id: int,
             detail="Bad access to course")
     course = group_course.course
     lessons_dto = list(map(lambda t: LessonDto.from_orm(t.lesson), course.lessons))
-    return lessons_dto
+    return GroupCourseResponse(lessons=lessons_dto,
+                               course_name=course.name,
+                               course_description=course.description)
 
 
 @router.get("/group/{group_id}/course/{course_id}/lesson/{lesson_id}/tasks",

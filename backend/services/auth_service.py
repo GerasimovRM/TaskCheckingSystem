@@ -39,8 +39,9 @@ async def create_refresh_token_user(user: User,
         query = await session.execute(select(RefreshToken).where(RefreshToken.token == refresh_token,
                                                                  RefreshToken.user == user))
         old_refresh_token = query.scalars().first()
-        await session.delete(old_refresh_token)
-        await session.commit()
+        if old_refresh_token:
+            await session.delete(old_refresh_token)
+            await session.commit()
     session.add(new_refresh_token)
     await session.commit()
     return jwt_token

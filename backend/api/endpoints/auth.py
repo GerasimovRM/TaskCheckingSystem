@@ -21,7 +21,8 @@ router = APIRouter(
 
 
 @router.get("/login", response_model=Token)
-async def login(response: Response,
+async def login(
+                response: Response,
                 vk_code: str, password: Optional[str] = None,
                 session: AsyncSession = Depends(get_session),
                 refresh_token: Optional[str] = Cookie(None)):

@@ -15,7 +15,7 @@ from models import UserDto
 from models.token import Token
 from services.auth_service import create_access_token_user, create_refresh_token_user, \
     authenticate_user, get_current_active_user, get_password_hash, get_user
-from api.endpoints import user_router, auth_router, group_router, page_data_router
+from api.endpoints import user_router, auth_router, group_router, page_data_router, admin_router
 # , admin_router, help_models_router, course_router, teacher_router
 """
 import logging
@@ -23,7 +23,7 @@ logger = logging.getLogger("databases")
 logger.setLevel(logging.DEBUG)
 """
 app = FastAPI(docs_url="/")
-#app.include_router(admin_router)
+app.include_router(admin_router)
 app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(group_router)
@@ -66,7 +66,8 @@ async def shutdown() -> None:
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://localhost:3000"],
+    allow_origins=["http://localhost:3000", "https://localhost:3000",
+                   "http://82.179.126.255:3000", "https://82.179.126.255:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
