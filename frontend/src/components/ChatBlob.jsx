@@ -6,7 +6,7 @@ import { Box, Text } from '@chakra-ui/react';
 export default function ChatBlob({ name, text, isSelf }) {
   return (
     <Box
-      bg="white"
+      bg="gray50"
       borderWidth="1px"
       borderRadius="md"
       style={{
@@ -21,7 +21,7 @@ export default function ChatBlob({ name, text, isSelf }) {
       >
         {name}
       </Box>
-      <Text>{text}</Text>
+      <Text color="gray.500">{text}</Text>
     </Box>
   );
 }

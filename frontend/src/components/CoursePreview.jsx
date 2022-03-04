@@ -7,15 +7,15 @@ import { Box, Stat, StatNumber, StatHelpText } from '@chakra-ui/react';
 export default function CoursePreview({
   groupId,
   courseId,
-  name,
-  description,
+  courseName,
+  groupName
 }) {
   return (
     <Link to={`group/${groupId}/course/${courseId}`}>
       <Box borderWidth="1px" borderRadius="lg" maxW="sm" padding="1vw">
         <Stat>
-          <StatNumber>{name}</StatNumber>
-          <StatHelpText>{description}</StatHelpText>
+          <StatNumber>{courseName}</StatNumber>
+          <StatHelpText>{groupName}</StatHelpText>
         </Stat>
       </Box>
     </Link>
@@ -25,6 +25,6 @@ export default function CoursePreview({
 CoursePreview.propTypes = {
   courseId: PropTypes.number.isRequired,
   groupId: PropTypes.number.isRequired,
-  name: PropTypes.string.isRequired,
-  description: PropTypes.string.isRequired,
+  courseName: PropTypes.string.isRequired,
+  groupName: PropTypes.string.isRequired,
 };

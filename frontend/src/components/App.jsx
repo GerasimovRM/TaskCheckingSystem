@@ -11,31 +11,38 @@ import LessonPage from '../pages/lesson';
 import TaskPage from '../pages/task';
 import RedirectPage from '../pages/redirect';
 import Page404 from '../pages/page404';
+import SettingsPage from '../pages/settings';
+import BreadcrumbGenerator from './BreadcrumbGenerator';
+import PrivateRoute from './PrivateRoute';
+import NoAuthPage from '../pages/noauth';
 
 function App() {
   return (
     <ChakraProvider>
       <BrowserRouter>
         <Layout>
+          <BreadcrumbGenerator />
           <Switch>
-            <Route path="/" exact component={CoursesPage} />
+            <PrivateRoute path="/" exact component={CoursesPage} />
             <Route path="/redirect" component={RedirectPage} />
-            <Route
+            <PrivateRoute
               path="/group/:groupId/course/:courseId"
               exact
               component={CoursePage}
             />
-            <Route
+            <PrivateRoute
               path="/group/:groupId/course/:courseId/lesson/:lessonId"
               exact
               component={LessonPage}
             />
-            <Route
+            <PrivateRoute
               path="/course/:courseId/lesson/:lessonId/task/:taskId"
               exact
               component={TaskPage}
             />
-            <Route component={Page404} />
+            <PrivateRoute path="/settings" exact component={SettingsPage} />
+            <Route path="/noauth" component={NoAuthPage} />
+            <PrivateRoute component={Page404} />
           </Switch>
         </Layout>
       </BrowserRouter>

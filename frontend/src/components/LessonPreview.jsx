@@ -2,22 +2,26 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-import { ListItem, Text } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 
-export default function LessonPreview({ groupId, courseId, lessonId, name, putHr }) {
+export default function LessonPreview({
+  groupId,
+  courseId,
+  lessonId,
+  name,
+}) {
   return (
     <Link to={`/group/${groupId}/course/${courseId}/lesson/${lessonId}`}>
-      <ListItem>
+      <Box borderWidth="1px" borderRadius="lg" padding="0.5vw" mb="5px">
         <Text
-          fontSize="3xl"
+          fontSize="2xl"
           style={{
             textTransform: 'capitalize',
           }}
         >
           {name}
         </Text>
-        {putHr && <hr />}
-      </ListItem>
+      </Box>
     </Link>
   );
 }

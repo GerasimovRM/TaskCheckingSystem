@@ -3,13 +3,11 @@ import { createApi, baseApi } from './api';
 
 const { get } = createApi(`${baseApi}/auth`);
 
-export const login = async (code, password) => {
+export const login = async (code) => {
   const query = {
     vk_code: code,
   };
-  if (password !== undefined) {
-    query.password = password;
-  }
+
   const resp = await get(`/login?${encode(query)}`, {
     auth: false,
   });

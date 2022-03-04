@@ -24,6 +24,10 @@ export default function LessonPage() {
         name: 'My name is Billy Herington',
         status: 'error',
       },
+      {
+        id: 4,
+        name: 'My name is Tema Kanalincev, da?',
+      },
     ],
   };
 
@@ -31,7 +35,6 @@ export default function LessonPage() {
     <>
       <Heading>{lessonInfo.name}</Heading>
       <br />
-      <List>
         {lessonInfo.tasks.map((v, i) => (
           <TaskPreview
             status={v.status}
@@ -42,7 +45,6 @@ export default function LessonPage() {
             putHr={lessonInfo.tasks && i < lessonInfo.tasks.length - 1}
           />
         ))}
-      </List>
     </>
   );
 }

@@ -82,4 +82,5 @@ export const createApi = (apiPath, preparedParam) => {
   return methodBind(requestBind(apiPath, preparedParam));
 };
 
-export const baseApi = 'http://localhost:5000';
+export const baseApi = 'http://82.179.126.255:5000';
+export const baseURL = 'http://82.179.126.255:3000';

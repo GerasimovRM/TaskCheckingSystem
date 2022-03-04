@@ -120,7 +120,7 @@ export default function TaskPage() {
                 </Flex>
               </Box>
               <Box w="3%" />
-              <Box w="25%" h="75vh" bg="gray.50" borderRadius="md">
+              {/* <Box w="25%" h="75vh" bg="gray.50" borderRadius="md">
                 <Flex direction="column" h="100%">
                   <Box
                     w="100%"
@@ -140,7 +140,7 @@ export default function TaskPage() {
                     <Chat />
                   </Box>
                 </Flex>
-              </Box>
+              </Box>*/}
             </Flex>
           </TabPanel>
         </TabPanels>

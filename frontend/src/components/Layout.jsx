@@ -43,7 +43,7 @@ export default function Layout({ children }) {
             <a
               href={`https://oauth.vk.com/authorize?${encode({
                 client_id: vkClientId,
-                redirect_uri: 'http://localhost:3000/redirect',
+                redirect_uri: 'http://82.179.126.255:3000/redirect',
                 display: 'page',
                 scope: 'offline',
                 response_type: 'code',
