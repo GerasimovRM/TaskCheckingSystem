@@ -1,4 +1,4 @@
-import React, {ReactElement, useEffect, useState} from 'react';
+import React, {FunctionComponent, ReactElement, useEffect, useState} from 'react';
 import { useLocation } from 'react-router-dom';
 import {
     Breadcrumb,
@@ -8,7 +8,7 @@ import {
 import { ChevronRightIcon } from '@chakra-ui/icons';
 import { baseURL } from '../api/api';
 
-export default function BreadcrumbGenerator() {
+export default function BreadcrumbGenerator(): ReactElement {
     const location = useLocation();
     const [links, setLinks] = useState<ReactElement[]>();
 

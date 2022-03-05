@@ -1,10 +1,10 @@
 import axios, {AxiosRequestConfig, AxiosResponse, Method} from "axios";
 
-export interface IRequestConfig<D = any> {
+export interface IRequestConfig {
     method: Method,
     url: string,
     params?: any,
-    data?: D,
+    data?: any,
     headers?: any,
     auth?: boolean,
     withCredentials?: boolean
