@@ -8,7 +8,6 @@ from sqlalchemy.orm import selectinload
 from models import UserDto, GroupDto, UserGroupDto, LessonDto, TaskDto, CourseDto
 from models.site import GroupCourseResponse
 from database import User, Group, UsersGroups, Course, CoursesLessons, Lesson, get_session
-from models.site.home_response import HomeResponse
 from services.auth_service import get_current_active_user, get_current_user, get_password_hash
 from services.auth_service import verify_password
 
@@ -26,9 +25,9 @@ async def get_groups(current_user: User = Depends(get_current_active_user)) -> L
                     zip(groups_dto, map(lambda t: t.role.name, current_user.groups))))
 
 
-@router.get("/group/{group_id}/courses", response_model=HomeResponse)
+@router.get("/group/{group_id}/courses", response_model=List[CourseDto])
 async def get_group_courses(group_id: int,
-                            current_user: User = Depends(get_current_active_user)) -> HomeResponse:
+                            current_user: User = Depends(get_current_active_user)) -> List[CourseDto]:
     # check group access
     user_group = next(filter(lambda t: t.group.id == group_id, current_user.groups), None)
     if not user_group:
@@ -37,7 +36,7 @@ async def get_group_courses(group_id: int,
             detail="Bad access to group")
     group = user_group.group
     courses_dto = list(map(lambda t: CourseDto.from_orm(t.course), group.courses))
-    return HomeResponse(courses=courses_dto)
+    return courses_dto
 
 
 @router.get("/group/{group_id}/course/{course_id}/lessons", response_model=GroupCourseResponse)

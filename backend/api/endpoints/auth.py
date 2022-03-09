@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models import ResponseVkAccessToken, Token
 from config import VK_CLIENT_ID, VK_CLIENT_SECRET, VK_REDIRECT_URI
 from database import User, RefreshToken, get_session
+from models.token import TokenWithAvatar
 from services.auth_service import create_access_token_user, create_refresh_token_user
 from services.auth_service import get_password_hash
 from services.vk_service import get_vk_user_with_photo
@@ -20,7 +21,7 @@ router = APIRouter(
 )
 
 
-@router.get("/login", response_model=Token)
+@router.get("/login", response_model=TokenWithAvatar)
 async def login(
                 response: Response,
                 vk_code: str, password: Optional[str] = None,
@@ -68,7 +69,7 @@ async def login(
         jwt_access_token = await create_access_token_user(db_user)
         jwt_refresh_token = await create_refresh_token_user(db_user, session, refresh_token)
         response.set_cookie("refresh_token", jwt_refresh_token, httponly=True)
-        return Token(access_token=jwt_access_token)
+        return TokenWithAvatar(access_token=jwt_access_token, avatar_url=db_user.avatar_url)
     except ValidationError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -76,7 +77,7 @@ async def login(
 
 
 # TODO: Rework. Use: https://indominusbyte.github.io/fastapi-jwt-auth/usage/refresh/
-@router.get("/refresh_token", response_model=Token)
+@router.get("/refresh_token", response_model=TokenWithAvatar)
 async def refresh(response: Response,
                   refresh_token: Optional[str] = Cookie(None),
                   session: AsyncSession = Depends(get_session)):
@@ -87,7 +88,7 @@ async def refresh(response: Response,
         jwt_access_token = await create_access_token_user(db_user)
         jwt_refresh_token = await create_refresh_token_user(db_user, session, refresh_token)
         response.set_cookie("refresh_token", jwt_refresh_token, httponly=True)
-        return Token(access_token=jwt_access_token)
+        return TokenWithAvatar(access_token=jwt_access_token, avatar_url=db_user.avatar_url)
     else:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
