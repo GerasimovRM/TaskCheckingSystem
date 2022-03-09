@@ -10,7 +10,8 @@ export const AuthActionCreators = {
         try {
             dispatch(AuthActionCreators.setIsLoading(true))
             const response = await LoginService.loginRequest(vk_code)
-            localStorage.setItem('access_token', response.data.access_token);
+            localStorage.setItem('access_token', response.access_token)
+            localStorage.setItem('avatar_url', response.avatar_url)
             dispatch(AuthActionCreators.setIsLoading(false))
             dispatch(AuthActionCreators.setIsAuth(true))
         } catch (e) {
@@ -21,5 +22,6 @@ export const AuthActionCreators = {
     logout: () => async (dispatch: AppDispatch) => {
         dispatch(AuthActionCreators.setIsAuth(false))
         localStorage.removeItem("access_token")
+        localStorage.removeItem("avatar_url")
     }
 }

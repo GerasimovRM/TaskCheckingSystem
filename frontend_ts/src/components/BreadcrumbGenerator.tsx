@@ -7,6 +7,8 @@ import {
 } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@chakra-ui/icons';
 import { baseURL } from '../api/api';
+import {isNumericalString} from "framer-motion/types/utils/is-numerical-string";
+import Common from "../api/Common";
 
 export default function BreadcrumbGenerator(): ReactElement {
     const location = useLocation();
@@ -19,10 +21,10 @@ export default function BreadcrumbGenerator(): ReactElement {
                     return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
                 }),
             )
-            .filter((s) => s !== "");
+            .filter((s) => !Common.isNumeric(s) && s !== "");
         const hrefs = location.pathname.split('/');
         for (let i = 0; i < hrefs.length; i++) {
-            if (hrefs[i + 1] === "") {
+            if (Common.isNumeric(hrefs[i + 1])) {
                 hrefs[i] = hrefs.slice(i, i + 2).join('/');
                 hrefs.splice(i + 1, 1);
                 i--;
@@ -35,7 +37,7 @@ export default function BreadcrumbGenerator(): ReactElement {
                         {link}
                     </BreadcrumbLink>
                 </BreadcrumbItem>
-        );
+            );
         });
         setLinks(breadcrumps);
     }, [location.pathname]);

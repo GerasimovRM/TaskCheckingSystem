@@ -23,7 +23,6 @@ export enum RouteNames {
 export const publicRoutes: IRoute[] = [
     {path: RouteNames.HOME, key: RouteNames.HOME, element: <Home />},
     {path: RouteNames.NO_AUTH, key: RouteNames.NO_AUTH, element: <NoAuth />},
-    {path: RouteNames.SETTINGS, key: RouteNames.SETTINGS, element: <SettingsPage />},
     {path: RouteNames.REDIRECT, key: RouteNames.REDIRECT, element: <RedirectPage />},
     {path: RouteNames.NOT_FOUND, key: RouteNames.NOT_FOUND, element: <NotFound />}
 ]

@@ -1,13 +1,7 @@
 import { Link } from 'react-router-dom';
 
 import { Box, Stat, StatNumber, StatHelpText } from '@chakra-ui/react';
-
-export interface ICoursePreview {
-    groupId: number;
-    courseId: number;
-    courseName: string;
-    groupName: string;
-}
+import {ICoursePreview} from "../models/ICoursePreview";
 
 export const CoursePreview: (props: ICoursePreview) => JSX.Element = (props: ICoursePreview) => {
     return (

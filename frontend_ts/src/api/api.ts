@@ -1,4 +1,7 @@
 import axios, {AxiosRequestConfig, AxiosResponse, Method} from "axios";
+import {store} from "../store";
+import {AuthActionEnum} from "../store/reducers/auth/types";
+import {AuthActionCreators} from "../store/reducers/auth/action-creators";
 
 export interface IRequestConfig {
     method: Method,
@@ -10,7 +13,7 @@ export interface IRequestConfig {
     withCredentials?: boolean
 }
 
-export const request = async (requestConfig: IRequestConfig): Promise<AxiosResponse> => {
+export const request = async (requestConfig: IRequestConfig): Promise<any> => {
     const axiosRequestConfig: AxiosRequestConfig = {
         method:  requestConfig.method,
         url: `${baseApi}${requestConfig.url}`,
@@ -25,22 +28,29 @@ export const request = async (requestConfig: IRequestConfig): Promise<AxiosRespo
             axiosRequestConfig.headers = {...axiosRequestConfig.headers, Authorization: `Bearer ${token}`}
         }
     }
-    const response = await axios(axiosRequestConfig);
-    if (response.status === 401) {
-        const axiosRefreshTokenRequestConfig: AxiosRequestConfig = {
-            method:  "get",
-            url: `${baseApi}/auth/refresh_token`,
-            withCredentials: true
-        }
-        const refresh_token_response = await axios(axiosRefreshTokenRequestConfig);
-        if (refresh_token_response.status === 200) {
-            localStorage.setItem("access_token", refresh_token_response.data.access_token);
-            await axios(axiosRequestConfig);
-        }
-        return refresh_token_response;
-    }
-    return response;
-};
+    return await axios(axiosRequestConfig)
+        .then(response => response.data)
+        .catch(async (error) => {
+            // если токен протух, рефрешим, делаем запрос заного, в случае неуспеха - разлогинимся
+            if (error.response.status === 401) {
+                const axiosRefreshTokenRequestConfig: AxiosRequestConfig = {
+                    method: "get",
+                    url: `${baseApi}/auth/refresh_token`,
+                    withCredentials: true
+                }
+                return await axios(axiosRefreshTokenRequestConfig)
+                    .then(async (refresh_token_response) => {
+                        const token = refresh_token_response.data.access_token
+                        localStorage.setItem("access_token", token);
+                        axiosRequestConfig.headers = {...axiosRequestConfig.headers, Authorization: `Bearer ${token}`}
+                        return await axios(axiosRequestConfig).then(response => response.data)
+                    })
+                    .catch(() => {
+                        AuthActionCreators.logout()
+                    })
+            }
+        });
+}
 
 export const baseApi = 'http://localhost:5000';
 export const baseURL = 'http://localhost:3000';

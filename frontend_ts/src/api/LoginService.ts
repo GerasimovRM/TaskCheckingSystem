@@ -4,7 +4,7 @@ import {IRequestConfig, request} from "./api";
 
 
 export default class LoginService {
-    static async loginRequest(vk_code: string): Promise<AxiosResponse<ILogin>> {
+    static async loginRequest(vk_code: string): Promise<ILogin> {
         const requestConfig: IRequestConfig = {
             method: "get",
             url: "/auth/login",
