@@ -14,4 +14,4 @@ from .users_groups import UsersGroups
 from .groups_courses import GroupsCourses
 from .courses_lessons import CoursesLessons
 from .lessons_tasks import LessonsTasks
-from .users_tasks_courses_groups import UsersTasksCoursesGroups
+from .image import Image

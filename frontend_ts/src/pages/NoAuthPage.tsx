@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from 'react';
 import {Heading} from "@chakra-ui/react";
 
-const NoAuth: FunctionComponent = () => {
+const NoAuthPage: FunctionComponent = () => {
     return (
         <>
             <Heading size="2xl" mb={5}>
@@ -11,4 +11,4 @@ const NoAuth: FunctionComponent = () => {
     );
 };
 
-export default NoAuth;
+export default NoAuthPage;

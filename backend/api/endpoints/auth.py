@@ -6,12 +6,14 @@ from pydantic import ValidationError
 from fastapi import APIRouter, status, HTTPException, Cookie, Depends, Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from models import ResponseVkAccessToken, Token
 from config import VK_CLIENT_ID, VK_CLIENT_SECRET, VK_REDIRECT_URI
 from database import User, RefreshToken, get_session
 from models.token import TokenWithAvatar
-from services.auth_service import create_access_token_user, create_refresh_token_user
+from services.auth_service import create_access_token_user, create_refresh_token_user, \
+    get_current_active_user
 from services.auth_service import get_password_hash
 from services.vk_service import get_vk_user_with_photo
 
@@ -19,6 +21,12 @@ router = APIRouter(
     prefix="/auth",
     tags=["auth"]
 )
+
+
+@router.get("/logout")
+async def logout(response: Response):
+    response.delete_cookie("refresh_token")
+    return {"status": "Ok"}
 
 
 @router.get("/login", response_model=TokenWithAvatar)
@@ -46,7 +54,8 @@ async def login(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail=response_data)
     try:
-        query = await session.execute(select(User).where(User.vk_id == response_vk_access_token.user_id))
+        t = select(User).where(User.vk_id == response_vk_access_token.user_id)
+        query = await session.execute(t)
         db_user = query.scalars().first()
         if db_user:
             if password:
@@ -66,7 +75,7 @@ async def login(
                 db_user = User(**vk_user.dict(),
                                vk_access_token=response_vk_access_token.access_token)
             await session.commit()
-        jwt_access_token = await create_access_token_user(db_user)
+        jwt_access_token = await create_access_token_user(db_user, session)
         jwt_refresh_token = await create_refresh_token_user(db_user, session, refresh_token)
         response.set_cookie("refresh_token", jwt_refresh_token, httponly=True)
         return TokenWithAvatar(access_token=jwt_access_token, avatar_url=db_user.avatar_url)
@@ -81,11 +90,13 @@ async def login(
 async def refresh(response: Response,
                   refresh_token: Optional[str] = Cookie(None),
                   session: AsyncSession = Depends(get_session)):
-    query = await session.execute(select(RefreshToken).where(RefreshToken.token == refresh_token))
+    query = await session.execute(select(RefreshToken)
+                                  .where(RefreshToken.token == refresh_token)
+                                  .options(joinedload(RefreshToken.user)))
     db_refresh_token = query.scalars().first()
     if db_refresh_token:
         db_user = db_refresh_token.user
-        jwt_access_token = await create_access_token_user(db_user)
+        jwt_access_token = await create_access_token_user(db_user, session)
         jwt_refresh_token = await create_refresh_token_user(db_user, session, refresh_token)
         response.set_cookie("refresh_token", jwt_refresh_token, httponly=True)
         return TokenWithAvatar(access_token=jwt_access_token, avatar_url=db_user.avatar_url)

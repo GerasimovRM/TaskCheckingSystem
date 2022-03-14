@@ -11,5 +11,5 @@ class Lesson(Base):
     name = Column(String(40))
     description = Column(String(2000), nullable=True)
 
-    courses = relationship("CoursesLessons", back_populates="lesson", lazy="selectin")
-    tasks = relationship("LessonsTasks", back_populates="lesson", lazy="selectin")
+    courses = relationship("CoursesLessons", back_populates="lesson")
+    tasks = relationship("LessonsTasks", back_populates="lesson")

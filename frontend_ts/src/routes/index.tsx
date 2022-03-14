@@ -1,9 +1,12 @@
 import {ReactElement} from "react";
-import Home from "../pages/Home";
-import NoAuth from "../pages/NoAuth";
-import {SettingsPage} from "../pages/Settings";
-import RedirectPage from "../pages/Redirect";
-import NotFound from "../pages/NotFound";
+import HomePage from "../pages/HomePage";
+import NoAuth from "../pages/NoAuthPage";
+import {SettingsPage} from "../pages/SettingsPage";
+import RedirectPage from "../pages/RedirectPage";
+import NotFoundPage from "../pages/NotFoundPage";
+import CoursePage from "../pages/CoursePage";
+import LessonPage from "../pages/LessonPage";
+import TaskPage from "../pages/TaskPage";
 
 export interface IRoute {
     path: string;
@@ -15,21 +18,24 @@ export interface IRoute {
 export enum RouteNames {
     NOT_FOUND = "*",
     HOME = "/",
-    NO_AUTH = "/no_auth",
+    NO_AUTH = "/*",
     SETTINGS = "/settings",
     REDIRECT = "/redirect",
+    COURSE = "/group/:groupId/course/:courseId",
+    LESSON = "/group/:groupId/course/:courseId/lesson/:lessonId",
+    TASK = "/group/:groupId/course/:courseId/lesson/:lessonId/task/:taskId"
 }
 
 export const publicRoutes: IRoute[] = [
-    {path: RouteNames.HOME, key: RouteNames.HOME, element: <Home />},
-    {path: RouteNames.NO_AUTH, key: RouteNames.NO_AUTH, element: <NoAuth />},
     {path: RouteNames.REDIRECT, key: RouteNames.REDIRECT, element: <RedirectPage />},
-    {path: RouteNames.NOT_FOUND, key: RouteNames.NOT_FOUND, element: <NotFound />}
+    {path: RouteNames.NO_AUTH, key: RouteNames.NO_AUTH, element: <NoAuth />},
 ]
 
 export const privateRoutes: IRoute[] = [
-    {path: RouteNames.HOME, key: RouteNames.HOME, element: <Home />},
-    {path: RouteNames.NO_AUTH, key: RouteNames.NO_AUTH, element: <NoAuth />},
+    {path: RouteNames.HOME, key: RouteNames.HOME, element: <HomePage />},
     {path: RouteNames.SETTINGS, key: RouteNames.SETTINGS, element: <SettingsPage />},
-    {path: RouteNames.NOT_FOUND, key: RouteNames.NOT_FOUND, element: <NotFound />}
+    {path: RouteNames.NOT_FOUND, key: RouteNames.NOT_FOUND, element: <NotFoundPage />},
+    {path: RouteNames.COURSE, key: RouteNames.COURSE, element: <CoursePage />},
+    {path: RouteNames.LESSON, key: RouteNames.LESSON, element: <LessonPage />},
+    {path: RouteNames.TASK, key: RouteNames.TASK, element: <TaskPage />},
 ]

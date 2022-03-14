@@ -15,7 +15,7 @@ import {
     useDisclosure,
 } from '@chakra-ui/react';
 
-export default function NotFound() {
+export default function NotFoundPage() {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [buttonText, setButtonText] = useState('Понял');
     const closeHelper = () => {

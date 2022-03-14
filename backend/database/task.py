@@ -1,7 +1,11 @@
-from sqlalchemy import Column, Integer, String, Float
+from enum import IntEnum
+
+from sqlalchemy import Column, Integer, String, Float, Enum
+from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import relationship
 
 from database import Base
+from database.solution import SolutionStatus
 
 
 class Task(Base):
@@ -11,6 +15,7 @@ class Task(Base):
     name = Column(String(40))
     description = Column(String(4000), nullable=True)
     max_score = Column(Float)
+    attachments = Column(JSON)
 
-    lessons = relationship("LessonsTasks", back_populates="task", lazy="selectin")
-    user_tcg = relationship("UsersTasksCoursesGroups", back_populates="task", lazy="selectin")
+    lessons = relationship("LessonsTasks", back_populates="task")
+    solutions = relationship("Solution", back_populates="task")

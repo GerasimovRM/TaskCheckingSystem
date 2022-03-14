@@ -10,4 +10,4 @@ class RefreshToken(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     token = Column(String(200))
     user_id = Column(Integer, ForeignKey("dbo_user.id"))
-    user = relationship("User", back_populates="refresh_token", lazy="selectin")
+    user = relationship("User", back_populates="refresh_token")

@@ -25,6 +25,6 @@ class User(Base):
     vk_access_token = Column(String(200), nullable=True)
     avatar_url = Column(String(200), nullable=True)
 
-    groups = relationship("UsersGroups", back_populates="user", lazy="selectin")
-    refresh_token = relationship("RefreshToken", back_populates="user", lazy="selectin")
-    user_tcg = relationship("UsersTasksCoursesGroups", back_populates="user", lazy="selectin")
+    groups = relationship("UsersGroups", back_populates="user")
+    refresh_token = relationship("RefreshToken", back_populates="user")
+    solutions = relationship("Solution", back_populates="user")

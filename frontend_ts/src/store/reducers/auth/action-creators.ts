@@ -14,14 +14,18 @@ export const AuthActionCreators = {
             localStorage.setItem('avatar_url', response.avatar_url)
             dispatch(AuthActionCreators.setIsLoading(false))
             dispatch(AuthActionCreators.setIsAuth(true))
+            return {type: AuthActionEnum.SET_AUTH, payload: true}
         } catch (e) {
             dispatch(AuthActionCreators.setIsLoading(false))
             dispatch(AuthActionCreators.setError("Ошибка при логине"))
+            return {type: AuthActionEnum.SET_ERROR, payload: "Ошибка при логине"}
         }
     },
     logout: () => async (dispatch: AppDispatch) => {
+        await LoginService.logoutRequest()
         dispatch(AuthActionCreators.setIsAuth(false))
         localStorage.removeItem("access_token")
         localStorage.removeItem("avatar_url")
+        // return {type: AuthActionEnum.SET_AUTH, payload: false}
     }
 }

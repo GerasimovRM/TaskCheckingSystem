@@ -10,5 +10,5 @@ class GroupsCourses(Base):
     group_id = Column(ForeignKey("dbo_group.id"), primary_key=True)
     course_id = Column(ForeignKey("dbo_course.id"), primary_key=True)
 
-    group = relationship("Group", back_populates="courses", lazy="selectin")
-    course = relationship("Course", back_populates="groups", lazy="selectin")
+    group = relationship("Group", back_populates="courses")
+    course = relationship("Course", back_populates="groups")

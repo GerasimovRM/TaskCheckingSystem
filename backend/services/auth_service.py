@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from database import get_session
 from database.user import User, UserStatus
@@ -22,8 +23,13 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
-async def create_access_token_user(user: User) -> str:
+async def create_access_token_user(user: User, session: AsyncSession) -> str:
     jwt_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    query = await session.execute(select(User)
+                                  .where(User.id == user.id)
+                                  .options(joinedload(User.admin))
+                                  .options(joinedload(User.teacher)))
+    user = query.scalars().first()
     jwt_data = {"vk_id": user.vk_id, "is_admin": bool(user.admin), "is_teacher": bool(user.teacher)}
     jwt_token = create_jwt_token(data=jwt_data, expires_delta=jwt_token_expires)
     return jwt_token
@@ -48,7 +54,7 @@ async def create_refresh_token_user(user: User,
 
 
 def verify_password(plain_password, hashed_password) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    return pwd_context.verify(plain_password, hashed_password) if plain_password else False
 
 
 def get_password_hash(password):

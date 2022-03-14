@@ -1,4 +1,3 @@
-import {AxiosResponse} from "axios";
 import {ILogin} from "../models/ILogin";
 import {IRequestConfig, request} from "./api";
 
@@ -13,5 +12,14 @@ export default class LoginService {
             withCredentials: true
         }
         return await request(requestConfig)
+    }
+    static async logoutRequest(): Promise<any> {
+        const requestConfig: IRequestConfig = {
+            method: "get",
+            url: "/auth/logout",
+            auth: false,
+            withCredentials: true
+        }
+        return await request(requestConfig);
     }
 }

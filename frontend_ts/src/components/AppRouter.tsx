@@ -1,6 +1,5 @@
 import React, {FunctionComponent} from 'react';
 import {
-    BrowserRouter,
     Routes,
     Route,
 } from "react-router-dom";
@@ -13,7 +12,7 @@ const AppRouter: FunctionComponent = () => {
         isAuth
             ?
             <Routes>
-                {privateRoutes.map(route => <Route {...route} />)}
+                {privateRoutes.map(route => <Route {...route}/>)}
             </Routes>
             :
             <Routes>

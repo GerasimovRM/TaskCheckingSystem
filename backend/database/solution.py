@@ -1,29 +1,36 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKeyConstraint
+from datetime import datetime
+from enum import IntEnum
+
+from sqlalchemy import Column, Integer, String, Float, ForeignKeyConstraint, Boolean, Enum, \
+    DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 
 from database import Base
+
+
+class SolutionStatus(IntEnum):
+    ERROR: int = -1
+    ON_REVIEW: int = 0
+    COMPLETE_NOT_MAX: int = 1
+    COMPLETE: int = 2
 
 
 class Solution(Base):
     __tablename__ = "dbo_solution"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    # TODO: data_code
+    task_id = Column(ForeignKey("dbo_task.id"))
+    user_id = Column(ForeignKey("dbo_user.id"))
+    course_id = Column(ForeignKey("dbo_course.id"))
+    group_id = Column(ForeignKey("dbo_group.id"))
+
     score = Column(Integer, default=0, nullable=False)
-    user_id = Column(Integer, primary_key=True)
-    task_id = Column(Integer, primary_key=True)
-    course_id = Column(Integer, primary_key=True)
-    group_id = Column(Integer, primary_key=True)
+    code = Column(String, nullable=False)
+    status = Column(Enum(SolutionStatus), nullable=False, default=SolutionStatus.ON_REVIEW)
+    time_start = Column(DateTime, nullable=False, default=datetime.now)
+    time_finish = Column(DateTime, nullable=True)
 
-    user_tcg = relationship("UsersTasksCoursesGroups", back_populates="solutions", lazy="selectin")
-
-    __table_args__ = (
-        ForeignKeyConstraint(
-            ("user_id", "task_id", "course_id", "group_id"),
-            ("dbo_users_tasks_courses_groups.user_id",
-             "dbo_users_tasks_courses_groups.task_id",
-             "dbo_users_tasks_courses_groups.course_id",
-             "dbo_users_tasks_courses_groups.group_id"),
-            use_alter=True, name="dbo_solution_fkey"
-        ),
-    )
+    user = relationship("User", back_populates="solutions")
+    task = relationship("Task", back_populates="solutions")
+    course = relationship("Course", back_populates="solutions")
+    group = relationship("Group", back_populates="solutions")

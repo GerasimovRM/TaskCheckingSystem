@@ -1,5 +1,5 @@
-import React, {FunctionComponent, ReactElement, useEffect, useState} from 'react';
-import { useLocation } from 'react-router-dom';
+import React, {ReactElement, useEffect, useState} from 'react';
+import {Link, useLocation} from 'react-router-dom';
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -7,7 +7,6 @@ import {
 } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@chakra-ui/icons';
 import { baseURL } from '../api/api';
-import {isNumericalString} from "framer-motion/types/utils/is-numerical-string";
 import Common from "../api/Common";
 
 export default function BreadcrumbGenerator(): ReactElement {
@@ -32,8 +31,8 @@ export default function BreadcrumbGenerator(): ReactElement {
         }
         const breadcrumps: ReactElement[] = pathLinks.map((link, i) => {
             return (
-                <BreadcrumbItem key={`${baseURL}${hrefs.slice(0, 1 + i).join('/')}`}>
-                    <BreadcrumbLink  href={`${baseURL}${hrefs.slice(0, 1 + i).join('/')}`} >
+                <BreadcrumbItem key={`${baseURL}${hrefs.slice(0, 1 + i).join('/')}`} isCurrentPage={i + 1 === pathLinks.length}>
+                    <BreadcrumbLink as={Link} to={`${hrefs.slice(0, 1 + i).join('/')}`} >
                         {link}
                     </BreadcrumbLink>
                 </BreadcrumbItem>

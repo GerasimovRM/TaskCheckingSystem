@@ -1,18 +1,19 @@
-import { Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 
-import { Box, Stat, StatNumber, StatHelpText } from '@chakra-ui/react';
-import {ICoursePreview} from "../models/ICoursePreview";
+import {Stat, StatNumber, StatHelpText} from '@chakra-ui/react';
+import {BorderShadowBox} from "./BorderShadowBox";
+import {ICoursePreview} from '../models/ICoursePreview';
 
 export const CoursePreview: (props: ICoursePreview) => JSX.Element = (props: ICoursePreview) => {
     return (
         <div>
             <Link to={`group/${props.groupId}/course/${props.courseId}`}>
-                <Box borderWidth="1px" borderRadius="lg" maxW="sm" padding="1vw">
+                <BorderShadowBox maxW="sm" padding="1vw">
                     <Stat>
                         <StatNumber>{props.courseName}</StatNumber>
                         <StatHelpText>{props.groupName}</StatHelpText>
                     </Stat>
-                </Box>
+                </BorderShadowBox>
             </Link>
         </div>
     );

@@ -11,7 +11,7 @@ class Course(Base):
     name = Column(String(40))
     description = Column(String(2000), nullable=True)
 
-    groups = relationship("GroupsCourses", back_populates="course", lazy="selectin")
-    lessons = relationship("CoursesLessons", back_populates="course", lazy="selectin")
-    user_tcg = relationship("UsersTasksCoursesGroups", back_populates="course", lazy="selectin")
+    groups = relationship("GroupsCourses", back_populates="course")
+    lessons = relationship("CoursesLessons", back_populates="course")
+    solutions = relationship("Solution", back_populates="course")
 

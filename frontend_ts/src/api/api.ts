@@ -1,7 +1,4 @@
-import axios, {AxiosRequestConfig, AxiosResponse, Method} from "axios";
-import {store} from "../store";
-import {AuthActionEnum} from "../store/reducers/auth/types";
-import {AuthActionCreators} from "../store/reducers/auth/action-creators";
+import axios, {AxiosRequestConfig, Method} from "axios";
 
 export interface IRequestConfig {
     method: Method,
@@ -45,8 +42,8 @@ export const request = async (requestConfig: IRequestConfig): Promise<any> => {
                         axiosRequestConfig.headers = {...axiosRequestConfig.headers, Authorization: `Bearer ${token}`}
                         return await axios(axiosRequestConfig).then(response => response.data)
                     })
-                    .catch(() => {
-                        AuthActionCreators.logout()
+                    .catch(async () => {
+                        // store.dispatch(AuthActionCreators.logout())
                     })
             }
         });

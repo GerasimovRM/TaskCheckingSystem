@@ -10,6 +10,6 @@ class Group(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(40))
 
-    users = relationship("UsersGroups", back_populates="group", lazy="selectin")
-    courses = relationship("GroupsCourses", back_populates="group", lazy="selectin")
-    user_tcg = relationship("UsersTasksCoursesGroups", back_populates="group", lazy="selectin")
+    users = relationship("UsersGroups", back_populates="group")
+    courses = relationship("GroupsCourses", back_populates="group")
+    solutions = relationship("Solution", back_populates="group")

@@ -8,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
-from database import User, RefreshToken
+from database import User, RefreshToken, Task
 from database.base_meta import initialize_database, get_session
 from database.user import UserStatus
 from models import UserDto
@@ -47,10 +47,38 @@ async def login_for_access_token(response: Response,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    jwt_access_token = await create_access_token_user(user)
+    jwt_access_token = await create_access_token_user(user, session)
     jwt_refresh_token = await create_refresh_token_user(user, session, refresh_token)
     response.set_cookie("refresh_token", jwt_refresh_token, httponly=True)
     return Token(access_token=jwt_access_token)
+
+
+@app.get("/test")
+async def test(session: AsyncSession = Depends(get_session)):
+    task = await session.get(Task, 1)
+    task.attachments = [
+        {
+            "attachment_type": 'input_output',
+            "data": {
+                "input": ['123', 'dfgdfg', 'bucks'],
+                "output": ['bucks', 'dfgdfg', '123'],
+            },
+        },
+        {
+            "attachment_type": 'input_output',
+            "data": {
+                "input": ['112312323', 'dfasfasfgdfg', 'buasfsafcks'],
+                "output": ['buck123213s', 'd123213213fgdfg', '123asdfsafd'],
+            },
+        },
+        {
+            "attachment_type": 'image',
+            "data": {
+                "url": 'https://avatars.githubusercontent.com/u/26022093?v=4',
+            },
+        },
+    ]
+    await session.commit()
 
 
 @app.on_event("startup")

@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from models import TaskDto
+from models import LessonDto
 from pydantic import BaseModel, validator
 
 from models import BaseTaskDto
@@ -14,7 +14,7 @@ BaseTaskDto.__fields__ == {'id': ModelField(name='id', type=int, required=True),
 """
 
 
-class GroupCourseLessonResponse(BaseModel):
-    tasks: List[TaskDto]
-    lesson_name: str
-    lesson_description: Optional[str]
+class GroupCourseLessonTaskResponse(BaseModel):
+    tasks: List[LessonDto]
+    course_name: str
+    course_description: Optional[str]

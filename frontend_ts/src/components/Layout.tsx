@@ -11,7 +11,7 @@ import {
     Icon,
     Center,
     WrapItem,
-    Wrap, Button,
+    Wrap,
 } from '@chakra-ui/react';
 import { FiSettings, SiVk } from 'react-icons/all';
 import {useTypedSelector} from "../hooks/useTypedSelector";
