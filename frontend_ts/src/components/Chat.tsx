@@ -1,12 +1,16 @@
 import React from 'react';
 
-import {Flex, Box} from '@chakra-ui/react';
+import {Flex, Box, Button} from '@chakra-ui/react';
 
 import ChatInput from './ChatInput';
 import {ChatMessage} from "./ChatMessage";
 
+export interface IChat {
+    messages?: string[];
+    event?: Function
+}
 
-export default function Chat() {
+export default function Chat({messages, event}: IChat) {
     return (
         <div
             style={{
@@ -15,12 +19,24 @@ export default function Chat() {
             }}
         >
             <Flex direction="column" h="100%">
-                <Box flex="1">
-                    {/*
-                    <ChatMessage userId={0} text="Boy, next door"/>
-                    <ChatMessage userId={1} text="Fucking slaves"/>
-                    <ChatMessage userId={0} text="Fuck you, leatherman"/>
-                    */}
+                <Box>
+                    {messages?.sort((a, b) => {
+                        const n_a = Number(a)
+                        const n_b = Number(b)
+                        if (n_a > n_b) return 1
+                        else if (n_a < n_b) return -1
+                        else return 0
+                    }).map((message) => {
+                            if (event) {
+                                return (
+                                    <ChatMessage key={message} userId={0} text={message}/>
+                                )
+                            }
+                            else {
+                                return <ChatMessage userId={0} text={message}/>
+                            }
+                    }
+                    )}
                 </Box>
                 <Box>
                     <ChatInput

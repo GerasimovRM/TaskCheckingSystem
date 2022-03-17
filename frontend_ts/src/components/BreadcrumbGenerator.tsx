@@ -3,7 +3,8 @@ import {Link, useLocation} from 'react-router-dom';
 import {
     Breadcrumb,
     BreadcrumbItem,
-    BreadcrumbLink
+    BreadcrumbLink,
+    Text
 } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@chakra-ui/icons';
 import { baseURL } from '../api/api';
@@ -33,7 +34,7 @@ export default function BreadcrumbGenerator(): ReactElement {
             return (
                 <BreadcrumbItem key={`${baseURL}${hrefs.slice(0, 1 + i).join('/')}`} isCurrentPage={i + 1 === pathLinks.length}>
                     <BreadcrumbLink as={Link} to={`${hrefs.slice(0, 1 + i).join('/')}`} >
-                        {link}
+                        <Text fontSize="3xl">{link}</Text>
                     </BreadcrumbLink>
                 </BreadcrumbItem>
             );

@@ -1,7 +1,7 @@
 from io import BytesIO
 
 from fastapi import Depends, APIRouter, HTTPException, status, UploadFile, File
-from typing import List, Union
+from typing import List, Union, Optional
 
 from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -154,6 +154,34 @@ async def get_group_course_lessons_tasks(group_id: int,
                                      lesson_description=lesson.description)
 
 
+@router.get("/solutions", response_model=List[Optional[SolutionDto]])
+async def get_solution(group_id: int,
+                       course_id: int,
+                       task_id: int,
+                       only_best: bool = False,
+                       current_user: User = Depends(get_current_active_user),
+                       session: AsyncSession = Depends(get_session)) -> List[Optional[SolutionDto]]:
+    q = select(Solution)\
+        .where(Solution.group_id == group_id,
+               Solution.course_id == course_id,
+               Solution.task_id == task_id,
+               Solution.user_id == current_user.id)\
+        .order_by(Solution.score.desc(),
+                  Solution.status.desc(),
+                  Solution.time_start.desc())
+
+    query = await session.execute(q)
+    solutions = query.scalars().all()
+
+    if solutions:
+        if only_best:
+            return [SolutionDto.from_orm(solutions[0])]
+        else:
+            return list(map(SolutionDto.from_orm, solutions))
+    else:
+        return [None]
+
+
 @router.get("/group/{group_id}/course/{course_id}/lesson/{lesson_id}/task/{task_id}",
             response_model=TaskDto)
 async def get_group_course_lessons_task(group_id: int,
@@ -264,7 +292,8 @@ async def post_group_course_lesson_task(group_id: int,
                                   .where(Solution.user_id == current_user.id,
                                          Solution.course_id == course_id,
                                          Solution.group_id == group_id,
-                                         Solution.task_id == task_id))
+                                         Solution.task_id == task_id,
+                                         Solution.status == SolutionStatus.ON_REVIEW))
     on_review_solutions = query.scalars().all()
     for solution in on_review_solutions:
         solution.status = SolutionStatus.ERROR

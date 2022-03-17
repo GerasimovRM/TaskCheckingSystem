@@ -54,7 +54,7 @@ export const TaskPreview: (props: ITaskPreview) => JSX.Element = (props: ITaskPr
         <Link to={`task/${props.taskId}`}>
             <BorderShadowBox padding="0.5vw" mb="5px">
                 <Grid templateColumns="repeat(20, 1fr)">
-                    <GridItem rowSpan={1}
+                    <GridItem alignSelf="center" rowSpan={1}
                               colSpan={1}>
                         <Icon
                             as={icon}

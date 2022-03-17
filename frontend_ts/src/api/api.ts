@@ -49,5 +49,5 @@ export const request = async (requestConfig: IRequestConfig): Promise<any> => {
         });
 }
 
-export const baseApi = 'http://localhost:5000';
-export const baseURL = 'http://localhost:3000';
+export const baseApi = 'http://82.179.126.142:5000';
+export const baseURL = 'http://82.179.126.142:3000';

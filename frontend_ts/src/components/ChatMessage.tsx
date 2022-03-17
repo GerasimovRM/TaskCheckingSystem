@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Box, Flex, Image } from '@chakra-ui/react';
+import {Box, Button, Flex, Image} from '@chakra-ui/react';
 
 import ChatBlob from './ChatBlob';
+import { Link } from 'react-router-dom';
 
 export interface IChatMessage {
     userId: number | string;
@@ -11,21 +12,18 @@ export interface IChatMessage {
 }
 
 export const ChatMessage: ({ userId, text }: IChatMessage) => JSX.Element = ({ userId, text }: IChatMessage) => {
-    const image = 'https://avatars.githubusercontent.com/u/26022093?v=4';
     const clientId = 1;
-    const clientName = 'Dungeon Master';
+    const clientName = 'User';
 
     return (
-        <Flex
-            style={{
-                marginBottom: '1vh',
-            }}
+        <Link
+            to={`?solution_id=${text}`}
         >
-            <Box flex="1">
+            <Box flex="1" mb={2}>
                 {clientId !== userId ? (
                     <Flex>
                         <Box>
-                            <Image borderRadius="full" boxSize="32px" src={image} />
+                            <Image borderRadius="full" boxSize="32px" src={localStorage.getItem("avatar_url")!} />
                         </Box>
                         <Box
                             flex="1"
@@ -35,17 +33,15 @@ export const ChatMessage: ({ userId, text }: IChatMessage) => JSX.Element = ({ u
                         >
                             <ChatBlob name={clientName} text={text}/>
                         </Box>
-                        <Box w="3vw" />
                     </Flex>
                 ) : (
                     <Flex>
-                        <Box w="3vw" />
                         <Box flex="1">
                             <ChatBlob name={clientName} text={text} />
                         </Box>
                     </Flex>
                 )}
             </Box>
-        </Flex>
+        </Link>
     );
 }

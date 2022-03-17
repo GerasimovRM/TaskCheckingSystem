@@ -56,14 +56,18 @@ export default class PageDataService {
     }
     static async getTaskSolutions(group_id: number | string,
                                   course_id: number | string,
-                                  lesson_id: number | string,
                                   task_id: number | string,
-                                  last_solution: boolean = false): Promise<ISolution> {
+                                  last_solution: boolean = false): Promise<ISolution[]> {
         const requestConfig: IRequestConfig = {
             method: "get",
-            url: `/page_data/group/${group_id}/course/${course_id}/lesson/${lesson_id}/task/${task_id}/solutions`,
+            url: `/page_data/solutions`,
             auth: true,
-            params: {last_solution: last_solution}
+            params: {
+                group_id: group_id,
+                course_id: course_id,
+                task_id: task_id,
+                only_best: last_solution
+            }
         }
         return request(requestConfig)
     }

@@ -8,6 +8,7 @@ export enum ITaskStatus {
 }
 
 export interface ISolution {
+    id: number | string
     score: number;
     code: string;
     status: ITaskStatus;
@@ -20,8 +21,6 @@ export interface ITask {
     name: string;
     description: string | null;
     max_score: number;
-    score?: number;
-    status?: ITaskStatus
 }
 
 export interface ITaskWithSolution {
@@ -30,5 +29,4 @@ export interface ITaskWithSolution {
     description: string | null;
     max_score: number;
     attachments: IAttachmentTask[];
-    solution: ISolution;
 }

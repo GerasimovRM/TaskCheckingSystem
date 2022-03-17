@@ -11,8 +11,9 @@ export interface IChatBlob {
 export default function ChatBlob({ name, text }: IChatBlob) {
     return (
         <Box
-            bg="gray50"
+            bg="gray.50"
             borderWidth="1px"
+            width="100%"
             borderRadius="md"
             style={{
                 padding: '0.5em',
@@ -26,7 +27,7 @@ export default function ChatBlob({ name, text }: IChatBlob) {
             >
                 {name}
             </Box>
-            <Text color="gray.500">{text}</Text>
+            <Text color="gray.500" isTruncated>{text}</Text>
         </Box>
     );
 }

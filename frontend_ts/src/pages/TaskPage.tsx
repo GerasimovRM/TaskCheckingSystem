@@ -6,7 +6,7 @@ import {
     Flex,
     Grid,
     GridItem,
-    Heading,
+    Heading, Icon,
     Tab,
     TabList,
     TabPanel,
@@ -18,17 +18,22 @@ import {
 import {darcula} from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter';
 import {TaskAttachment} from "../components/TaskAttachment";
-import {ITaskStatus, ITaskWithSolution} from "../models/ITask";
+import {ISolution, ITaskStatus, ITaskWithSolution} from "../models/ITask";
 import {TaskInfo} from "../components/TaskInfo";
 import PageDataService from "../api/PageDataService";
 import {BaseSpinner} from "../components/BaseSpinner";
 import Chat from "../components/Chat";
 import fileDialog from "file-dialog";
+import {useLocation} from "react-router-dom";
+import { BiSend } from 'react-icons/all';
 
 export default function TaskPage() {
     const {groupId, courseId, lessonId, taskId} = useParams();
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [taskWithSolution, setTaskWithSolution] = useState<ITaskWithSolution>()
+    const [solutions, setSolutions] = useState<ISolution[]>()
+    const [currentSolutionId, setCurrentSolutionId] = useState<number>()
+    const location = useLocation();
 
     const sendFileFromDialog = () => {
         fileDialog().then(async (files) => {
@@ -55,23 +60,33 @@ export default function TaskPage() {
         async function fetchTask() {
             const taskResponse = await PageDataService.getGroupCourseLessonTask(groupId!, courseId!, lessonId!, taskId!)
             setTaskWithSolution(taskResponse)
+            const solutionsResponse = await PageDataService.getTaskSolutions(groupId!, courseId!, taskId!)
+            setSolutions(solutionsResponse)
+            const solution_id=new URLSearchParams(location.search).get("solution_id")
+            const current_solution = solution_id && solutionsResponse.find((solution) => String(solution.id) === solution_id)
+            if (current_solution)
+                setCurrentSolutionId(current_solution && Number(current_solution.id))
+            else if (solutionsResponse[0])
+                setCurrentSolutionId(Number(solutionsResponse[0].id))
         }
 
         fetchTask().then(() => {
             setIsLoading(false)
         })
-    }, [groupId, courseId, lessonId, taskId, isLoading])
+    }, [groupId, courseId, lessonId, taskId, isLoading, location])
     if (isLoading)
         return <BaseSpinner/>;
     return (
-        <Grid templateColumns='repeat(5, 1fr)' gap={6}>
-            <GridItem colSpan={4}>
+        <Grid templateColumns='repeat(4, 1fr)' gap={6}>
+            <GridItem colSpan={3}>
                 <Heading>{taskWithSolution?.name}</Heading>
                 <Tabs isFitted variant='enclosed'>
                     <TabList>
                         <Tab>Условие задачи</Tab>
-                        {taskWithSolution?.solution &&
-                        <Tab isDisabled={taskWithSolution!.solution === undefined}>Решение</Tab>
+                        {solutions && solutions[0] &&
+                            <Tab isDisabled={solutions.length === 0}>
+                                {solutions.length !== 0 && "Решение"}
+                            </Tab>
                         }
                     </TabList>
                     <TabPanels>
@@ -85,16 +100,16 @@ export default function TaskPage() {
                                 <TaskAttachment key={index} {...v} />
                             ))}
                         </TabPanel>
-                        {taskWithSolution?.solution &&
+                        {solutions && solutions[0] &&
                         <TabPanel>
                             <Flex>
                                 <Box flex="1" borderRadius="md" h="75vh">
                                     <Flex direction="column">
                                         <TaskInfo
-                                            status={taskWithSolution?.solution.status}
-                                            points={taskWithSolution?.solution.score}
-                                            maxPoints={taskWithSolution?.max_score}
-                                            date={taskWithSolution?.solution.time_start}
+                                            status={solutions.find(sol => Number(sol.id) === currentSolutionId)!.status}
+                                            points={solutions.find(sol => Number(sol.id) === currentSolutionId)!.score}
+                                            maxPoints={taskWithSolution?.max_score!}
+                                            date={solutions.find(sol => Number(sol.id) === currentSolutionId)!.time_start}
                                         />
                                         <Box flex="1">
                                             <SyntaxHighlighter
@@ -109,7 +124,7 @@ export default function TaskPage() {
                                                     height: '100%',
                                                 }}
                                             >
-                                                {taskWithSolution?.solution.code}
+                                                {solutions && solutions[0] && solutions[0].code}
                                             </SyntaxHighlighter>
                                         </Box>
                                     </Flex>
@@ -121,12 +136,19 @@ export default function TaskPage() {
                 </Tabs>
             </GridItem>
             <GridItem>
-                <Button alignSelf="center" mb={5}
-                        onClick={() => sendFileFromDialog()}
+                <Button onClick={sendFileFromDialog}
+                        mb={2}
+                        width={"100%"}
                 >
+                    <Icon
+                        as={BiSend}
+                        textAlign="center"
+                        w="6"
+                        h="6"
+                    />
                     Отправить решение
                 </Button>
-                <Box h="60vh" bg="gray.50" borderRadius="md">
+                <Box bg="gray.50" borderRadius="md">
                     <Flex direction="column" h="100%">
                         <Box
                             w="100%"
@@ -141,9 +163,10 @@ export default function TaskPage() {
                                 Чат
                             </Heading>
                         </Box>
-                        <Box flex="1" h="100%">
-                            <Chat/>
-                        </Box>
+                        <Chat
+                            messages={solutions && solutions[0] && solutions?.map((solution) => `${solution.id}`)}
+                            event={setCurrentSolutionId}
+                        />
                     </Flex>
                 </Box>
             </GridItem>
