@@ -12,45 +12,37 @@ export interface IChat {
 
 export default function Chat({messages, event}: IChat) {
     return (
-        <div
-            style={{
-                padding: '0.5em',
-                height: '100%',
-            }}
-        >
-            <Flex direction="column" h="100%">
-                <Box>
-                    {messages?.sort((a, b) => {
-                        const n_a = Number(a)
-                        const n_b = Number(b)
-                        if (n_a > n_b) return 1
-                        else if (n_a < n_b) return -1
-                        else return 0
-                    }).map((message) => {
-                            if (event) {
-                                return (
-                                    <ChatMessage key={message} userId={0} text={message}/>
-                                )
-                            }
-                            else {
-                                return <ChatMessage userId={0} text={message}/>
-                            }
-                    }
-                    )}
-                </Box>
-                <Box>
-                    <ChatInput
-                        onSend={(text: string) =>
-                            new Promise((res) => {
-                                setTimeout(() => {
-                                    console.log(text);
-                                    res(true);
-                                }, 3000);
-                            })
+        <Flex direction="column" h="100%" padding='0.5em'>
+            <Box>
+                {messages?.sort((a, b) => {
+                    const n_a = Number(a)
+                    const n_b = Number(b)
+                    if (n_a > n_b) return 1
+                    else if (n_a < n_b) return -1
+                    else return 0
+                }).map((message) => {
+                        if (event) {
+                            return (
+                                <ChatMessage key={message} userId={0} text={message}/>
+                            )
+                        } else {
+                            return <ChatMessage userId={0} text={message}/>
                         }
-                    />
-                </Box>
-            </Flex>
-        </div>
+                    }
+                )}
+            </Box>
+            <Box>
+                <ChatInput
+                    onSend={(text: string) =>
+                        new Promise((res) => {
+                            setTimeout(() => {
+                                console.log(text);
+                                res(true);
+                            }, 3000);
+                        })
+                    }
+                />
+            </Box>
+        </Flex>
     );
 }

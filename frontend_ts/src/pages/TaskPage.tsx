@@ -32,14 +32,18 @@ import SolutionService from "../services/SolutionService";
 import {TaskStudentsList} from "../components/TaskStudentsList";
 import {IGroupRole} from "../models/IGroupRole";
 import GroupService from "../services/GroupService";
+import {useTypedSelector} from "../hooks/useTypedSelector";
+import {useActions} from "../hooks/useActions";
+import {BorderShadowBox} from "../components/BorderShadowBox";
 
 export default function TaskPage() {
     const {groupId, courseId, lessonId, taskId} = useParams();
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [task, setTask] = useState<ITask>()
-    const [solution, setSolution] = useState<ISolution | null>()
     const location = useLocation();
     const [groupRole, setGroupRole] = useState<IGroupRole>()
+    const {current_solution} = useTypedSelector(state => state.solution)
+    const {fetchBestSolution, clearSolution} = useActions()
 
     const sendFileFromDialog = () => {
         fileDialog().then(async (files) => {
@@ -57,8 +61,8 @@ export default function TaskPage() {
             console.log(resp)
              */
             const res = await SolutionService.postSolution(groupId!, courseId!, lessonId!, taskId!, files)
-            console.log(res)
-            setIsLoading(true)
+            // TODO: что делать после отправки задачи?
+            clearSolution()
         })
     }
 
@@ -69,30 +73,33 @@ export default function TaskPage() {
             const groupRole = await GroupService.getGroupRole(groupId!)
             setGroupRole(groupRole)
             if (groupRole === IGroupRole.STUDENT) {
-                const solution = await SolutionService.getBestSolution(groupId!, courseId!, taskId!)
-                if (solution)
-                    setSolution(solution)
+                if (!current_solution) {
+                    fetchBestSolution(groupId!, courseId!, taskId!)
+                }
             }
-
             // const solution_id=new URLSearchParams(location.search).get("solution_id")
         }
         if (isLoading)
             fetchTask().then(() => {
                 setIsLoading(false)
         })
-    }, [groupId, courseId, lessonId, taskId, isLoading, location])
+        return () => {
+            clearSolution()
+        }
+    }, [groupId, courseId, lessonId, taskId, location])
     if (isLoading)
         return <BaseSpinner/>;
+    // TODO: костыль с количеством строк
     return (
-        <Grid templateColumns='repeat(5, 2fr)' gap={6}>
+        <Grid templateColumns='repeat(5, 2fr)' gap={5}>
             <GridItem colSpan={5}>
                 <Heading mb={2}>{task?.name}</Heading>
             </GridItem>
-            <GridItem colSpan={3}>
+            <GridItem colSpan={groupRole === IGroupRole.STUDENT? 4: 3}>
                 <Tabs isFitted variant='enclosed'>
                     <TabList>
                         <Tab>Условие задачи</Tab>
-                        {solution &&
+                        {current_solution &&
                             <Tab>
                                 Решение
                             </Tab>
@@ -109,23 +116,22 @@ export default function TaskPage() {
                                 <TaskAttachment key={index} {...v} />
                             ))}
                         </TabPanel>
-                        {solution &&
+                        {current_solution &&
                         <TabPanel>
-                            <Flex>
-                                <TaskInfo
-                                    status={solution.status}
-                                    points={solution.score}
-                                    maxPoints={task!.max_score}
-                                    date={solution.time_start}
-                                    code={solution.code}
-                                />
-                            </Flex>
+                            <TaskInfo
+                                status={current_solution.status}
+                                points={current_solution.score}
+                                maxPoints={task!.max_score}
+                                date={current_solution.time_start}
+                                code={current_solution.code}
+                                groupRole={groupRole!}
+                            />
                         </TabPanel>
                         }
                     </TabPanels>
                 </Tabs>
             </GridItem>
-            <GridItem>
+            <GridItem colSpan={1}>
                 {groupRole === IGroupRole.STUDENT &&
                     <Button onClick={sendFileFromDialog}
                             mb={2}
@@ -141,28 +147,18 @@ export default function TaskPage() {
                         Отправить решение
                     </Button>
                 }
-                <Box bg="gray.50" borderRadius="md">
+                <BorderShadowBox>
                     <Flex direction="column" h="100%">
-                        <Box
-                            w="100%"
-                            borderRadius="md"
-                            style={{
-                                padding: '1vh 0',
-                                borderRadius:
-                                    'var(--chakra-radii-md) var(--chakra-radii-md) 0 0',
-                            }}
-                        >
-                            <Heading size="lg" color="gray.600" textAlign="center">
-                                Чат
-                            </Heading>
-                        </Box>
+                        <Heading size="lg" textAlign="center">
+                            Чат
+                        </Heading>
                         <Chat/>
                     </Flex>
-                </Box>
+                </BorderShadowBox>
             </GridItem>
             {groupRole !== IGroupRole.STUDENT &&
-                <GridItem>
-                    <TaskStudentsList event={setSolution}/>
+                <GridItem colSpan={1}>
+                    <TaskStudentsList />
                 </GridItem>
             }
         </Grid>

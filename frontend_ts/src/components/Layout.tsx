@@ -77,8 +77,10 @@ export const Layout: FunctionComponent = ({ children }) => {
             </Flex>
         </Flex>
         <Container
-            maxW="container.xl"
-            paddingTop='5vh'
+            paddingTop='2vh'
+            maxW="inherit"
+            paddingLeft="10vh"
+            paddingRight="10vh"
         >
         {children}
         </Container>

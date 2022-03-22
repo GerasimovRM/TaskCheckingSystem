@@ -23,7 +23,7 @@ export default class SolutionService {
     static async getBestSolution(group_id: number | string,
                                  course_id: number | string,
                                  task_id: number | string,
-                                 user_id?: number): Promise<ISolution | null> {
+                                 user_id?:  number | string): Promise<ISolution | null> {
         const requestConfig: IRequestConfig = {
             method: "get",
             url: `/solution/get_best`,

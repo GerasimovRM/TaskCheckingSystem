@@ -1,6 +1,6 @@
 import {Link} from 'react-router-dom';
 
-import {Grid, GridItem, Icon, Progress, SkeletonCircle, SkeletonText, Text} from '@chakra-ui/react';
+import {Grid, GridItem, HStack, Icon, Progress, SkeletonCircle, SkeletonText, Text, VStack} from '@chakra-ui/react';
 import {BorderShadowBox} from "./BorderShadowBox";
 import {ITaskPreviewStudent} from '../models/ITaskPreviewStudent';
 import {ISolutionStatus} from "../models/ITask";
@@ -78,23 +78,22 @@ export const TaskPreviewStudent: (props: ITaskPreviewStudent) => JSX.Element = (
     return (
         <Link to={`task/${props.taskId}`}>
             <BorderShadowBox padding="0.5vw" mb="5px">
-                <Grid templateColumns="repeat(20, 1fr)">
-                    <GridItem alignSelf="center" rowSpan={1}
-                              colSpan={1}>
-                        <SkeletonCircle size="6" isLoaded={Boolean(isLoaded)}>
-                            <Icon
-                                as={status?.icon}
-                                color={status?.iconColor}
-                                textAlign="center"
-                                w="6"
-                                h="6"
-                            />
-                        </SkeletonCircle>
+                <Grid templateColumns="repeat(14, 1fr)">
+                    <GridItem colSpan={7} verticalAlign="middle">
+                        <HStack>
+                            <SkeletonCircle size="6" isLoaded={Boolean(isLoaded)}>
+                                <Icon
+                                    as={status?.icon}
+                                    color={status?.iconColor}
+                                    textAlign="center"
+                                    w="6"
+                                    h="6"
+                                />
+                            </SkeletonCircle>
+                            <Text fontSize="2xl">{props.taskName}</Text>
+                        </HStack>
                     </GridItem>
-                    <GridItem colSpan={10} verticalAlign="middle">
-                        <Text fontSize="2xl">{props.taskName}</Text>
-                    </GridItem>
-                    <GridItem colSpan={4} colEnd={19}>
+                    <GridItem colSpan={2} colEnd={14}>
                         <SkeletonText isLoaded={Boolean(isLoaded)}
                                       noOfLines={1}>
                             <Text
@@ -105,7 +104,7 @@ export const TaskPreviewStudent: (props: ITaskPreviewStudent) => JSX.Element = (
                             </Text>
                         </SkeletonText>
                     </GridItem>
-                    <GridItem colSpan={2} colEnd={21}>
+                    <GridItem colSpan={1} colEnd={15}>
                         <SkeletonText isLoaded={Boolean(isLoaded)}
                                       noOfLines={1}>
                             <Text

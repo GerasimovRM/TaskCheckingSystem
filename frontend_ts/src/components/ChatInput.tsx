@@ -21,7 +21,7 @@ export default function ChatInput({onSend}: IChatInput) {
     const toast = useToast();
 
     return (
-        <InputGroup size="md" bgColor="white">
+        <InputGroup size="md">
             <Input
                 pr="4.5rem"
                 type="text"
