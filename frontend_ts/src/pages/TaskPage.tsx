@@ -6,7 +6,8 @@ import {
     Flex,
     Grid,
     GridItem,
-    Heading, Icon,
+    Heading,
+    Icon,
     Tab,
     TabList,
     TabPanel,
@@ -18,22 +19,27 @@ import {
 import {darcula} from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter';
 import {TaskAttachment} from "../components/TaskAttachment";
-import {ISolution, ITaskStatus, ITaskWithSolution} from "../models/ITask";
 import {TaskInfo} from "../components/TaskInfo";
-import PageDataService from "../api/PageDataService";
 import {BaseSpinner} from "../components/BaseSpinner";
 import Chat from "../components/Chat";
 import fileDialog from "file-dialog";
 import {useLocation} from "react-router-dom";
-import { BiSend } from 'react-icons/all';
+import {BiSend} from 'react-icons/all';
+import {ISolution} from "../models/ISolution";
+import TaskService from "../services/TaskService";
+import {ITask} from "../models/ITask";
+import SolutionService from "../services/SolutionService";
+import {TaskStudentsList} from "../components/TaskStudentsList";
+import {IGroupRole} from "../models/IGroupRole";
+import GroupService from "../services/GroupService";
 
 export default function TaskPage() {
     const {groupId, courseId, lessonId, taskId} = useParams();
     const [isLoading, setIsLoading] = useState<boolean>(true)
-    const [taskWithSolution, setTaskWithSolution] = useState<ITaskWithSolution>()
-    const [solutions, setSolutions] = useState<ISolution[]>()
-    const [currentSolutionId, setCurrentSolutionId] = useState<number>()
+    const [task, setTask] = useState<ITask>()
+    const [solution, setSolution] = useState<ISolution | null>()
     const location = useLocation();
+    const [groupRole, setGroupRole] = useState<IGroupRole>()
 
     const sendFileFromDialog = () => {
         fileDialog().then(async (files) => {
@@ -50,7 +56,7 @@ export default function TaskPage() {
             const resp = await request(requestConfig)
             console.log(resp)
              */
-            const res = await PageDataService.postTaskSolution(groupId!, courseId!, lessonId!, taskId!, files)
+            const res = await SolutionService.postSolution(groupId!, courseId!, lessonId!, taskId!, files)
             console.log(res)
             setIsLoading(true)
         })
@@ -58,77 +64,61 @@ export default function TaskPage() {
 
     useEffect(() => {
         async function fetchTask() {
-            const taskResponse = await PageDataService.getGroupCourseLessonTask(groupId!, courseId!, lessonId!, taskId!)
-            setTaskWithSolution(taskResponse)
-            const solutionsResponse = await PageDataService.getTaskSolutions(groupId!, courseId!, taskId!)
-            setSolutions(solutionsResponse)
-            const solution_id=new URLSearchParams(location.search).get("solution_id")
-            const current_solution = solution_id && solutionsResponse.find((solution) => String(solution.id) === solution_id)
-            if (current_solution)
-                setCurrentSolutionId(current_solution && Number(current_solution.id))
-            else if (solutionsResponse[0])
-                setCurrentSolutionId(Number(solutionsResponse[0].id))
-        }
+            const task = await TaskService.getTask(groupId!, courseId!, lessonId!, taskId!)
+            setTask(task)
+            const groupRole = await GroupService.getGroupRole(groupId!)
+            setGroupRole(groupRole)
+            if (groupRole === IGroupRole.STUDENT) {
+                const solution = await SolutionService.getBestSolution(groupId!, courseId!, taskId!)
+                if (solution)
+                    setSolution(solution)
+            }
 
-        fetchTask().then(() => {
-            setIsLoading(false)
+            // const solution_id=new URLSearchParams(location.search).get("solution_id")
+        }
+        if (isLoading)
+            fetchTask().then(() => {
+                setIsLoading(false)
         })
     }, [groupId, courseId, lessonId, taskId, isLoading, location])
     if (isLoading)
         return <BaseSpinner/>;
     return (
-        <Grid templateColumns='repeat(4, 1fr)' gap={6}>
+        <Grid templateColumns='repeat(5, 2fr)' gap={6}>
+            <GridItem colSpan={5}>
+                <Heading mb={2}>{task?.name}</Heading>
+            </GridItem>
             <GridItem colSpan={3}>
-                <Heading>{taskWithSolution?.name}</Heading>
                 <Tabs isFitted variant='enclosed'>
                     <TabList>
                         <Tab>Условие задачи</Tab>
-                        {solutions && solutions[0] &&
-                            <Tab isDisabled={solutions.length === 0}>
-                                {solutions.length !== 0 && "Решение"}
+                        {solution &&
+                            <Tab>
+                                Решение
                             </Tab>
                         }
                     </TabList>
                     <TabPanels>
                         <TabPanel>
-                            <Text fontSize="lg">{taskWithSolution?.description}</Text>
+                            <Text fontSize="lg">{task?.description}</Text>
                             <br/>
-                            {taskWithSolution?.attachments && taskWithSolution?.attachments.length > 0 && (
+                            {task?.attachments && task?.attachments.length > 0 && (
                                 <Heading>Вложения</Heading>
                             )}
-                            {taskWithSolution?.attachments?.map((v, index) => (
+                            {task?.attachments?.map((v, index) => (
                                 <TaskAttachment key={index} {...v} />
                             ))}
                         </TabPanel>
-                        {solutions && solutions[0] &&
+                        {solution &&
                         <TabPanel>
                             <Flex>
-                                <Box flex="1" borderRadius="md" h="75vh">
-                                    <Flex direction="column">
-                                        <TaskInfo
-                                            status={solutions.find(sol => Number(sol.id) === currentSolutionId)!.status}
-                                            points={solutions.find(sol => Number(sol.id) === currentSolutionId)!.score}
-                                            maxPoints={taskWithSolution?.max_score!}
-                                            date={solutions.find(sol => Number(sol.id) === currentSolutionId)!.time_start}
-                                        />
-                                        <Box flex="1">
-                                            <SyntaxHighlighter
-                                                language="python"
-                                                style={darcula}
-                                                showLineNumbers
-                                                wrapLongLines
-                                                customStyle={{
-                                                    margin: '0',
-                                                    borderRadius:
-                                                        '0 0 var(--chakra-radii-md) var(--chakra-radii-md)',
-                                                    height: '100%',
-                                                }}
-                                            >
-                                                {solutions && solutions[0] && solutions[0].code}
-                                            </SyntaxHighlighter>
-                                        </Box>
-                                    </Flex>
-                                </Box>
+                                <TaskInfo
+                                    status={solution.status}
+                                    points={solution.score}
+                                    maxPoints={task!.max_score}
+                                    date={solution.time_start}
+                                    code={solution.code}
+                                />
                             </Flex>
                         </TabPanel>
                         }
@@ -136,18 +126,21 @@ export default function TaskPage() {
                 </Tabs>
             </GridItem>
             <GridItem>
-                <Button onClick={sendFileFromDialog}
-                        mb={2}
-                        width={"100%"}
-                >
-                    <Icon
-                        as={BiSend}
-                        textAlign="center"
-                        w="6"
-                        h="6"
-                    />
-                    Отправить решение
-                </Button>
+                {groupRole === IGroupRole.STUDENT &&
+                    <Button onClick={sendFileFromDialog}
+                            mb={2}
+                            width={"100%"}
+                    >
+
+                        <Icon
+                            as={BiSend}
+                            textAlign="center"
+                            w="6"
+                            h="6"
+                        />
+                        Отправить решение
+                    </Button>
+                }
                 <Box bg="gray.50" borderRadius="md">
                     <Flex direction="column" h="100%">
                         <Box
@@ -163,13 +156,15 @@ export default function TaskPage() {
                                 Чат
                             </Heading>
                         </Box>
-                        <Chat
-                            messages={solutions && solutions[0] && solutions?.map((solution) => `${solution.id}`)}
-                            event={setCurrentSolutionId}
-                        />
+                        <Chat/>
                     </Flex>
                 </Box>
             </GridItem>
+            {groupRole !== IGroupRole.STUDENT &&
+                <GridItem>
+                    <TaskStudentsList event={setSolution}/>
+                </GridItem>
+            }
         </Grid>
     );
 }

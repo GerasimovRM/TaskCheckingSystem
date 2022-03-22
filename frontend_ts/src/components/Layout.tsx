@@ -20,7 +20,6 @@ import {useActions} from "../hooks/useActions";
 export const Layout: FunctionComponent = ({ children }) => {
     const {isAuth, isLoading} = useTypedSelector(state => state.auth)
     const {logout} = useActions()
-    console.log(isAuth, isLoading)
 
     return (
     <div>
@@ -79,9 +78,7 @@ export const Layout: FunctionComponent = ({ children }) => {
         </Flex>
         <Container
             maxW="container.xl"
-            style={{
-                paddingTop: '5vh',
-            }}
+            paddingTop='5vh'
         >
         {children}
         </Container>

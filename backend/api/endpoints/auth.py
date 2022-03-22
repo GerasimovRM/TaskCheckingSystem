@@ -74,6 +74,7 @@ async def login(
             else:
                 db_user = User(**vk_user.dict(),
                                vk_access_token=response_vk_access_token.access_token)
+            session.add(db_user)
             await session.commit()
         jwt_access_token = await create_access_token_user(db_user, session)
         jwt_refresh_token = await create_refresh_token_user(db_user, session, refresh_token)

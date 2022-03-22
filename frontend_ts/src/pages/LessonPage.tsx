@@ -12,26 +12,33 @@ import {
 } from '@chakra-ui/react';
 
 
-import PageDataService from "../api/PageDataService";
 import {BaseSpinner} from "../components/BaseSpinner";
-import {TaskPreview} from "../components/TaskPreview";
-import {ILessonPageData} from "../models/ILessonPageData";
-import {ISolution, ITaskStatus} from "../models/ITask";
+import {TaskPreviewStudent} from "../components/TaskPreviewStudent";
+import TaskService from "../services/TaskService";
+import {ITasksResponse} from "../models/ITasksResponse";
+import LessonService from "../services/LessonService";
+import {ILesson} from "../models/ILesson";
+import GroupService from "../services/GroupService";
+import {IGroupRole} from "../models/IGroupRole";
+import { TaskPreviewTeacher } from '../components/TaskPreviewTeacher';
 
 
 const LessonPage: FunctionComponent = () => {
     const {courseId, groupId, lessonId} = useParams();
-    const [tasks, setTasks] = useState<ILessonPageData>()
-    const [solutions, setSolutions] = useState<ISolution[]>()
+    const [tasksResponse, setTasksResponse] = useState<ITasksResponse>()
+    const [lesson, setLesson] = useState<ILesson>()
     const [isLoading, setIsLoading] = useState<boolean>(true)
+    const [groupRole, setGroupRole] = useState<IGroupRole>()
 
     useEffect(() => {
         async function fetchTasks() {
-                const tasksDataResponse = await PageDataService.getGroupCourseLessonTasks(groupId!, courseId!, lessonId!)
-                setTasks(tasksDataResponse)
-                const solutionsDataResponse = await Promise.all(tasksDataResponse.tasks.map((task) => PageDataService.getTaskSolutions(groupId!, courseId!, task.id, true)))
-                setSolutions(solutionsDataResponse.flat())
-            }
+            const lessonResponse = await LessonService.getLesson(groupId!, courseId!, lessonId!)
+            const tasksResponse = await TaskService.getTasks(groupId!, courseId!, lessonId!)
+            const groupRole = await GroupService.getGroupRole(groupId!)
+            setTasksResponse(tasksResponse)
+            setLesson(lessonResponse)
+            setGroupRole(groupRole)
+        }
         fetchTasks()
             .then(() => {
                 setIsLoading(false)
@@ -47,25 +54,29 @@ const LessonPage: FunctionComponent = () => {
                     <AccordionItem borderBottom="none" borderTop="none">
                         <AccordionButton borderWidth="1px" borderRadius="lg" padding="1vw">
                             <Box flex="1" textAlign="left">
-                                <Heading>{tasks?.lesson_name}</Heading>
+                                <Heading>{lesson!.name}</Heading>
                             </Box>
                             <AccordionIcon />
                         </AccordionButton>
                         <AccordionPanel pb={4}>
-                            {tasks?.lesson_description}
+                            {lesson!.description}
                         </AccordionPanel>
                     </AccordionItem>
                 </Accordion>
                 <Heading padding="1vw">Задачи</Heading>
-                {tasks?.tasks.map((task, i) => (
-                    <TaskPreview key={task.id}
-                                 taskId={task.id}
-                                 taskName={task.name}
-                                 taskMaxScore={task.max_score}
-                                 taskScore={solutions && solutions[i] && solutions[i].score}
-                                 taskStatus={solutions && solutions[i] && solutions[i].status}
-                    />
-                ))}
+                {tasksResponse!.tasks.map((task, i) => {
+                    if (groupRole! === IGroupRole.STUDENT)
+                        return (<TaskPreviewStudent key={task.id}
+                                                    taskId={task.id}
+                                                    taskName={task.name}
+                                                    taskMaxScore={task.max_score}
+                            />)
+                    else
+                        return (<TaskPreviewTeacher key={task.id}
+                                                    taskId={task.id}
+                                                    taskName={task.name}
+                        />)
+                })}
             </div>
         )
     }

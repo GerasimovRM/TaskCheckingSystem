@@ -1,10 +1,11 @@
 import React, {FunctionComponent, useEffect, useState} from 'react';
-import PageDataService from "../api/PageDataService";
 import {Heading, SimpleGrid, useMediaQuery} from "@chakra-ui/react";
 import {BaseSpinner} from "../components/BaseSpinner";
 import {CoursePreview} from "../components/CoursePreview";
 import {ICoursePreview} from "../models/ICoursePreview";
 import {useTypedSelector} from "../hooks/useTypedSelector";
+import GroupService from "../services/GroupService";
+import CourseService from "../services/CourseService";
 
 const HomePage: FunctionComponent = () => {
     const [coursePreviews, setCoursePreviews] = useState<ICoursePreview[]>([])
@@ -13,16 +14,16 @@ const HomePage: FunctionComponent = () => {
     const {isAuth} = useTypedSelector(state => state.auth)
     useEffect(() => {
         async function fetchCourses() {
-            const groups = await PageDataService.getGroups()
-            const courses_data = await Promise.all(groups.map((group) => PageDataService.getGroupCourses(group.id)))
+            const group_response = await GroupService.getGroups()
+            const courses_data = await Promise.all(group_response.groups.map((group) => CourseService.getCourses(group.id)))
             const courses = courses_data.map(
-                (course_data, index) => course_data.map(
+                (course_data, index) => course_data.courses.map(
                     (course): ICoursePreview => {
                         return {
                             courseId: course.id,
                             courseName: course.name,
-                            groupName: groups[index].name,
-                            groupId: groups[index].id
+                            groupName: group_response.groups[index].name,
+                            groupId: group_response.groups[index].id
                         }
                     })).flat()
             setCoursePreviews(courses)
@@ -38,10 +39,10 @@ const HomePage: FunctionComponent = () => {
         return <BaseSpinner/>;
     } else {
         if (coursePreviews.length !== 0) {
-            const previews = coursePreviews.map((v) => (
+            const previews = coursePreviews.map((v, index) => (
                 <CoursePreview
                     {...v}
-                    key={v.courseId}
+                    key={index}
                 />
             ));
             return isLargerThan768 ? (
@@ -54,12 +55,9 @@ const HomePage: FunctionComponent = () => {
             ) : (
                 <div>
                     <Heading mb={2}>Курсы</Heading>
-                    {previews.map((v) => (
-                        <>
-                            {v}
-                            <br/>
-                        </>
-                    ))}
+                    <SimpleGrid columns={4} spacing={10}>
+                        {previews}
+                    </SimpleGrid>
                 </div>
             );
         }

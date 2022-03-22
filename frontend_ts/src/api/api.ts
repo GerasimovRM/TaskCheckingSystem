@@ -49,5 +49,6 @@ export const request = async (requestConfig: IRequestConfig): Promise<any> => {
         });
 }
 
-export const baseApi = 'http://82.179.126.142:5000';
-export const baseURL = 'http://82.179.126.142:3000';
+export const baseApi = process.env.REACT_APP_API_URL
+export const baseURL = process.env.REACT_APP_SITE_URL
+    

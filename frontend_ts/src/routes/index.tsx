@@ -32,6 +32,7 @@ export const publicRoutes: IRoute[] = [
 ]
 
 export const privateRoutes: IRoute[] = [
+    {path: RouteNames.REDIRECT, key: RouteNames.REDIRECT, element: <RedirectPage />},
     {path: RouteNames.HOME, key: RouteNames.HOME, element: <HomePage />},
     {path: RouteNames.SETTINGS, key: RouteNames.SETTINGS, element: <SettingsPage />},
     {path: RouteNames.NOT_FOUND, key: RouteNames.NOT_FOUND, element: <NotFoundPage />},

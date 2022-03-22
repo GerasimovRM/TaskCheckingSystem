@@ -6,8 +6,8 @@ import {
     BreadcrumbLink,
     Text
 } from '@chakra-ui/react';
-import { ChevronRightIcon } from '@chakra-ui/icons';
-import { baseURL } from '../api/api';
+import {ChevronRightIcon} from '@chakra-ui/icons';
+import {baseURL} from '../api/api';
 import Common from "../api/Common";
 
 export default function BreadcrumbGenerator(): ReactElement {
@@ -32,9 +32,10 @@ export default function BreadcrumbGenerator(): ReactElement {
         }
         const breadcrumps: ReactElement[] = pathLinks.map((link, i) => {
             return (
-                <BreadcrumbItem key={`${baseURL}${hrefs.slice(0, 1 + i).join('/')}`} isCurrentPage={i + 1 === pathLinks.length}>
-                    <BreadcrumbLink as={Link} to={`${hrefs.slice(0, 1 + i).join('/')}`} >
-                        <Text fontSize="3xl">{link}</Text>
+                <BreadcrumbItem key={`${baseURL}${hrefs.slice(0, 1 + i).join('/')}`}
+                                isCurrentPage={i + 1 === pathLinks.length}>
+                    <BreadcrumbLink as={Link} to={`${hrefs.slice(0, 1 + i).join('/')}`}>
+                        <Text fontSize="2xl">{link}</Text>
                     </BreadcrumbLink>
                 </BreadcrumbItem>
             );
@@ -42,8 +43,10 @@ export default function BreadcrumbGenerator(): ReactElement {
         setLinks(breadcrumps);
     }, [location.pathname]);
     return (
-        <>
-            <Breadcrumb key="bread" separator={<ChevronRightIcon />}>{links}</Breadcrumb>
-        </>
-);
+        <Breadcrumb key="bread"
+                    separator={<ChevronRightIcon/>}
+                    mb={4}>
+            {links}
+        </Breadcrumb>
+    );
 }

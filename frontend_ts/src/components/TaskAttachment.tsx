@@ -39,7 +39,7 @@ export const TaskAttachment: (props: IAttachmentTask) => JSX.Element = (props: I
                 </Table>
             );
         case IAttachmentTaskTypeName.IMAGE:
-            return <Image src={`${baseApi}/page_data/load_image?image_id=${props.data.url}`} alt="Ошибка при загрузке изображения" />;
+            return <Image src={`${baseApi}/task/load_image?image_id=${props.data.url}`} alt="Ошибка при загрузке изображения" />;
         default:
             return <br />;
     }

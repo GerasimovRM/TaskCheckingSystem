@@ -1,19 +1,48 @@
-from typing import Optional
+from typing import Optional, List
 
 from fastapi import APIRouter, status, HTTPException, Depends
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
-from database.users_groups import UserGroupRole
+from database.users_groups import UserGroupRole, UsersGroups
+from models.site.group import GroupsResponse
 from services.auth_service import get_current_active_user
 from services.group_service import get_group_by_id
-from database import User, Course, Group, get_session
-from models import CourseDto, UserDto, GroupDto
-
+from database import User, Group, get_session
+from models import GroupDto
 
 router = APIRouter(
     prefix="/group",
     tags=["group"]
 )
+
+
+@router.get("/role", response_model=UserGroupRole)
+async def get_role(group_id: int,
+                   current_user: User = Depends(get_current_active_user),
+                   session: AsyncSession = Depends(get_session)) -> UserGroupRole:
+    query = await session.execute(select(UsersGroups)
+                                  .where(UsersGroups.user == current_user,
+                                         UsersGroups.group_id == group_id))
+    user_group: UsersGroups = query.scalars().first()
+    if not user_group:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Bad access to group")
+    return user_group.role
+
+
+@router.get("/get_all", response_model=GroupsResponse)
+async def get_groups(current_user: User = Depends(get_current_active_user),
+                     session: AsyncSession = Depends(get_session)) -> GroupsResponse:
+    query = await session.execute(select(UsersGroups)
+                                  .where(UsersGroups.user == current_user)
+                                  .options(joinedload(UsersGroups.group)))
+    user_groups = query.scalars().all()
+    groups = list(map(lambda t: t.group, user_groups))
+    groups_dto = list(map(lambda t: GroupDto.from_orm(t), groups))
+    return GroupsResponse(groups=groups_dto)
 
 
 @router.get("/{group_id}", response_model=GroupDto)
@@ -59,8 +88,8 @@ async def delete_group(group_id: int,
 
 @router.put("/", response_model=GroupDto)
 async def put_group(group_name: int,
-                     user: User = Depends(get_current_active_user),
-                     session: AsyncSession = Depends(get_session)) -> GroupDto:
+                    user: User = Depends(get_current_active_user),
+                    session: AsyncSession = Depends(get_session)) -> GroupDto:
     # TODO: проверить
     if user.admin or user.teacher:
         new_group = Group(name=group_name)

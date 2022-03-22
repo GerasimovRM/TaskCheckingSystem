@@ -1,6 +1,6 @@
 import {AuthActionEnum, SetAuthAction, SetErrorAction, SetIsLoadingAction} from "./types";
 import {AppDispatch} from "../../index";
-import LoginService from "../../../api/LoginService";
+import LoginService from "../../../services/LoginService";
 
 export const AuthActionCreators = {
     setIsAuth: (auth: boolean): SetAuthAction => ({type: AuthActionEnum.SET_AUTH, payload: auth}),
@@ -14,11 +14,9 @@ export const AuthActionCreators = {
             localStorage.setItem('avatar_url', response.avatar_url)
             dispatch(AuthActionCreators.setIsLoading(false))
             dispatch(AuthActionCreators.setIsAuth(true))
-            return {type: AuthActionEnum.SET_AUTH, payload: true}
         } catch (e) {
             dispatch(AuthActionCreators.setIsLoading(false))
             dispatch(AuthActionCreators.setError("Ошибка при логине"))
-            return {type: AuthActionEnum.SET_ERROR, payload: "Ошибка при логине"}
         }
     },
     logout: () => async (dispatch: AppDispatch) => {
