@@ -1,5 +1,6 @@
-from models import VkUserWithPhoto
 import aiohttp
+
+from models.vk_user_with_photo import VkUserWithPhoto
 
 
 async def get_vk_user_with_photo(access_token: str) -> VkUserWithPhoto:

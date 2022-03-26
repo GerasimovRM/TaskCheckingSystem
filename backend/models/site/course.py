@@ -2,7 +2,7 @@ from typing import List
 
 from pydantic import BaseModel
 
-from models import CourseDto
+from models.pydantic_sqlalchemy_core import CourseDto
 
 
 class CoursesResponse(BaseModel):

@@ -15,3 +15,4 @@ from .groups_courses import GroupsCourses
 from .courses_lessons import CoursesLessons
 from .lessons_tasks import LessonsTasks
 from .image import Image
+from .chat_message import ChatMessage

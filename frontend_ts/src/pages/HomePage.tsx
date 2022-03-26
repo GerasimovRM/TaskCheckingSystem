@@ -25,7 +25,7 @@ const HomePage: FunctionComponent = () => {
                             groupName: group_response.groups[index].name,
                             groupId: group_response.groups[index].id
                         }
-                    })).flat()
+                    })).flat().sort((a, b) => a.courseId - b.courseId)
             setCoursePreviews(courses)
         }
         if (isAuth) {

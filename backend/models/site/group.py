@@ -2,7 +2,7 @@ from typing import List
 
 from pydantic import BaseModel
 
-from models import GroupDto
+from models.pydantic_sqlalchemy_core import GroupDto
 
 
 class GroupsResponse(BaseModel):

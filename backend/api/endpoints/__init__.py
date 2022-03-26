@@ -6,4 +6,4 @@ from .task import router as task_router
 from .lesson import router as lesson_router
 from .solution import router as solution_router
 from .admin import router as admin_router
-
+from .chat_message import router as chat_message_router

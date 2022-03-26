@@ -29,4 +29,13 @@ export default class UserService {
         }
         return request(requestConfig)
     }
+
+    static async getUserData() : Promise<IUser> {
+        const requestConfig: IRequestConfig = {
+            method: "get",
+            url: `/user/get_data`,
+            auth: true,
+        }
+        return request(requestConfig)
+    }
 }

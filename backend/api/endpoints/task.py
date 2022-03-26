@@ -8,13 +8,13 @@ from sqlalchemy.orm import joinedload
 from starlette.responses import StreamingResponse
 
 from database.users_groups import UserGroupRole, UsersGroups
+from models.pydantic_sqlalchemy_core import TaskDto
 from models.site.group import GroupsResponse
 from models.site.task import TasksResponse
 from services.auth_service import get_current_active_user
 from services.group_service import get_group_by_id
 from database import User, Group, get_session, GroupsCourses, CoursesLessons, Lesson, LessonsTasks, \
-    Solution, Image
-from models import GroupDto, TaskDto
+    Solution, Image, ChatMessage
 
 router = APIRouter(
     prefix="/task",
@@ -130,6 +130,8 @@ async def load_image(image_id: Union[str, int],
     query = await session.execute(select(Image)
                                   .where(Image.id == f"{image_id}"))
     image_db = query.scalars().first()
+    if not image_db:
+        return
     image_bytes = BytesIO(image_db.data)
     image_bytes.seek(0)
     return StreamingResponse(image_bytes, media_type="image/png")

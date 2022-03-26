@@ -5,9 +5,8 @@ from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from database.solution import SolutionStatus
+from database.solution import SolutionStatus, Solution
 from database.users_groups import UserGroupRole
-from models import Solution
 
 from database import User, UsersGroups, CoursesLessons, get_session, GroupsCourses, LessonsTasks
 from models.site.solution import SolutionsCountResponse, SolutionResponse

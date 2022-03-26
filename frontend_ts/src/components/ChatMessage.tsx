@@ -1,46 +1,15 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 
-import {Box, Button, Flex, Image} from '@chakra-ui/react';
+import {Box, Flex, Image} from '@chakra-ui/react';
 
 import ChatBlob from './ChatBlob';
-import { Link } from 'react-router-dom';
+import {IChatMessage} from "../models/IChatMessage";
+import {useTypedSelector} from "../hooks/useTypedSelector";
 
-export interface IChatMessage {
-    userId: number | string;
-    text: string;
-}
-
-export const ChatMessage: ({ userId, text }: IChatMessage) => JSX.Element = ({ userId, text }: IChatMessage) => {
-    const clientId = 1;
-    const clientName = 'User';
-
+export const ChatMessage: (props: IChatMessage) => JSX.Element = (props: IChatMessage) => {
     return (
-        <Link
-            to={`?solution_id=${text}`}
-        >
-            <Box flex="1" mb={2}>
-                {clientId !== userId ? (
-                    <Flex>
-                        <Box>
-                            <Image borderRadius="full" boxSize="32px" src={localStorage.getItem("avatar_url")!} />
-                        </Box>
-                        <Box
-                            flex="1"
-                            style={{
-                                paddingLeft: '0.2em',
-                            }}
-                        >
-                            <ChatBlob name={clientName} text={text}/>
-                        </Box>
-                    </Flex>
-                ) : (
-                    <Flex>
-                        <Box flex="1">
-                            <ChatBlob name={clientName} text={text} />
-                        </Box>
-                    </Flex>
-                )}
-            </Box>
-        </Link>
+        <Box flex="1" mb={2}>
+            <ChatBlob user_id={props.from_id} text={props.message_text}/>
+        </Box>
     );
 }

@@ -6,11 +6,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from database.users_groups import UserGroupRole, UsersGroups
+from models.pydantic_sqlalchemy_core import GroupDto
 from models.site.group import GroupsResponse
 from services.auth_service import get_current_active_user
 from services.group_service import get_group_by_id
 from database import User, Group, get_session
-from models import GroupDto
 
 router = APIRouter(
     prefix="/group",

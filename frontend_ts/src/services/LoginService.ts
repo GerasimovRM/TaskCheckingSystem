@@ -1,9 +1,9 @@
-import {ILogin} from "../models/ILogin";
 import {IRequestConfig, request} from "../api/api";
+import {IAuthStateLogin} from "../store/reducers/auth/types";
 
 
 export default class LoginService {
-    static async loginRequest(vk_code: string): Promise<ILogin> {
+    static async loginRequest(vk_code: string): Promise<IAuthStateLogin> {
         const requestConfig: IRequestConfig = {
             method: "get",
             url: "/auth/login",
@@ -11,7 +11,7 @@ export default class LoginService {
             auth: false,
             withCredentials: true
         }
-        return await request(requestConfig)
+        return request(requestConfig)
     }
     static async logoutRequest(): Promise<any> {
         const requestConfig: IRequestConfig = {
@@ -20,6 +20,6 @@ export default class LoginService {
             auth: false,
             withCredentials: true
         }
-        return await request(requestConfig);
+        return request(requestConfig);
     }
 }

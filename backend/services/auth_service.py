@@ -14,10 +14,10 @@ from database.user import User, UserStatus
 from database.admin import Admin
 from database.teacher import Teacher
 from database.refresh_token import RefreshToken
-from models import TokenData
 from config import SECRET_KEY, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from fastapi import Response
 
+from models.site.token import TokenData
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")

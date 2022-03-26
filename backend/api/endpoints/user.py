@@ -6,9 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload, joinedload
 
 from database.users_groups import UserGroupRole
-from models import UserDto, GroupDto, LessonDto, TaskDto, CourseDto
 from database import User, Group, UsersGroups, Course, CoursesLessons, Lesson, get_session, \
     GroupsCourses, Solution
+from models.pydantic_sqlalchemy_core import UserDto
 from models.site.user import StudentsWithSolution
 from services.auth_service import get_current_active_user, get_current_user, get_password_hash
 from services.auth_service import verify_password

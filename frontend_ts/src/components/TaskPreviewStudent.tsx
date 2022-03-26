@@ -10,16 +10,15 @@ import {ISolution} from '../models/ISolution';
 import {IconType} from 'react-icons';
 import SolutionService from "../services/SolutionService";
 import {useParams} from "react-router";
-import {BaseSpinner} from "./BaseSpinner";
 
-interface IStatus {
+export interface IStatusTaskColor {
     iconColor: string;
     progressColor: string;
     icon: IconType;
     textStatus: string;
 }
 
-const getTaskPreviewStatus = (status: ISolutionStatus | undefined): IStatus => {
+export const getTaskStatusColorScheme = (status: ISolutionStatus | undefined | null): IStatusTaskColor => {
     switch (status) {
         case ISolutionStatus.ON_REVIEW:
             return {
@@ -62,14 +61,14 @@ const getTaskPreviewStatus = (status: ISolutionStatus | undefined): IStatus => {
 
 export const TaskPreviewStudent: (props: ITaskPreviewStudent) => JSX.Element = (props: ITaskPreviewStudent) => {
     const [solution, setSolution] = useState<ISolution | null>()
-    const [status, setStatus] = useState<IStatus>()
+    const [status, setStatus] = useState<IStatusTaskColor>()
     const {courseId, groupId, lessonId} = useParams()
     const [isLoaded, setIsLoaded] = useState<boolean>(false)
     useEffect(() => {
         async function fetchSolution() {
             const solution = await SolutionService.getBestSolution(groupId!, courseId!, props.taskId)
             setSolution(solution)
-            setStatus(getTaskPreviewStatus(solution?.status))
+            setStatus(getTaskStatusColorScheme(solution?.status))
         }
         fetchSolution().then(() => setIsLoaded(true))
 

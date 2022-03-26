@@ -10,9 +10,9 @@ export default function solutionReducer(state: SolutionState = initialState, act
             return {...initialState}
         case SolutionActionEnum.SET_SOLUTION:
             return {...state, current_solution: action.payload, isLoading: false}
-        case SolutionActionEnum.SET_ERROR:
+        case SolutionActionEnum.SET_SOLUTION_ERROR:
             return {...state, error: action.payload, isLoading: false}
-        case SolutionActionEnum.SET_IS_LOADING:
+        case SolutionActionEnum.SET_SOLUTION_IS_LOADING:
             return {...state, isLoading: action.payload}
         default:
             return state;

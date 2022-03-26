@@ -2,7 +2,7 @@ from typing import List
 
 from pydantic import BaseModel
 
-from models import LessonDto
+from models.pydantic_sqlalchemy_core import LessonDto
 
 
 class LessonsResponse(BaseModel):

@@ -13,3 +13,4 @@ class Group(Base):
     users = relationship("UsersGroups", back_populates="group")
     courses = relationship("GroupsCourses", back_populates="group")
     solutions = relationship("Solution", back_populates="group")
+    chat_messages = relationship("ChatMessage", back_populates="group")

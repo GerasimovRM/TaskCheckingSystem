@@ -8,12 +8,13 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from models import ResponseVkAccessToken, Token
 from config import VK_CLIENT_ID, VK_CLIENT_SECRET, VK_REDIRECT_URI
 from database import User, RefreshToken, get_session
-from models.token import TokenWithAvatar
-from services.auth_service import create_access_token_user, create_refresh_token_user, \
-    get_current_active_user
+from models.pydantic_sqlalchemy_core import UserDto
+from models.site.token import TokenWithUserData
+
+from models.response_vk_access_token import ResponseVkAccessToken
+from services.auth_service import create_access_token_user, create_refresh_token_user
 from services.auth_service import get_password_hash
 from services.vk_service import get_vk_user_with_photo
 
@@ -29,7 +30,7 @@ async def logout(response: Response):
     return {"status": "Ok"}
 
 
-@router.get("/login", response_model=TokenWithAvatar)
+@router.get("/login", response_model=TokenWithUserData)
 async def login(
                 response: Response,
                 vk_code: str, password: Optional[str] = None,
@@ -79,7 +80,7 @@ async def login(
         jwt_access_token = await create_access_token_user(db_user, session)
         jwt_refresh_token = await create_refresh_token_user(db_user, session, refresh_token)
         response.set_cookie("refresh_token", jwt_refresh_token, httponly=True)
-        return TokenWithAvatar(access_token=jwt_access_token, avatar_url=db_user.avatar_url)
+        return TokenWithUserData(access_token=jwt_access_token, user=UserDto.from_orm(db_user))
     except ValidationError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -87,7 +88,7 @@ async def login(
 
 
 # TODO: Rework. Use: https://indominusbyte.github.io/fastapi-jwt-auth/usage/refresh/
-@router.get("/refresh_token", response_model=TokenWithAvatar)
+@router.get("/refresh_token", response_model=TokenWithUserData)
 async def refresh(response: Response,
                   refresh_token: Optional[str] = Cookie(None),
                   session: AsyncSession = Depends(get_session)):
@@ -100,7 +101,7 @@ async def refresh(response: Response,
         jwt_access_token = await create_access_token_user(db_user, session)
         jwt_refresh_token = await create_refresh_token_user(db_user, session, refresh_token)
         response.set_cookie("refresh_token", jwt_refresh_token, httponly=True)
-        return TokenWithAvatar(access_token=jwt_access_token, avatar_url=db_user.avatar_url)
+        return TokenWithUserData(access_token=jwt_access_token, user=UserDto.from_orm(db_user))
     else:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

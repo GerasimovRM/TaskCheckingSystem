@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 
 import {
     Box,
@@ -22,6 +22,7 @@ export default function NotFoundPage() {
         setButtonText('Понял');
         onClose();
     };
+
     return (
         <>
             <Box textAlign="center" py={10} px={6}>

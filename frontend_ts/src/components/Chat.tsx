@@ -1,47 +1,40 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 
 import {Flex, Box, Button} from '@chakra-ui/react';
 
 import ChatInput from './ChatInput';
 import {ChatMessage} from "./ChatMessage";
+import {IChatMessage} from "../models/IChatMessage";
+import ChatMessageService from "../services/ChatMessageService";
+import {useParams} from "react-router";
+import {BaseSpinner} from "./BaseSpinner";
+import {useTypedSelector} from "../hooks/useTypedSelector";
 
-export interface IChat {
-    messages?: string[];
-    event?: Function
-}
 
-export default function Chat({messages, event}: IChat) {
+export default function Chat() {
+    const [messages, setMessages] = useState<IChatMessage[]>()
+    const {groupId, courseId, taskId} = useParams();
+    const [isLoading, setIsLoading] = useState<boolean>(true)
+    const {selectedUser, isLoading: isLoadingSelectedUser} = useTypedSelector(state => state.selectedUser)
+    useEffect(() => {
+        ChatMessageService.getChatMessages(groupId!, courseId!, taskId!, selectedUser?.id)
+            .then((data) => {
+                setMessages(data)
+                setIsLoading(false)
+            })
+    }, [selectedUser, isLoadingSelectedUser])
+    if (isLoading)
+        return <BaseSpinner/>
     return (
         <Flex direction="column" h="100%" padding='0.5em'>
             <Box>
-                {messages?.sort((a, b) => {
-                    const n_a = Number(a)
-                    const n_b = Number(b)
-                    if (n_a > n_b) return 1
-                    else if (n_a < n_b) return -1
-                    else return 0
-                }).map((message) => {
-                        if (event) {
-                            return (
-                                <ChatMessage key={message} userId={0} text={message}/>
-                            )
-                        } else {
-                            return <ChatMessage userId={0} text={message}/>
-                        }
+                {messages?.map((message, index) => {
+                        return <ChatMessage key={index} {...message}/>
                     }
                 )}
             </Box>
             <Box>
-                <ChatInput
-                    onSend={(text: string) =>
-                        new Promise((res) => {
-                            setTimeout(() => {
-                                console.log(text);
-                                res(true);
-                            }, 3000);
-                        })
-                    }
-                />
+                <ChatInput/>
             </Box>
         </Flex>
     );

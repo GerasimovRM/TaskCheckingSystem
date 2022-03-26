@@ -4,19 +4,15 @@ from fastapi import FastAPI, Depends, HTTPException, status, Response, Cookie
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
 
-from database import User, RefreshToken, Task
+from database import Task
 from database.base_meta import initialize_database, get_session
-from database.user import UserStatus
-from models import UserDto
-from models.token import Token
+from models.site.token import Token
 from services.auth_service import create_access_token_user, create_refresh_token_user, \
-    authenticate_user, get_current_active_user, get_password_hash, get_user
+    authenticate_user
 from api.endpoints import user_router, auth_router, group_router, admin_router,\
-    course_router, lesson_router, solution_router, task_router
+    course_router, lesson_router, solution_router, task_router, chat_message_router
 """
 import logging
 logger = logging.getLogger("databases")
@@ -31,6 +27,7 @@ app.include_router(lesson_router)
 app.include_router(course_router)
 app.include_router(solution_router)
 app.include_router(task_router)
+app.include_router(chat_message_router)
 
 
 # app.state.database = database
@@ -95,7 +92,7 @@ async def shutdown() -> None:
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://127.0.0.1:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]

@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import PropTypes from 'prop-types';
 
 import {
     InputGroup,
@@ -10,15 +9,23 @@ import {
 } from '@chakra-ui/react';
 
 import {MdSend} from 'react-icons/all';
+import ChatMessageService from "../services/ChatMessageService";
+import {useParams} from "react-router";
+import {useTypedSelector} from "../hooks/useTypedSelector";
+import {BaseSpinner} from "./BaseSpinner";
+import {useActions} from "../hooks/useActions";
 
 export interface IChatInput {
-    onSend: Function
+
 }
 
-export default function ChatInput({onSend}: IChatInput) {
+export default function ChatInput({}: IChatInput) {
     const [value, setValue] = useState('');
     const [loading, setLoading] = useState(false);
     const toast = useToast();
+    const {groupId, courseId, taskId} = useParams();
+    const {selectedUser, isLoading: isLoadingSelectedUser} = useTypedSelector(state => state.selectedUser)
+    const {setIsLoadingSelectedUser} = useActions()
 
     return (
         <InputGroup size="md">
@@ -36,9 +43,12 @@ export default function ChatInput({onSend}: IChatInput) {
                     icon={<MdSend/>}
                     aria-label="Send"
                     color="teal.300"
+                    isDisabled={!selectedUser}
                     isLoading={loading}
                     onClick={() => {
                         if (value.trim()) {
+                            setIsLoadingSelectedUser(!isLoadingSelectedUser)
+                            ChatMessageService.postChatMessage(groupId!, courseId!, taskId!, selectedUser?.id, value)
                             setValue('');
                             toast({
                                 title: 'Сообщение отправлено',
@@ -46,13 +56,7 @@ export default function ChatInput({onSend}: IChatInput) {
                                 duration: 4000,
                                 isClosable: true,
                                 position: 'bottom-right',
-                            });
-                            if (onSend) {
-                                setLoading(true);
-                                onSend(value).then(() => {
-                                    setLoading(false);
-                                });
-                            }
+                            })
                         }
                     }}
                 />
@@ -60,7 +64,3 @@ export default function ChatInput({onSend}: IChatInput) {
         </InputGroup>
     );
 }
-
-ChatInput.propTypes = {
-    onSend: PropTypes.func,
-};

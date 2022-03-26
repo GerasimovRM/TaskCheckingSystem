@@ -43,7 +43,10 @@ export default function TaskPage() {
     const location = useLocation();
     const [groupRole, setGroupRole] = useState<IGroupRole>()
     const {current_solution} = useTypedSelector(state => state.solution)
-    const {fetchBestSolution, clearSolution} = useActions()
+    const {fetchBestSolution, clearSolution, clearSelectedUser} = useActions()
+    const {selectedUser} = useTypedSelector(state => state.selectedUser)
+    const {user} = useTypedSelector(state => state.auth)
+    const {setSelectedUser} = useActions()
 
     const sendFileFromDialog = () => {
         fileDialog().then(async (files) => {
@@ -70,23 +73,16 @@ export default function TaskPage() {
         async function fetchTask() {
             const task = await TaskService.getTask(groupId!, courseId!, lessonId!, taskId!)
             setTask(task)
-            const groupRole = await GroupService.getGroupRole(groupId!)
-            setGroupRole(groupRole)
-            if (groupRole === IGroupRole.STUDENT) {
-                if (!current_solution) {
-                    fetchBestSolution(groupId!, courseId!, taskId!)
-                }
-            }
-            // const solution_id=new URLSearchParams(location.search).get("solution_id")
+
         }
-        if (isLoading)
-            fetchTask().then(() => {
-                setIsLoading(false)
+        fetchTask().then(() => {
+            setIsLoading(false)
         })
         return () => {
             clearSolution()
+            clearSelectedUser()
         }
-    }, [groupId, courseId, lessonId, taskId, location])
+    }, [groupId, courseId, lessonId, taskId, location, isLoading])
     if (isLoading)
         return <BaseSpinner/>;
     // TODO: костыль с количеством строк

@@ -174,7 +174,6 @@ export const TaskInfo: (props: ITaskInfo) => JSX.Element = (props: ITaskInfo) =>
                 value={currentCode}
                 onChange={value => {
                     setCurrentCode(value!)
-                    console.log(value)
                 }}
                 options={{readOnly: props.groupRole !== IGroupRole.STUDENT}}
             />

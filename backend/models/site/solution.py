@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from models import SolutionDto
+from models.pydantic_sqlalchemy_core import SolutionDto
 
 
 class SolutionResponse(SolutionDto):

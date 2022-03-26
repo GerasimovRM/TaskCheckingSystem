@@ -18,7 +18,7 @@ import {useTypedSelector} from "../hooks/useTypedSelector";
 import {useActions} from "../hooks/useActions";
 
 export const Layout: FunctionComponent = ({ children }) => {
-    const {isAuth, isLoading} = useTypedSelector(state => state.auth)
+    const {isAuth, user} = useTypedSelector(state => state.auth)
     const {logout} = useActions()
 
     return (
@@ -47,7 +47,7 @@ export const Layout: FunctionComponent = ({ children }) => {
                             <Image
                                 borderRadius="full"
                                 boxSize="48px"
-                                src={localStorage.getItem("avatar_url") !== null ? localStorage.getItem("avatar_url")! : "https://avatars.githubusercontent.com/u/26022093?v=4"}
+                                src={user?.avatar_url}
                                 onClick={logout}
                             />
                         </Center>

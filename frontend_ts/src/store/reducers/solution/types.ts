@@ -9,8 +9,8 @@ export interface SolutionState {
 export enum SolutionActionEnum {
     CLEAR_SOLUTION = "CLEAR_SOLUTION",
     SET_SOLUTION = "SET_SOLUTION",
-    SET_ERROR = "SET_ERROR",
-    SET_IS_LOADING = "SET_IS_LOADING",
+    SET_SOLUTION_ERROR = "SET_SOLUTION_ERROR",
+    SET_SOLUTION_IS_LOADING = "SET_SOLUTION_IS_LOADING",
 }
 
 export interface ClearSolutionAction {
@@ -21,13 +21,13 @@ export interface SetSolutionAction {
     type: SolutionActionEnum.SET_SOLUTION;
     payload: ISolution;
 }
-export interface SetErrorAction {
-    type: SolutionActionEnum.SET_ERROR;
+export interface SetErrorSolutionAction {
+    type: SolutionActionEnum.SET_SOLUTION_ERROR;
     payload: string;
 }
-export interface SetIsLoadingAction {
-    type: SolutionActionEnum.SET_IS_LOADING;
+export interface SetIsLoadingSolutionAction {
+    type: SolutionActionEnum.SET_SOLUTION_IS_LOADING;
     payload: boolean;
 }
 
-export type SolutionAction = SetSolutionAction | SetErrorAction | SetIsLoadingAction | ClearSolutionAction
+export type SolutionAction = SetSolutionAction | SetErrorSolutionAction | SetIsLoadingSolutionAction | ClearSolutionAction

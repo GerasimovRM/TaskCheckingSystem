@@ -1,4 +1,7 @@
 import axios, {AxiosRequestConfig, Method} from "axios";
+import {store} from "../store";
+import {AuthActionCreators} from "../store/reducers/auth/action-creators";
+import {IAuthStateLogin} from "../store/reducers/auth/types";
 
 export interface IRequestConfig {
     method: Method,
@@ -19,8 +22,9 @@ export const request = async (requestConfig: IRequestConfig): Promise<any> => {
         headers: requestConfig.headers? requestConfig.headers : {},
         withCredentials: requestConfig.withCredentials
     }
+    const state = store.getState()
     if (requestConfig.auth) {
-        const token = localStorage.getItem('access_token');
+        const token = state.auth.access_token;
         if (token) {
             axiosRequestConfig.headers = {...axiosRequestConfig.headers, Authorization: `Bearer ${token}`}
         }
@@ -37,9 +41,9 @@ export const request = async (requestConfig: IRequestConfig): Promise<any> => {
                 }
                 return await axios(axiosRefreshTokenRequestConfig)
                     .then(async (refresh_token_response) => {
-                        const token = refresh_token_response.data.access_token
-                        localStorage.setItem("access_token", token);
-                        axiosRequestConfig.headers = {...axiosRequestConfig.headers, Authorization: `Bearer ${token}`}
+                        const login_data: IAuthStateLogin = refresh_token_response.data
+                        store.dispatch(AuthActionCreators.setLogin(login_data))
+                        axiosRequestConfig.headers = {...axiosRequestConfig.headers, Authorization: `Bearer ${login_data.access_token}`}
                         return await axios(axiosRequestConfig).then(response => response.data)
                     })
                     .catch(async () => {

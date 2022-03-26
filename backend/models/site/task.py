@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from models import TaskDto
+from models.pydantic_sqlalchemy_core import TaskDto
 
 
 class TasksResponse(BaseModel):
