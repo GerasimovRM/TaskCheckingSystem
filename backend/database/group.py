@@ -1,10 +1,10 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 
-from database import Base
+from database.base_meta import BaseSQLAlchemyModel
 
 
-class Group(Base):
+class Group(BaseSQLAlchemyModel):
     __tablename__ = "dbo_group"
 
     id = Column(Integer, primary_key=True, autoincrement=True)

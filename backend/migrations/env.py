@@ -1,4 +1,5 @@
 import asyncio
+import os
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
@@ -30,6 +31,19 @@ target_metadata = metadata
 # ... etc.
 
 
+def get_url():
+    return "postgresql+asyncpg://%s:%s@%s:%s/%s" % (
+        os.getenv("DB_USERNAME"),
+        os.getenv("DB_PASSWORD"),
+        os.getenv("DB_HOST"),
+        os.getenv("DB_PORT"),
+        os.getenv("DB_DATABASE")
+    )
+
+
+config.set_main_option("sqlalchemy.url", get_url())
+
+
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
 
@@ -42,7 +56,7 @@ def run_migrations_offline():
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = get_url()
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -68,6 +82,7 @@ async def run_migrations_online():
     and associate a connection with the context.
 
     """
+    print(config.get_section(config.config_ini_section), "-" * 30)
     connectable = AsyncEngine(
         engine_from_config(
             config.get_section(config.config_ini_section),

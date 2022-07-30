@@ -103,6 +103,7 @@ celerybeat.pid
 
 # Environments
 .env
+.env_old
 .venv
 env/
 venv/
@@ -128,7 +129,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# PyCharm files
+# PyCharm
 .idea
 
 alembic.ini

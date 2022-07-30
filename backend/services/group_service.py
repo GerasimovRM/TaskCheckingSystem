@@ -1,16 +1,28 @@
-from typing import Optional, Tuple
+from typing import List
 
-from fastapi import HTTPException, status
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
-from database import User, Group
-from database.users_groups import UserGroupRole, UsersGroups
+from database import User, UsersGroups, Group, GroupsCourses
+from database.users_groups import UserGroupRole
 
 
-def get_group_by_id(group_id: int, user: User) -> Tuple[Group, UserGroupRole]:
-    user_group = next(filter(lambda t: t.group_id == group_id, user.groups), None)
-    if not user_group:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to group")
-    user_group: UsersGroups
-    return user_group.group, user_group.role
+class GroupService:
+    @staticmethod
+    async def get_group_by_id(group_id: int,
+                              session: AsyncSession) -> Group:
+        query = await session.execute(select(Group)
+                                      .where(Group.id == group_id))
+        group = query.scalars().first()
+        return group
+
+    @staticmethod
+    async def get_group_by_id_with_courses(group_id: int,
+                                           session: AsyncSession) -> Group:
+        query = await session.execute(select(Group)
+                                      .where(Group.id == group_id)
+                                      .options(joinedload(Group.courses).joinedload(GroupsCourses.course)))
+        group = query.scalars().first()
+        return group
+

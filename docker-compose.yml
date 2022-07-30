@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  postgres_db:
+    image: postgres
+    ports:
+      - "${DB_EXTERNAL_PORT}:5432"
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_DATABASE}
+      - POSTGRES_HOST=${DB_HOST}
+    volumes:  
+      - ~/Volumes/postgresql:/var/lib/postgresql/data
+    networks:
+      - db-backend
+      - backend-frontend
+      
+  backend:
+    build: ./backend
+    command: uvicorn api.server:app --host 0.0.0.0 --reload
+    volumes:
+      - ./backend:/code
+    env_file:
+      - .env
+    ports:
+      - "${BACKEND_PORT}:8000"
+    depends_on:
+      - postgres_db
+    networks:
+      - db-backend
+      
+  frontend:
+    build: ./frontend
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend:/usr/src/app
+    networks:
+      - backend-frontend
+    command: npm start
+    tty: true
+    stdin_open: true
+    
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ~/Volumes/rabbitmq/data:/var/lib/rabbitmq
+      - ~/Volumes/rabbitmq/log:/var/log/rabbitmq
+    networks:
+      - rabbitmq_go_net
+      
+  redis:
+    image: redis:7.0.4-alpine
+    command: --requirepass ${REDIS_PASSWORD}
+    ports:
+      - 6379:6379
+    volumes:
+      - ~/Volumes/redis:/data
+    
+    
+networks:
+  db-backend:
+  backend-frontend:
+  rabbitmq_go_net:
