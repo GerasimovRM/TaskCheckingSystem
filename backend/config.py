@@ -17,3 +17,4 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 DATABASE_URL = DATABASE_URL.replace("postgres", "postgresql+asyncpg", 1) + "?async_fallback=true"
 RABBITMQ_USER = os.getenv("RABBITMQ_USER")
 RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD")
+

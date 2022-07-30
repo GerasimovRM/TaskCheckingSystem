@@ -27,6 +27,7 @@
     "buffer": "^6.0.3",
     "codemirror": "^5.65.2",
     "crypto-js": "^4.1.1",
+    "env-cmd": "^10.1.0",
     "file-dialog": "^0.0.8",
     "focus-visible": "^5.2.0",
     "formik": "^2.2.9",
@@ -45,10 +46,10 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "start": "react-scripts start"
   },
   "eslintConfig": {
     "extends": [
