@@ -71,6 +71,8 @@ async def get_user(vk_id: str, session: AsyncSession) -> Optional[User]:
 
 async def authenticate_user(vk_id: str, password: str, session: AsyncSession) -> Optional[User]:
     user = await get_user(vk_id, session)
+    # user.password = get_password_hash("123")
+    # await session.commit()
     if not user:
         return None
     if not verify_password(password, user.password):

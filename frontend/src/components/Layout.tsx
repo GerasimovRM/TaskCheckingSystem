@@ -11,7 +11,7 @@ import {
     Icon,
     Center,
     WrapItem,
-    Wrap,
+    Wrap, useColorMode,
 } from '@chakra-ui/react';
 import { FiSettings, SiVk, ImExit, ImProfile } from 'react-icons/all';
 import {useTypedSelector} from "../hooks/useTypedSelector";
@@ -22,6 +22,7 @@ export const Layout: FunctionComponent = ({ children }) => {
     const {isAuth, user} = useTypedSelector(state => state.auth)
     const {logout} = useActions()
     // console.log(process.env.REACT_APP_DEV_SITE_URL)
+    const {colorMode} = useColorMode()
     return (
     <div >
         <Flex
@@ -31,12 +32,15 @@ export const Layout: FunctionComponent = ({ children }) => {
         >
             <Wrap>
                 <WrapItem>
-                <Center h="48px">
+                <Center h="48px" w="48px">
                 <Link to="/">
                     <Image
                         borderRadius='full'
                         boxSize='48px'
-                        src='https://upload.wikimedia.org/wikipedia/ru/a/ac/%D0%AD%D0%BC%D0%B1%D0%BB%D0%B5%D0%BC%D0%B0_-_%D0%9C%D0%9E%D0%A3_%D0%9B%D0%B8%D1%86%D0%B5%D0%B9_%E2%84%961_%28%D0%9F%D0%B5%D1%80%D0%BC%D1%8C%29.gif'
+                        src={colorMode === 'dark' ?
+                            require('../icons/logo_dark.png') :
+                            require('../icons/logo_light.png')
+                        }
                         alt='Lyceum 1 Logo'
                     />
                 </Link>

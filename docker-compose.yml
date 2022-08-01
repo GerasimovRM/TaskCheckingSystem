@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  postgres_db:
+  postgres-db:
     image: postgres
     ports:
       - "${DB_EXTERNAL_PORT}:5432"
@@ -26,7 +26,7 @@ services:
     ports:
       - "${BACKEND_PORT}:8000"
     depends_on:
-      - postgres_db
+      - postgres-db
     networks:
       - db-backend
       
@@ -56,7 +56,7 @@ services:
       - ~/Volumes/rabbitmq/data:/var/lib/rabbitmq
       - ~/Volumes/rabbitmq/log:/var/log/rabbitmq
     networks:
-      - rabbitmq_go_net
+      - rabbitmq-go-net
       
   redis:
     image: redis:7.0.4-alpine
@@ -65,9 +65,43 @@ services:
       - 6379:6379
     volumes:
       - ~/Volumes/redis:/data
+    networks:
+      - redis-go-net
+      
+  celery-worker:
+    build: ./backend
+    env_file:
+      - .env
+    depends_on:
+      - rabbitmq
+      - redis
+      - postgres-db
+    volumes:
+      - ./backend:/code
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: "celery -A celery_worker.worker worker -l info -Q check-solution-queue -c 1"
+    networks:
+      - rabbitmq-go-net
+      - redis-go-net
+      - db-backend
+    
+  celery-flower:
+    image: mher/flower:0.9.7
+    command: ["flower", "--broker=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672//", "--port=5555"]
+    ports:
+      - "5555:5555"
+    depends_on:
+      - rabbitmq
+      - redis
+    networks:
+      - rabbitmq-go-net
+      - redis-go-net
+    
+    
     
     
 networks:
   db-backend:
   backend-frontend:
-  rabbitmq_go_net:
+  rabbitmq-go-net:
+  redis-go-net:

@@ -3,19 +3,23 @@ from typing import AsyncIterator, Dict, Any
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import update as sqlalchemy_update
+from sqlalchemy import update as sqlalchemy_update, create_engine
 
-from config import DATABASE_URL, SQL_ECHO
+from config import DATABASE_URL, SQL_ECHO, DATABASE_URL_SYNC
 import database
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session, exc
+from sqlalchemy.orm import sessionmaker, Session, exc, scoped_session
 
-engine = create_async_engine(DATABASE_URL, future=True, echo=SQL_ECHO)
+engine_async = create_async_engine(DATABASE_URL, future=True, echo=SQL_ECHO)
+engine_sync = create_engine(DATABASE_URL_SYNC, echo=SQL_ECHO)
+print(DATABASE_URL_SYNC)
 Base = declarative_base()
 metadata = Base.metadata
-async_session_factory = sessionmaker(engine,
+async_session_factory = sessionmaker(engine_async,
                                      expire_on_commit=False,
                                      class_=AsyncSession)
+sync_session_factory = sessionmaker(engine_sync,
+                                    autocommit=False)
 
 
 class BaseSQLAlchemyModel(Base):
@@ -57,3 +61,9 @@ async def initialize_database():
 async def get_session() -> AsyncIterator[AsyncSession]:
     async with async_session_factory() as session:
         yield session
+
+
+def get_sync_session() -> Session:
+    session = sync_session_factory()
+    return session
+
