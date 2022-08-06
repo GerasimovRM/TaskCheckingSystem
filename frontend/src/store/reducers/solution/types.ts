@@ -4,6 +4,7 @@ export interface SolutionState {
     current_solution?: ISolution | null;
     isLoading: boolean;
     error?: string;
+    isChanged: boolean
 }
 
 export enum SolutionActionEnum {
@@ -12,7 +13,8 @@ export enum SolutionActionEnum {
     SET_SOLUTION_ERROR = "SET_SOLUTION_ERROR",
     SET_SOLUTION_IS_LOADING = "SET_SOLUTION_IS_LOADING",
     SET_SOLUTION_CODE = "SET_SOLUTION_CODE",
-    SET_SOLUTION_SCORE = "SET_SOLUTION_SCORE"
+    SET_SOLUTION_SCORE = "SET_SOLUTION_SCORE",
+    SET_SOLUTION_IS_CHANGED = "SET_SOLUTION_IS_CHANGED"
 }
 
 export interface ClearSolutionAction {
@@ -42,4 +44,9 @@ export interface SetScoreSolutionAction {
     payload: number;
 }
 
-export type SolutionAction = SetSolutionAction | SetErrorSolutionAction | SetIsLoadingSolutionAction | ClearSolutionAction | SetCodeSolutionAction | SetScoreSolutionAction
+export interface SetIsChangedAction {
+    type: SolutionActionEnum.SET_SOLUTION_IS_CHANGED;
+    payload: boolean;
+}
+
+export type SolutionAction = SetSolutionAction | SetErrorSolutionAction | SetIsLoadingSolutionAction | ClearSolutionAction | SetCodeSolutionAction | SetScoreSolutionAction | SetIsChangedAction

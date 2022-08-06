@@ -32,6 +32,7 @@ import {IGroupRole} from "../models/IGroupRole";
 import {useActions} from "../hooks/useActions";
 import {Field, FieldInputProps, Form, Formik, FormikProps} from "formik";
 import SolutionService from "../services/SolutionService";
+import {get_format_date, sleep} from "../api/Common";
 
 
 export interface ITaskInfo {
@@ -69,6 +70,7 @@ const FormExample = ({ score, maxScore, onCancel, onClose }) => {
                     const updateSolution = await SolutionService.postSolutionChangeScore(current_solution!.id, false, sendScore)
                     setSolution(updateSolution)
                     actions.setSubmitting(false)
+
                 }}
         >
             {(props) => (
@@ -185,10 +187,9 @@ export const TaskInfo: (props: ITaskInfo) => JSX.Element = (props: ITaskInfo) =>
         theme.text = 'Зачтено'
     }
     const {colorMode} = useColorMode()
-    const {current_solution} = useTypedSelector(state => state.solution)
-    const {setCodeSolution} = useActions()
-    let format_date = new Date(props.date)
-    format_date = new Date(Number(format_date) - new Date().getTimezoneOffset() * 60000)
+    const {current_solution, isChanged} = useTypedSelector(state => state.solution)
+    const {setCodeSolution, setIsChangedSolution} = useActions()
+    const format_date = get_format_date(props.date)
 
     useEffect(() => {
         console.log()
@@ -230,8 +231,11 @@ export const TaskInfo: (props: ITaskInfo) => JSX.Element = (props: ITaskInfo) =>
                 theme={colorMode === "light"? "light": "vs-dark"}
                 value={current_solution?.code}
                 onChange={value => {
-                    if (value)
+                    if (value) {
                         setCodeSolution(value)
+                        if (!isChanged)
+                            setIsChangedSolution(true)
+                    }
                 }}
                 options={{readOnly: props.groupRole !== IGroupRole.STUDENT}}
             />

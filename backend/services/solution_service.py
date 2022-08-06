@@ -10,6 +10,22 @@ from database.solution import SolutionStatus
 
 class SolutionService:
     @staticmethod
+    async def get_all_solutions(group_id: int,
+                                course_id: int,
+                                task_id: int,
+                                user_id: int,
+                                session: AsyncSession) -> List[Solution]:
+        q = select(Solution).where(Solution.group_id == group_id,
+                                   Solution.course_id == course_id,
+                                   Solution.task_id == task_id,
+                                   Solution.user_id == user_id)\
+            .order_by(Solution.time_finish.asc(), Solution.time_start.asc())
+        print(q, "<---------------------")
+        query = await session.execute(q)
+        solutions = query.scalars().all()
+        return solutions
+
+    @staticmethod
     async def get_best_solutions(group_id: int,
                                  course_id: int,
                                  task_id: int,
@@ -27,6 +43,9 @@ class SolutionService:
         query = await session.execute(q)
         solutions = list(map(lambda s: s[0], filter(lambda t: t[1] == 1, query.fetchall())))
         return solutions
+
+    # @staticmethod
+    # async def get_all_review_solution(session: AsyncSession):
 
     @staticmethod
     async def get_user_solution_on_review(group_id: int,
@@ -67,7 +86,6 @@ class SolutionService:
                            course_id: int,
                            task_id: int,
                            solution_id: int,
-
                            user_id: int,
                            session: AsyncSession) -> Solution:
         q = select(Solution) \

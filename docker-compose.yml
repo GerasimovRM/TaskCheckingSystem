@@ -29,6 +29,8 @@ services:
       - postgres-db
     networks:
       - db-backend
+      - redis-go-net
+      - rabbitmq-go-net
       
   frontend:
     build: ./frontend

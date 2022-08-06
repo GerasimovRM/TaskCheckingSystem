@@ -25,7 +25,7 @@ export default function Chat() {
 
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: 'nearest', inline: 'start' })
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth", inline: 'start' })
     }
     useEffect(() => {
         fetchChatMessages(groupId!, courseId!, taskId!, selectedUser?.id)
@@ -33,6 +33,7 @@ export default function Chat() {
         const neededUsersIds = chatMessages.map((message) => message.from_id)
             .filter(x => !loadedUsersIds.includes(x))
         neededUsersIds.forEach(userId => fetchUserData(userId))
+
         return () => {
             clearChatMessages()
         }
@@ -44,7 +45,7 @@ export default function Chat() {
         }
     }, [isLoadingChatMessages])
     return (
-        <Flex direction="column" padding='0.5em'>
+        <Flex direction="column" >
             <Flex maxH="60vh" direction="column" overflowY={"scroll"} width={"100%"} mb={2} overflow={"auto"} sx={{
                 '&::-webkit-scrollbar': {
                     width: '16px',

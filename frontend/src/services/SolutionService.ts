@@ -102,4 +102,18 @@ export default class SolutionService {
         }
         return await request(requestConfig)
     }
+    static async getAllTaskSolutions(groupId: number | string,
+                                     courseId: number | string,
+                                     taskId: number | string): Promise<ISolution[]> {
+        const requestConfig: IRequestConfig = {
+            method: "get",
+            url: `/solution/get_all_task_solutions`,
+            auth: true,
+            params: {
+                group_id: groupId,
+                course_id: courseId,
+                task_id: taskId}
+        }
+        return await request(requestConfig)
+    }
 }

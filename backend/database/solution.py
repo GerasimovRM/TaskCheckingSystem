@@ -29,6 +29,7 @@ class Solution(BaseSQLAlchemyModel):
     status = Column(Enum(SolutionStatus), nullable=False, default=SolutionStatus.ON_REVIEW)
     time_start = Column(DateTime, nullable=False, default=datetime.now)
     time_finish = Column(DateTime, nullable=True)
+    check_system_answer = Column(String, nullable=True)
 
     user = relationship("User", back_populates="solutions")
     task = relationship("Task", back_populates="solutions")

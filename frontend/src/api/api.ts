@@ -22,9 +22,8 @@ export const request = async (requestConfig: IRequestConfig): Promise<any> => {
         headers: requestConfig.headers? requestConfig.headers : {},
         withCredentials: requestConfig.withCredentials
     }
-    const state = store.getState()
     if (requestConfig.auth) {
-        const token = state.auth.access_token;
+        const token = localStorage.getItem("access_token");
         if (token) {
             axiosRequestConfig.headers = {...axiosRequestConfig.headers, Authorization: `Bearer ${token}`}
         }

@@ -29,16 +29,18 @@ import TaskService from "../services/TaskService";
 import {BorderShadowBox} from "../components/BorderShadowBox";
 import Chat from "../components/Chat";
 import {ISolution} from "../models/ISolution";
+import {SolutionInfo} from "../components/SolutionInfo";
 
 export default function TaskPage() {
     const {groupId, courseId, lessonId, taskId} = useParams();
     const [task, setTask] = useState<ITask>()
     const [groupRole, setGroupRole] = useState<IGroupRole>()
     const {setSolution, setSelectedUser, clearSolution, clearSelectedUser} = useActions()
-    const {current_solution} = useTypedSelector(state => state.solution)
+    const {current_solution, isChanged: solutionIsChanged} = useTypedSelector(state => state.solution)
     const {user} = useTypedSelector(state => state.auth)
 
     const {isOpen, onOpen, onClose} = useDisclosure()
+    const [solutions, setSolutions] = useState<ISolution[]>([])
 
     const sendFileFromDialog = () => {
         fileDialog().then(async (files) => {
@@ -85,15 +87,22 @@ export default function TaskPage() {
     }, [groupRole])
 
     useEffect(() => {
+        SolutionService.getAllTaskSolutions(groupId!, courseId!, taskId!).then((solutions) => {
+            setSolutions(solutions)
+        })
         return () => {
             clearSolution()
             clearSelectedUser()
         }
     }, [])
+
+    useEffect(() => {
+    }, [solutions])
+
     // TODO: костыль с количеством строк
     return (
-        <Grid templateColumns='repeat(5, 2fr)' gap={5}>
-            <GridItem colSpan={5}>
+        <Grid templateColumns='repeat(4, 2fr)' gap={4}>
+            <GridItem colSpan={4}>
                 <Heading mb={2}>{task?.name}</Heading>
                 <>
                     <Button
@@ -127,8 +136,7 @@ export default function TaskPage() {
                     </Drawer>
                 </>
             </GridItem>
-            <GridItem colSpan={groupRole === IGroupRole.STUDENT ? 4 : 3}>
-
+            <GridItem colSpan={groupRole === IGroupRole.STUDENT ? 3 : 2}>
                 {current_solution && task &&
                     <TaskInfo
                         status={current_solution.status}
@@ -143,6 +151,21 @@ export default function TaskPage() {
             <GridItem colSpan={1}>
                 {groupRole === IGroupRole.STUDENT &&
                     <div>
+                        <Button onClick={async () => {
+                            await SolutionService.postSolutionCode(groupId!, courseId!, lessonId!, taskId!, current_solution!.code)
+                        }}
+                                mb={2}
+                                width={"100%"}
+                                isDisabled={!solutionIsChanged}
+                        >
+                            Отправить решение
+                            <Icon
+                                as={BiSend}
+                                textAlign="center"
+                                w="6"
+                                h="6"
+                            />
+                        </Button>
                         <Button onClick={sendFileFromDialog}
                                 mb={2}
                                 width={"100%"}
@@ -155,31 +178,41 @@ export default function TaskPage() {
                                 h="6"
                             />
                         </Button>
-                        <Button onClick={async () => {
-                            await SolutionService.postSolutionCode(groupId!, courseId!, lessonId!, taskId!, current_solution!.code)
-                        }}
-                                mb={2}
-                                width={"100%"}
-                        >
-                            Отправить решение
-                            <Icon
-                                as={BiSend}
-                                textAlign="center"
-                                w="6"
-                                h="6"
-                            />
-                        </Button>
                     </div>
                 }
-
                 <BorderShadowBox>
-                    <Flex direction="column" h="100%">
-                        <Heading size="lg" textAlign="center">
-                            Чат
-                        </Heading>
-                        <Chat/>
-
-                    </Flex>
+                    <Tabs isFitted variant='enclosed' border={"menu"}>
+                        <TabList mb='1em'>
+                            <Tab>Чат</Tab>
+                            <Tab>Решения</Tab>
+                        </TabList>
+                        <TabPanels>
+                            <TabPanel>
+                                <Chat/>
+                            </TabPanel>
+                            <TabPanel>
+                                <Flex maxH="60vh" direction="column" overflowY={"scroll"} width={"100%"} mb={2}
+                                      overflow={"auto"} sx={{
+                                    '&::-webkit-scrollbar': {
+                                        width: '16px',
+                                        borderRadius: '8px',
+                                        backgroundColor: `rgba(170, 170, 170, 0.05)`,
+                                    },
+                                    '&::-webkit-scrollbar-thumb': {
+                                        width: '16px',
+                                        borderRadius: '8px',
+                                        backgroundColor: `rgba(170, 170, 170, 0.05)`,
+                                    },
+                                }}>
+                                    {solutions.length > 0 &&
+                                        solutions.map((solution, index) => {
+                                            return <SolutionInfo {...solution} key={index}/>
+                                        })
+                                    }
+                                </Flex>
+                            </TabPanel>
+                        </TabPanels>
+                    </Tabs>
                 </BorderShadowBox>
 
 
@@ -190,5 +223,5 @@ export default function TaskPage() {
                 </GridItem>
             }
         </Grid>
-    );
+);
 }

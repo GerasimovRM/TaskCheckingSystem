@@ -28,3 +28,4 @@ class Task(BaseSQLAlchemyModel):
     lessons = relationship("LessonsTasks", back_populates="task")
     solutions = relationship("Solution", back_populates="task")
     chat_messages = relationship("ChatMessage", back_populates="task")
+    task_test = relationship("TaskTest", back_populates="task")

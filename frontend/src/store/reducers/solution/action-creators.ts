@@ -2,7 +2,9 @@ import {
     ClearSolutionAction,
     SetCodeSolutionAction,
     SetErrorSolutionAction,
-    SetIsLoadingSolutionAction, SetScoreSolutionAction,
+    SetIsChangedAction,
+    SetIsLoadingSolutionAction,
+    SetScoreSolutionAction,
     SetSolutionAction,
     SolutionActionEnum
 } from "./types";
@@ -14,6 +16,7 @@ export const SolutionActionCreators = {
     clearSolution: (): ClearSolutionAction => ({type: SolutionActionEnum.CLEAR_SOLUTION}),
     setSolution: (solution: ISolution | null): SetSolutionAction => ({type: SolutionActionEnum.SET_SOLUTION, payload: solution}),
     setIsLoadingSolution: (payload: boolean): SetIsLoadingSolutionAction => ({type: SolutionActionEnum.SET_SOLUTION_IS_LOADING, payload}),
+    setIsChangedSolution: (payload: boolean): SetIsChangedAction => ({type: SolutionActionEnum.SET_SOLUTION_IS_CHANGED, payload}),
     setErrorSolution: (payload: string): SetErrorSolutionAction => ({type: SolutionActionEnum.SET_SOLUTION_ERROR, payload}),
     setCodeSolution: (payload: string): SetCodeSolutionAction => ({type: SolutionActionEnum.SET_SOLUTION_CODE, payload}),
     setScoreSolution: (payload: number): SetScoreSolutionAction => ({type: SolutionActionEnum.SET_SOLUTION_SCORE, payload}),

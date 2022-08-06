@@ -1,17 +1,18 @@
 from fastapi import Depends, APIRouter, HTTPException, status, UploadFile, File
-from typing import Optional
+from typing import Optional, List
 
 from sqlalchemy import select, or_, func, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
+from celery_worker.worker import check_solution
 from database.solution import SolutionStatus, Solution
 from database.users_groups import UserGroupRole
 
 from database import User, UsersGroups, CoursesLessons, get_session, GroupsCourses, LessonsTasks
 from models.pydantic_sqlalchemy_core import SolutionDto
 from models.site.solution import SolutionsCountResponse, SolutionResponse
-from services.auth_service import get_current_active_user, get_admin
+from services.auth_service import get_current_active_user, get_admin, get_teacher_or_admin
 from services.courses_lessons_service import CoursesLessonsService
 from services.groups_courses_serivce import GroupsCoursesService
 from services.lessons_tasks_service import LessonsTasksService
@@ -25,11 +26,25 @@ router = APIRouter(
 )
 
 
+@router.get("/get_all_task_solutions", response_model=List[SolutionDto])
+async def get_all_task_solutions(group_id: int,
+                                 course_id: int,
+                                 task_id: int,
+                                 current_user: User = Depends(get_current_active_user),
+                                 session: AsyncSession = Depends(get_session)) -> List[SolutionDto]:
+    solutions = await SolutionService.get_all_solutions(group_id,
+                                                        course_id,
+                                                        task_id,
+                                                        current_user.id,
+                                                        session)
+    return list(map(SolutionDto.from_orm, solutions))
+
+
 @router.get("/get_count", response_model=Optional[SolutionsCountResponse])
 async def get_solution_count(group_id: int,
                              course_id: int,
                              task_id: int,
-                             current_user: User = Depends(get_current_active_user),
+                             current_user: User = Depends(get_teacher_or_admin),
                              session: AsyncSession = Depends(get_session)) -> Optional[SolutionsCountResponse]:
     user_groups = await UsersGroupsService.get_group_users(group_id, session)
     solutions_count = len(user_groups)
@@ -236,6 +251,7 @@ async def post_solution(group_id: int,
                         code=code)
     session.add(solution)
     await session.commit()
+    result = check_solution.delay(solution.id)
     return SolutionResponse.from_orm(solution)
 
 

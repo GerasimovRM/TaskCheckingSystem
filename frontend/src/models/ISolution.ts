@@ -7,4 +7,5 @@ export interface ISolution {
     status: ISolutionStatus;
     time_start: Date;
     time_finish?: Date;
+    check_system_answer?: string;
 }

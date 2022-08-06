@@ -6,13 +6,15 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import Task
+from database import Task, Solution
 from database.base_meta import initialize_database, get_session
 from models.site.token import Token
 from services.auth_service import create_access_token_user, create_refresh_token_user, \
     authenticate_user
 from api.endpoints import user_router, auth_router, group_router, admin_router,\
     course_router, lesson_router, solution_router, task_router, chat_message_router
+from services.solution_service import SolutionService
+
 """
 import logging
 logger = logging.getLogger("databases")
@@ -91,6 +93,10 @@ async def test(session: AsyncSession = Depends(get_session)):
 @app.on_event("startup")
 async def startup() -> None:
     await initialize_database()
+    # TODO: rerun review solutions
+    # session = get_session()
+    # solutions_on_review = await SolutionService.get_user_solution_on_review()
+    # for s
 
 
 @app.on_event("shutdown")

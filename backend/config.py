@@ -3,8 +3,7 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
-
-if os.path.isfile(f"{Path(__file__).parent.resolve()}/.env"):
+if not os.getenv("DOCKER"):
     load_dotenv(f"{Path(__file__).parent.resolve()}/.env")
 VK_CLIENT_ID = os.getenv("VK_CLIENT_ID")
 VK_CLIENT_SECRET = os.getenv("VK_CLIENT_SECRET")
