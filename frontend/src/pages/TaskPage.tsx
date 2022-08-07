@@ -38,6 +38,7 @@ export default function TaskPage() {
     const {setSolution, setSelectedUser, clearSolution, clearSelectedUser} = useActions()
     const {current_solution, isChanged: solutionIsChanged} = useTypedSelector(state => state.solution)
     const {user} = useTypedSelector(state => state.auth)
+    const {selectedUser} = useTypedSelector(state => state.selectedUser)
 
     const {isOpen, onOpen, onClose} = useDisclosure()
     const [solutions, setSolutions] = useState<ISolution[]>([])
@@ -87,17 +88,17 @@ export default function TaskPage() {
     }, [groupRole])
 
     useEffect(() => {
-        SolutionService.getAllTaskSolutions(groupId!, courseId!, taskId!).then((solutions) => {
-            setSolutions(solutions)
-        })
+        if (selectedUser)
+            SolutionService.getAllTaskSolutionsByUserId(groupId!, courseId!, taskId!, selectedUser.id).then((solutions) => {
+                setSolutions(solutions)
+            })
+    }, [selectedUser])
+    useEffect(() => {
         return () => {
             clearSolution()
             clearSelectedUser()
         }
     }, [])
-
-    useEffect(() => {
-    }, [solutions])
 
     // TODO: костыль с количеством строк
     return (
@@ -188,7 +189,7 @@ export default function TaskPage() {
                         </TabList>
                         <TabPanels>
                             <TabPanel>
-                                <Chat/>
+                                {/*<Chat/>*/}
                             </TabPanel>
                             <TabPanel>
                                 <Flex maxH="60vh" direction="column" overflowY={"scroll"} width={"100%"} mb={2}

@@ -10,7 +10,7 @@ import {
     Stack,
     Text,
     useColorMode,
-    useDisclosure
+    useDisclosure, VStack
 } from '@chakra-ui/react';
 import {BorderShadowBox} from "./BorderShadowBox";
 import {ISolution} from "../models/ISolution";
@@ -43,8 +43,13 @@ export const SolutionCheckSystemInfo: (solution: ISolution) => JSX.Element = (so
                         Решение № {solution.id}
                     </DrawerHeader>
                     <DrawerBody>
-                        <Code fontSize="lg" children={solution.check_system_answer}/>
-
+                        <VStack spacing={1}>
+                        {
+                            solution.check_system_answer?.split("\n").map(st => {
+                                return <Code fontSize="lg" children={st}/>
+                            })
+                        }
+                        </VStack>
                     </DrawerBody>
                 </DrawerContent>
             </Drawer>

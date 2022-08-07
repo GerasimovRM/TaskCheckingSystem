@@ -1,7 +1,8 @@
 import axios, {AxiosRequestConfig, Method} from "axios";
 import {store} from "../store";
 import {AuthActionCreators} from "../store/reducers/auth/action-creators";
-import {IAuthStateLogin} from "../store/reducers/auth/types";
+import {IAuthLogin} from "../models/IAuthLogin";
+
 
 export interface IRequestConfig {
     method: Method,
@@ -40,7 +41,7 @@ export const request = async (requestConfig: IRequestConfig): Promise<any> => {
                 }
                 return await axios(axiosRefreshTokenRequestConfig)
                     .then(async (refresh_token_response) => {
-                        const login_data: IAuthStateLogin = refresh_token_response.data
+                        const login_data: IAuthLogin = refresh_token_response.data
                         store.dispatch(AuthActionCreators.setLogin(login_data))
                         axiosRequestConfig.headers = {...axiosRequestConfig.headers, Authorization: `Bearer ${login_data.access_token}`}
                         return await axios(axiosRequestConfig).then(response => response.data)

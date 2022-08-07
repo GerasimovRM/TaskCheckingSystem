@@ -2,7 +2,6 @@ import {AuthAction, AuthActionEnum, AuthState} from "./types";
 import {encodeLocal} from "../../../api/Common";
 
 const initialState: AuthState = {
-    access_token: encodeLocal(localStorage.getItem("access_token")),
     isAuth: false,
     isLoading: false,
 }

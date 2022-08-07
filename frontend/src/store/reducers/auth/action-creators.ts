@@ -1,6 +1,5 @@
 import {
     AuthActionEnum,
-    IAuthStateLogin,
     SetLoginAuthAction,
     SetAuthAction, SetErrorAuthAction, SetIsLoadingAuthAction,
     SetUserAuthAction
@@ -10,12 +9,13 @@ import LoginService from "../../../services/LoginService";
 import {decodeLocal} from "../../../api/Common";
 import {IUser} from "../../../models/IUser";
 import UserService from "../../../services/UserService";
+import {IAuthLogin} from "../../../models/IAuthLogin";
 
 export const AuthActionCreators = {
     setIsAuth: (auth: boolean): SetAuthAction => ({type: AuthActionEnum.SET_AUTH, payload: auth}),
     setIsLoadingAuth: (payload: boolean): SetIsLoadingAuthAction => ({type: AuthActionEnum.SET_AUTH_IS_LOADING, payload}),
     setErrorAuth: (payload: string): SetErrorAuthAction => ({type: AuthActionEnum.SET_AUTH_ERROR, payload}),
-    setLogin: (payload: IAuthStateLogin): SetLoginAuthAction => ({type: AuthActionEnum.SET_LOGIN, payload}),
+    setLogin: (payload: IAuthLogin): SetLoginAuthAction => ({type: AuthActionEnum.SET_LOGIN, payload}),
     setUser: (payload?: IUser): SetUserAuthAction => ({type: AuthActionEnum.SET_AUTH_USER, payload}),
     loadUser: () => async (dispatch: AppDispatch) => {
         UserService.getUserData().then((user) =>

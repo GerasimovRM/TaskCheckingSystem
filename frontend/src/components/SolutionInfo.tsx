@@ -1,6 +1,17 @@
 import {Link} from 'react-router-dom';
 
-import {Button, Center, Divider, LinkBox, Stack, Text, useColorMode, useDisclosure} from '@chakra-ui/react';
+import {
+    Button,
+    Center,
+    Divider, HStack,
+    LinkBox, SimpleGrid, Spacer,
+    Stack,
+    Stat,
+    Text,
+    useColorMode,
+    useDisclosure,
+    VStack
+} from '@chakra-ui/react';
 import {BorderShadowBox} from "./BorderShadowBox";
 import {ISolution} from "../models/ISolution";
 import {ISolutionStatus} from "../models/ITask";
@@ -36,32 +47,36 @@ export const SolutionInfo: (props: ISolution) => JSX.Element = (props: ISolution
     }, [current_solution])
 
     return (
-        <Center m={2}>
+
+        <SimpleGrid m={1}>
             <LinkBox as={"article"}
                      borderWidth={(current_solution && props.id === current_solution.id) ? 3 : undefined}
                      borderRadius={10}
                      bgColor={theme.bg}
                      borderColor={colorMode === "light" ? "gray.700" : "gray.200"}
                      alignItems={"flex-start"}
-                     padding={3}
+                     padding={1}
                      onClick={() => {
                          setSolution(props)
                      }}
             >
-                <>
+                <HStack>
+                    <VStack divider={<Divider borderColor={colorMode === "dark" ? "white" : "black"}/>} spacing={1}>
+                        <Text fontSize='sm'>
+                            Решение № {props.id}
+                        </Text>
 
-                    <Text>
-                        Решение № {props.id}
-                    </Text>
-                    <Divider/>
-                    <Text fontSize={"md"}>
-                        {props.time_finish ? get_format_date(props.time_finish) : get_format_date(props.time_start)}
-                    </Text>
-                </>
+                        <Text fontSize='sm'>
+                            {props.time_finish ? get_format_date(props.time_finish) : get_format_date(props.time_start)}
+                        </Text>
+                    </VStack>
+                    <Spacer/>
+                    <SolutionCheckSystemInfo {...props}/>
+                </HStack>
             </LinkBox>
+        </SimpleGrid>
 
-            <SolutionCheckSystemInfo {...props}/>
-        </Center>
+
     )
         ;
 }

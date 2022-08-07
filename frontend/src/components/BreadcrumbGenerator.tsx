@@ -44,7 +44,7 @@ export default function BreadcrumbGenerator(): ReactElement {
                 i--;
             }
         }
-        console.log(pathLinks)
+        // console.log(pathLinks)
         const breadcrumps: ReactElement[] = pathLinks.map((link, i) => {
             return (
                 <BreadcrumbItem key={`${baseURL}${hrefs.slice(0, 1 + i).join('/')}`}

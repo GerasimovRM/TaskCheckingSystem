@@ -20,10 +20,11 @@ export default class SolutionService {
         }
         return request(requestConfig)
     }
+
     static async getBestSolution(group_id: number | string,
                                  course_id: number | string,
                                  task_id: number | string,
-                                 user_id?:  number | string): Promise<ISolution | null> {
+                                 user_id?: number | string): Promise<ISolution | null> {
         const requestConfig: IRequestConfig = {
             method: "get",
             url: `/solution/get_best`,
@@ -37,6 +38,7 @@ export default class SolutionService {
         }
         return request(requestConfig)
     }
+
     static async postSolution(group_id: number | string,
                               course_id: number | string,
                               lesson_id: number | string,
@@ -54,11 +56,12 @@ export default class SolutionService {
         }
         return await request(requestConfig)
     }
+
     static async postSolutionCode(group_id: number | string,
-                              course_id: number | string,
-                              lesson_id: number | string,
-                              task_id: number | string,
-                              code: string): Promise<ISolution> {
+                                  course_id: number | string,
+                                  lesson_id: number | string,
+                                  task_id: number | string,
+                                  code: string): Promise<ISolution> {
         const requestConfig: IRequestConfig = {
             method: "post",
             url: `/solution/post_code`,
@@ -67,6 +70,7 @@ export default class SolutionService {
         }
         return await request(requestConfig)
     }
+
     static async postSolutionChangeScore(solution_id: number | string,
                                          is_rework: boolean = false,
                                          new_score?: number): Promise<ISolution> {
@@ -88,6 +92,7 @@ export default class SolutionService {
             return await request(requestConfig)
         }
     }
+
     static async getCountSolution(groupId: number | string,
                                   courseId: number | string,
                                   taskId: number | string): Promise<ISolutionCountResponse> {
@@ -98,10 +103,12 @@ export default class SolutionService {
             params: {
                 group_id: groupId,
                 course_id: courseId,
-                task_id: taskId}
+                task_id: taskId
+            }
         }
         return await request(requestConfig)
     }
+
     static async getAllTaskSolutions(groupId: number | string,
                                      courseId: number | string,
                                      taskId: number | string): Promise<ISolution[]> {
@@ -112,7 +119,26 @@ export default class SolutionService {
             params: {
                 group_id: groupId,
                 course_id: courseId,
-                task_id: taskId}
+                task_id: taskId
+            }
+        }
+        return await request(requestConfig)
+    }
+
+    static async getAllTaskSolutionsByUserId(groupId: number | string,
+                                             courseId: number | string,
+                                             taskId: number | string,
+                                             userId: number | string): Promise<ISolution[]> {
+        const requestConfig: IRequestConfig = {
+            method: "get",
+            url: `/solution/get_all_task_solutions_by_user_id`,
+            auth: true,
+            params: {
+                group_id: groupId,
+                course_id: courseId,
+                task_id: taskId,
+                user_id: userId
+            }
         }
         return await request(requestConfig)
     }

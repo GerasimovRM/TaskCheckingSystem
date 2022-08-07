@@ -1,17 +1,12 @@
 import {IUser} from "../../../models/IUser";
 import exp from "constants";
+import {IAuthLogin} from "../../../models/IAuthLogin";
 
 export interface AuthState {
-    access_token?: string | null;
     user?: IUser;
     isAuth: boolean;
     isLoading: boolean;
     error?: string;
-}
-
-export interface IAuthStateLogin {
-    access_token: string;
-    user: IUser;
 }
 
 export enum AuthActionEnum {
@@ -29,7 +24,7 @@ export interface SetUserAuthAction {
 
 export interface SetLoginAuthAction {
     type: AuthActionEnum.SET_LOGIN;
-    payload: IAuthStateLogin;
+    payload: IAuthLogin;
 }
 
 export interface SetAuthAction {

@@ -30,12 +30,27 @@ router = APIRouter(
 async def get_all_task_solutions(group_id: int,
                                  course_id: int,
                                  task_id: int,
-                                 current_user: User = Depends(get_current_active_user),
+                                 current_user: User = Depends(get_teacher_or_admin),
                                  session: AsyncSession = Depends(get_session)) -> List[SolutionDto]:
     solutions = await SolutionService.get_all_solutions(group_id,
                                                         course_id,
                                                         task_id,
                                                         current_user.id,
+                                                        session)
+    return list(map(SolutionDto.from_orm, solutions))
+
+
+@router.get("/get_all_task_solutions_by_user_id", response_model=List[SolutionDto])
+async def get_all_task_solutions_by_user_id(group_id: int,
+                                            course_id: int,
+                                            task_id: int,
+                                            user_id: int,
+                                            current_user: User = Depends(get_current_active_user),
+                                            session: AsyncSession = Depends(get_session)) -> List[SolutionDto]:
+    solutions = await SolutionService.get_all_solutions(group_id,
+                                                        course_id,
+                                                        task_id,
+                                                        user_id,
                                                         session)
     return list(map(SolutionDto.from_orm, solutions))
 

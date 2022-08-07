@@ -1,9 +1,9 @@
 import {IRequestConfig, request} from "../api/api";
-import {IAuthStateLogin} from "../store/reducers/auth/types";
+import {IAuthLogin} from "../models/IAuthLogin";
 
 
 export default class LoginService {
-    static async loginRequest(vk_code: string): Promise<IAuthStateLogin> {
+    static async loginRequest(vk_code: string): Promise<IAuthLogin> {
         const requestConfig: IRequestConfig = {
             method: "get",
             url: "/auth/login",

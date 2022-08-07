@@ -36,8 +36,19 @@ export const TaskStudentsListItem: (props: ITaskStudentsList) => JSX.Element = (
         setSelectedUser(user!)
         fetchBestSolution(groupId!, courseId!, taskId!, props.studentId)
     }
-
     useEffect(() => {
+        if (!user) {
+            UserService.getUserById(props.studentId).then((user) => {
+                setUser(user)
+                getUserBestSolution()
+                setIsLoading(false)
+            })
+        }
+    }, [])
+    useEffect(() => {
+
+    }, [user])
+    /*useEffect(() => {
         if (!user) {
             const checkUser = users.find(u => u.id === props.studentId)
             if (!checkUser) {
@@ -61,7 +72,7 @@ export const TaskStudentsListItem: (props: ITaskStudentsList) => JSX.Element = (
         if (user?.id === selectedUser?.id) {
             setStatusTaskColor(getTaskStatusColorScheme(current_solution?.status))
         }
-    }, [current_solution])
+    }, [current_solution])*/
 
     return (
         <Button width="100%" justifyContent="start"
