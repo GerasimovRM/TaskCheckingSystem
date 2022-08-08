@@ -7,7 +7,7 @@ import {ICoursePreview} from '../models/ICoursePreview';
 export const CoursePreview: (props: ICoursePreview) => JSX.Element = (props: ICoursePreview) => {
     return (
         <div>
-            <Link to={`group/${props.groupId}/course/${props.courseId}`}>
+            <Link to={`${props.linkTo}`}>
                 <BorderShadowBox maxW="sm" padding="1vw">
                     <Stat>
                         <StatNumber>{props.courseName}</StatNumber>

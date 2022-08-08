@@ -3,61 +3,13 @@ import {Link} from 'react-router-dom';
 import {Grid, GridItem, HStack, Icon, Progress, SkeletonCircle, SkeletonText, Text, VStack} from '@chakra-ui/react';
 import {BorderShadowBox} from "./BorderShadowBox";
 import {ITaskPreviewStudent} from '../models/ITaskPreviewStudent';
-import {ISolutionStatus} from "../models/ITask";
-import {BsCircle, MdCheckCircle, MdRemoveCircle} from "react-icons/all";
 import {useEffect, useState} from "react";
 import {ISolution} from '../models/ISolution';
-import {IconType} from 'react-icons';
 import SolutionService from "../services/SolutionService";
 import {useParams} from "react-router";
+import { getTaskStatusColorScheme } from '../common/colors';
+import {IStatusTaskColor} from "../models/IStatusTaskColor";
 
-export interface IStatusTaskColor {
-    iconColor?: string;
-    progressColor: string;
-    icon: IconType;
-    textStatus: string;
-}
-
-export const getTaskStatusColorScheme = (status: ISolutionStatus | undefined | null): IStatusTaskColor => {
-    switch (status) {
-        case ISolutionStatus.ON_REVIEW:
-            return {
-                iconColor: 'yellow.500',
-                progressColor: 'yellow',
-                icon: MdRemoveCircle,
-                textStatus: 'На проверке'
-            }
-        case ISolutionStatus.ERROR:
-            return {
-                iconColor: 'red.500',
-                progressColor: 'red',
-                icon: MdRemoveCircle,
-                textStatus: 'Незачёт'
-            }
-        case ISolutionStatus.COMPLETE:
-            return {
-                iconColor: 'green.500',
-                progressColor: 'green',
-                icon: MdCheckCircle,
-                textStatus: 'Зачёт'
-            }
-        case ISolutionStatus.COMPLETE_NOT_MAX:
-            return {
-                iconColor: 'green.500',
-                progressColor: 'green',
-                icon: MdCheckCircle,
-                textStatus: 'Зачёт'
-            }
-        default:
-            return {
-                iconColor: undefined,
-                progressColor: 'gray',
-                icon: BsCircle,
-                textStatus: 'Не решена'
-            }
-
-    }
-};
 
 export const TaskPreviewStudent: (props: ITaskPreviewStudent) => JSX.Element = (props: ITaskPreviewStudent) => {
     const [solution, setSolution] = useState<ISolution | null>()
@@ -120,6 +72,7 @@ export const TaskPreviewStudent: (props: ITaskPreviewStudent) => JSX.Element = (
                           borderRadius="lg"
                           value={(solution?.score || 0) / props.taskMaxScore * 100}
                           isIndeterminate={!isLoaded}
+                          isAnimated={true}
                 />
             </BorderShadowBox>
         </Link>

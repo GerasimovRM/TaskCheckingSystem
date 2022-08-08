@@ -122,7 +122,7 @@ def upgrade():
     sa.Column('group_id', sa.Integer(), nullable=True),
     sa.Column('score', sa.Integer(), nullable=False),
     sa.Column('code', sa.String(), nullable=False),
-    sa.Column('status', sa.Enum('ERROR', 'ON_REVIEW', 'COMPLETE_NOT_MAX', 'COMPLETE', name='solutionstatus'), nullable=False),
+    sa.Column('status', sa.Enum('NOT_SENT', 'ERROR', 'ON_REVIEW', 'COMPLETE_NOT_MAX', 'COMPLETE', name='solutionstatus'), nullable=False),
     sa.Column('time_start', sa.DateTime(), nullable=False),
     sa.Column('time_finish', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['course_id'], ['dbo_course.id'], ),

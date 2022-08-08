@@ -10,10 +10,10 @@ def exclude_fields(to_exclude_fields: list[str]):
         if bad_fields:
             raise ValueError(f"Bad key for field{'' if len(bad_fields) == 1 else 's'}: {', '.join(bad_fields)}")
         validators = {"__validators__": base_class.__validators__}
-        new_fields = {key: (item.type_, ... if item.required else None) for key, item in
+        new_fields = {key: (item.outer_type_, ... if item.required else None) for key, item in
                       fields.items() if key not in to_exclude_fields}
         return create_model(base_class.__name__,
-                            **new_fields, __validators__=validators)
+                            **new_fields, __validators__=validators, __config__=base_class.__config__)
 
     return class_decorator
 

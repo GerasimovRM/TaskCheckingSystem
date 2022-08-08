@@ -9,6 +9,7 @@ from database.base_meta import BaseSQLAlchemyModel
 
 
 class SolutionStatus(IntEnum):
+    NOT_SENT: int = -2
     ERROR: int = -1
     ON_REVIEW: int = 0
     COMPLETE_NOT_MAX: int = 1

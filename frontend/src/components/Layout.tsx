@@ -61,7 +61,7 @@ export const Layout: FunctionComponent = ({ children }) => {
                                 />
                             </Center>
                         </Link>
-                        <Link to="/">
+                        <Link to="/profile">
                             <Center w="48px" h="48px">
                                 <Icon
                                     w="10"

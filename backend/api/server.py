@@ -10,10 +10,11 @@ from database import Task, Solution
 from database.base_meta import initialize_database, get_session
 from models.site.token import Token
 from services.auth_service import create_access_token_user, create_refresh_token_user, \
-    authenticate_user
+    authenticate_user, get_password_hash
 from api.endpoints import user_router, auth_router, group_router, admin_router,\
-    course_router, lesson_router, solution_router, task_router, chat_message_router
+    course_router, lesson_router, solution_router, task_router, chat_message_router, stat_router
 from services.solution_service import SolutionService
+from services.user_service import UserService
 
 """
 import logging
@@ -30,11 +31,12 @@ app.include_router(course_router)
 app.include_router(solution_router)
 app.include_router(task_router)
 app.include_router(chat_message_router)
+app.include_router(stat_router)
 
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://tcs-fronend.web.app", "http://localhost:3000"],
+    allow_origins=["https://tcs-fronend.web.app", "http://localhost:3000", "http://127.0.0.1:3000"],
     # allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
@@ -49,6 +51,9 @@ async def login_for_access_token(response: Response,
                                  form_data: OAuth2PasswordRequestForm = Depends(),
                                  refresh_token: Optional[str] = Cookie(None),
                                  session: AsyncSession = Depends(get_session)):
+    # u = await UserService.get_user_by_vk_id(form_data.username, session)
+    # u.password = get_password_hash("123")
+    # await session.commit()
     user = await authenticate_user(form_data.username, form_data.password, session)
     if not user:
         raise HTTPException(

@@ -23,8 +23,11 @@ services:
       - ./backend:/code
     env_file:
       - .env
+    environment:
+      - DEBUG=1
     ports:
       - "${BACKEND_PORT}:8000"
+    restart: on-failure
     depends_on:
       - postgres-db
     networks:
@@ -36,6 +39,8 @@ services:
     build: ./frontend
     env_file:
       - .env
+    environment:
+      - WATCHPACK_POLLING=true
     ports:
       - 3000:3000
     volumes:

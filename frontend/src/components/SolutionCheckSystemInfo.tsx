@@ -29,6 +29,9 @@ export const SolutionCheckSystemInfo: (solution: ISolution) => JSX.Element = (so
             <IconButton aria-label={"Test system information"}
                         icon={<GoInfo/>}
                         onClick={onOpen}
+                        bg={"transparent"}
+                        border={"1px"}
+                        _hover={{"background": "transparent"}}
             />
             <Drawer onClose={onClose}
                     isOpen={isOpen}
@@ -46,7 +49,7 @@ export const SolutionCheckSystemInfo: (solution: ISolution) => JSX.Element = (so
                         <VStack spacing={1}>
                         {
                             solution.check_system_answer?.split("\n").map(st => {
-                                return <Code fontSize="lg" children={st}/>
+                                return <Code fontSize="lg" children={st} textAlign={"left"}/>
                             })
                         }
                         </VStack>

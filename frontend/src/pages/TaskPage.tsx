@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useParams} from 'react-router';
 import {
-    Button, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay,
+    Button, Center, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay,
     Flex,
     Grid,
     GridItem,
@@ -205,10 +205,15 @@ export default function TaskPage() {
                                         backgroundColor: `rgba(170, 170, 170, 0.05)`,
                                     },
                                 }}>
-                                    {solutions.length > 0 &&
+                                    {solutions.length > 0
+                                        ?
                                         solutions.map((solution, index) => {
                                             return <SolutionInfo {...solution} key={index}/>
                                         })
+                                        :
+                                        <Center>
+                                            <Text>Решений нет</Text>
+                                        </Center>
                                     }
                                 </Flex>
                             </TabPanel>

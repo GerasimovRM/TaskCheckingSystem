@@ -5,7 +5,8 @@ export enum ISolutionStatus {
     COMPLETE_NOT_MAX = 1,
     ERROR = -1,
     ON_REVIEW = 0,
-    UNDEFINED = -2
+    NOT_SENT = -2,
+    UNDEFINED = -3
 }
 
 export interface ITask {

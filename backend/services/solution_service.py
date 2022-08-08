@@ -19,7 +19,7 @@ class SolutionService:
                                    Solution.course_id == course_id,
                                    Solution.task_id == task_id,
                                    Solution.user_id == user_id)\
-            .order_by(Solution.time_finish.asc(), Solution.time_start.asc())
+            .order_by(Solution.id.asc())
         print(q, "<---------------------")
         query = await session.execute(q)
         solutions = query.scalars().all()

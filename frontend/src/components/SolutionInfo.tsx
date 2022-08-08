@@ -70,6 +70,9 @@ export const SolutionInfo: (props: ISolution) => JSX.Element = (props: ISolution
                             {props.time_finish ? get_format_date(props.time_finish) : get_format_date(props.time_start)}
                         </Text>
                     </VStack>
+                    <Text>
+                        Результат: {props.score}/TODO
+                    </Text>
                     <Spacer/>
                     <SolutionCheckSystemInfo {...props}/>
                 </HStack>

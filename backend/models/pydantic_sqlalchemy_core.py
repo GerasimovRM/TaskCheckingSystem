@@ -10,6 +10,10 @@ LessonDto = sqlalchemy_to_pydantic(Lesson)
 class TaskDto(sqlalchemy_to_pydantic(Task)):
     attachments: Optional[list]
 
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
+
 
 GroupDto = sqlalchemy_to_pydantic(Group)
 UserDto = sqlalchemy_to_pydantic(User)

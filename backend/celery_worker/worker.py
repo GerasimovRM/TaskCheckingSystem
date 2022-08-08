@@ -28,7 +28,7 @@ def check_solution(solution_id: int):
     print(123)
     epicbox.configure(
         profiles=[
-            epicbox.Profile('python', 'python:3.6.5-alpine')
+            epicbox.Profile('python', 'python:3.10.5-alpine')
         ]
     )
     session: Session = get_sync_session()

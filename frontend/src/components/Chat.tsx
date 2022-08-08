@@ -25,7 +25,8 @@ export default function Chat() {
 
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth", inline: 'start' })
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth", inline: 'nearest', block: "end" })
+        console.log("Scroll")
     }
     useEffect(() => {
         fetchChatMessages(groupId!, courseId!, taskId!, selectedUser?.id)
@@ -41,7 +42,7 @@ export default function Chat() {
     useEffect(() => {
         // TODO: костыльное решение с прокруткой чата
         if (!isLoadingChatMessages) {
-            sleep(700).then(() => scrollToBottom())
+            //sleep(700).then(() => scrollToBottom())
         }
     }, [isLoadingChatMessages])
     return (
@@ -57,12 +58,14 @@ export default function Chat() {
                     borderRadius: '8px',
                     backgroundColor: `rgba(170, 170, 170, 0.05)`,
                 },
-            }}>
+            }}
+                  ref={messagesEndRef}
+            >
                 {chatMessages?.map((message, index) => {
                         return <ChatMessage key={index} {...message}/>
                     }
                 )}
-                <div ref={messagesEndRef}/>
+
             </Flex>
 
             <Box>

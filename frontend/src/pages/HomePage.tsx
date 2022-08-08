@@ -20,6 +20,7 @@ const HomePage: FunctionComponent = () => {
                 (course_data, index) => course_data.courses.map(
                     (course): ICoursePreview => {
                         return {
+                            linkTo: `group/${course.id}/course/${group_response.groups[index].id}`,
                             courseId: course.id,
                             courseName: course.name,
                             groupName: group_response.groups[index].name,

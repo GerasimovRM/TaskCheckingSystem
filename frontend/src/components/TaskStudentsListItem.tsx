@@ -7,7 +7,8 @@ import {IUser} from "../models/IUser";
 import {useActions} from "../hooks/useActions";
 import {useTypedSelector} from "../hooks/useTypedSelector";
 import SolutionService from "../services/SolutionService";
-import {getTaskStatusColorScheme, IStatusTaskColor} from "./TaskPreviewStudent";
+import { getTaskStatusColorScheme } from "../common/colors";
+import {IStatusTaskColor} from "../models/IStatusTaskColor";
 
 interface ITaskStudentsList {
     studentId: number;

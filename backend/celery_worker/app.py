@@ -19,7 +19,7 @@ else:
         backend=f"redis://:{REDIS_PASSWORD}@redis:6379/0"
     )
 celery_app.conf.task_routes = {
-    "celery_worker.worker.test_celery": "test-queue",
+    "celery_worker.worker.test_celery": "check-solution-queue",
     "celery_worker.worker.check_solution": "check-solution-queue"
 }
 celery_app.conf.update(task_track_started=True)

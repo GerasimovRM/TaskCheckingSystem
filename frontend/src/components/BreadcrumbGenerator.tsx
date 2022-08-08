@@ -9,7 +9,7 @@ import {
 import {ChevronRightIcon} from '@chakra-ui/icons';
 import {baseURL} from '../api/api';
 import Common from "../api/Common";
-import {BiErrorAlt, BiGroup, BiHomeSmile, BiTask, FaTasks, FiSettings, ImBooks } from 'react-icons/all';
+import {BiErrorAlt, BiGroup, BiHomeSmile, BiTask, FaTasks, FiSettings, ImBooks, ImProfile} from 'react-icons/all';
 import {IconType} from "react-icons";
 
 interface IconsInterface {
@@ -27,7 +27,8 @@ export default function BreadcrumbGenerator(): ReactElement {
             "Course": ImBooks,
             "Lesson": FaTasks,
             "Task": BiTask,
-            "Settings": FiSettings
+            "Settings": FiSettings,
+            "Profile": ImProfile
         }
         const pathLinks = ['Home']
             .concat(
