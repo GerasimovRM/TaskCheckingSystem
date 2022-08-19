@@ -6,6 +6,7 @@ import {ICoursePreview} from "../models/ICoursePreview";
 import {useTypedSelector} from "../hooks/useTypedSelector";
 import GroupService from "../services/GroupService";
 import CourseService from "../services/CourseService";
+import {Layout} from "../components/layouts/Layout";
 
 const HomePage: FunctionComponent = () => {
     const [coursePreviews, setCoursePreviews] = useState<ICoursePreview[]>([])
@@ -29,6 +30,7 @@ const HomePage: FunctionComponent = () => {
                     })).flat().sort((a, b) => a.courseId - b.courseId)
             setCoursePreviews(courses)
         }
+
         if (isAuth) {
             fetchCourses()
                 .then(() => setIsLoading(false))
@@ -47,12 +49,16 @@ const HomePage: FunctionComponent = () => {
                 />
             ));
             return isLargerThan768 ? (
-                <div>
-                    <Heading mb={5}>Курсы</Heading>
-                    <SimpleGrid columns={4} spacing={10}>
-                        {previews}
-                    </SimpleGrid>
-                </div>
+                <Layout
+                    headerChildren={
+                        <Heading>Курсы</Heading>
+                    }
+                    mainChildren={
+                        <SimpleGrid columns={2} spacing={10}>
+                            {previews}
+                        </SimpleGrid>
+                    }
+                />
             ) : (
                 <div>
                     <Heading mb={2}>Курсы</Heading>
@@ -63,9 +69,14 @@ const HomePage: FunctionComponent = () => {
             );
         }
         return (
-            <div>
-                <Heading>Нет доступных курсов</Heading>
-            </div>
+            <Layout
+                headerChildren={
+                    <Heading>Курсы</Heading>
+                }
+                mainChildren={
+                    <Heading>Нет доступных курсов</Heading>
+                }
+            />
         );
     }
 }

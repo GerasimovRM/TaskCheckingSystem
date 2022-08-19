@@ -52,7 +52,6 @@ export const SolutionInfo: (props: ISolution) => JSX.Element = (props: ISolution
             <LinkBox as={"article"}
                      borderWidth={(current_solution && props.id === current_solution.id) ? 3 : undefined}
                      borderRadius={10}
-                     bgColor={theme.bg}
                      borderColor={colorMode === "light" ? "gray.700" : "gray.200"}
                      alignItems={"flex-start"}
                      padding={1}

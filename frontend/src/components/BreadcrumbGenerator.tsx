@@ -62,8 +62,7 @@ export default function BreadcrumbGenerator(): ReactElement {
     }, [location.pathname]);
     return (
         <Breadcrumb key="bread"
-                    separator={<ChevronRightIcon/>}
-                    mb={4}>
+                    separator={<ChevronRightIcon/>}>
             {links}
         </Breadcrumb>
     );

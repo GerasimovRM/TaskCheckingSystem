@@ -8,7 +8,7 @@ import {
     AccordionItem,
     AccordionPanel,
     Box,
-    Heading,
+    Heading, SimpleGrid, VStack,
 } from '@chakra-ui/react';
 
 
@@ -21,6 +21,7 @@ import {ILesson} from "../models/ILesson";
 import GroupService from "../services/GroupService";
 import {IGroupRole} from "../models/IGroupRole";
 import { TaskPreviewTeacher } from '../components/TaskPreviewTeacher';
+import {Layout} from "../components/layouts/Layout";
 
 
 const LessonPage: FunctionComponent = () => {
@@ -49,35 +50,43 @@ const LessonPage: FunctionComponent = () => {
         return <BaseSpinner />
     } else {
         return (
-            <div>
-                <Accordion allowMultiple>
-                    <AccordionItem borderBottom="none" borderTop="none">
-                        <AccordionButton borderWidth="1px" borderRadius="lg" padding="1vw">
-                            <Box flex="1" textAlign="left">
-                                <Heading>{lesson!.name}</Heading>
-                            </Box>
-                            <AccordionIcon />
-                        </AccordionButton>
-                        <AccordionPanel pb={4}>
-                            {lesson!.description}
-                        </AccordionPanel>
-                    </AccordionItem>
-                </Accordion>
-                <Heading padding="1vw">Задачи</Heading>
-                {tasksResponse!.tasks.map((task, i) => {
-                    if (groupRole! === IGroupRole.STUDENT)
-                        return (<TaskPreviewStudent key={task.id}
-                                                    taskId={task.id}
-                                                    taskName={task.name}
-                                                    taskMaxScore={task.max_score}
-                            />)
-                    else
-                        return (<TaskPreviewTeacher key={task.id}
-                                                    taskId={task.id}
-                                                    taskName={task.name}
-                        />)
-                })}
-            </div>
+            <Layout
+                headerChildren={
+                    <VStack alignItems={"flex-start"}>
+                        <Accordion allowMultiple>
+                            <AccordionItem borderBottom="none" borderTop="none">
+                                <AccordionButton borderWidth="1px" borderRadius="lg" padding="1vw">
+                                    <Box flex="1" textAlign="left">
+                                        <Heading>{lesson!.name}</Heading>
+                                    </Box>
+                                    <AccordionIcon />
+                                </AccordionButton>
+                                <AccordionPanel pb={4}>
+                                    {lesson!.description}
+                                </AccordionPanel>
+                            </AccordionItem>
+                        </Accordion>
+                        <Heading padding="1vw">Задачи</Heading>
+                    </VStack>
+                }
+                mainChildren={
+                    <div>
+                        {tasksResponse!.tasks.map((task, i) => {
+                            if (groupRole! === IGroupRole.STUDENT)
+                                return (<TaskPreviewStudent key={task.id}
+                                                            taskId={task.id}
+                                                            taskName={task.name}
+                                                            taskMaxScore={task.max_score}
+                                />)
+                            else
+                                return (<TaskPreviewTeacher key={task.id}
+                                                            taskId={task.id}
+                                                            taskName={task.name}
+                                />)
+                            })}
+                    </div>
+                }
+            />
         )
     }
 }

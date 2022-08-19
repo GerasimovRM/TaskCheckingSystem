@@ -1,5 +1,5 @@
 import React, {FunctionComponent, useEffect, useState} from 'react';
-import { useParams } from 'react-router';
+import {useParams} from 'react-router';
 
 import {
     Accordion,
@@ -8,7 +8,7 @@ import {
     AccordionItem,
     AccordionPanel,
     Box,
-    Heading,
+    Heading, VStack,
 } from '@chakra-ui/react';
 
 import {BaseSpinner} from "../components/BaseSpinner";
@@ -20,7 +20,7 @@ import CourseService from "../services/CourseService";
 import {IGroupRole} from "../models/IGroupRole";
 import GroupService from "../services/GroupService";
 import {useTypedSelector} from "../hooks/useTypedSelector";
-
+import {Layout} from "../components/layouts/Layout";
 
 
 const CoursePage: FunctionComponent = () => {
@@ -40,40 +40,49 @@ const CoursePage: FunctionComponent = () => {
             setCourse(courseResponse)
             setGroupRole(groupRole)
         }
-            if (isAuth) {
-                fetchLessons()
-                    .then(() => setIsLoading(false))
+
+        if (isAuth) {
+            fetchLessons()
+                .then(() => setIsLoading(false))
         }
     }, [courseId, groupId]);
     if (isLoading)
-        return <BaseSpinner />;
+        return <BaseSpinner/>;
     return (
-        <div>
-            <Accordion allowMultiple>
-                <AccordionItem borderBottom="none" borderTop="none">
-                    <AccordionButton borderWidth="1px" borderRadius="lg" padding="1vw">
-                        <Box flex="1" textAlign="left">
-                            <Heading>{course?.name}</Heading>
-                        </Box>
-                        <AccordionIcon />
-                    </AccordionButton>
-                    <AccordionPanel pb={4}>
-                        {course?.description}
-                    </AccordionPanel>
-                </AccordionItem>
-            </Accordion>
-            <Heading padding="1vw">Уроки</Heading>
-            {lessonsResponse?.lessons.map((v) => (
-                <LessonPreview
-                    groupId={groupId!}
-                    lessonId={v.id}
-                    name={v.name}
-                    courseId={courseId!}
-                    groupRole={groupRole!}
-                    key={v.id}
-                />
-            ))}
-        </div>
+        <Layout
+            headerChildren={
+                <div>
+                    <Accordion allowMultiple alignItems={"justify"}>
+                        <AccordionItem borderBottom="none" borderTop="none">
+                            <AccordionButton borderWidth="1px" borderRadius="lg" padding="1vw">
+                                <Box >
+                                    <Heading>{course?.name}</Heading>
+                                </Box>
+                                <AccordionIcon/>
+                            </AccordionButton>
+                            <AccordionPanel pb={4}>
+                                {course?.description}
+                            </AccordionPanel>
+                        </AccordionItem>
+                    </Accordion>
+                    <Heading padding="1vw">Уроки</Heading>
+                </div>
+            }
+            mainChildren={
+                <div>
+                    {lessonsResponse?.lessons.map((v) => (
+                        <LessonPreview
+                            groupId={groupId!}
+                            lessonId={v.id}
+                            name={v.name}
+                            courseId={courseId!}
+                            groupRole={groupRole!}
+                            key={v.id}
+                        />
+                    ))}
+                </div>
+            }
+        />
     );
 }
 
