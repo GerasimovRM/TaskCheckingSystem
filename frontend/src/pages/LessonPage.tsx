@@ -52,7 +52,7 @@ const LessonPage: FunctionComponent = () => {
         return (
             <Layout
                 headerChildren={
-                    <VStack alignItems={"flex-start"}>
+                    <VStack alignItems={"flex"}>
                         <Accordion allowMultiple>
                             <AccordionItem borderBottom="none" borderTop="none">
                                 <AccordionButton borderWidth="1px" borderRadius="lg" padding="1vw">
@@ -70,7 +70,7 @@ const LessonPage: FunctionComponent = () => {
                     </VStack>
                 }
                 mainChildren={
-                    <div>
+                    <>
                         {tasksResponse!.tasks.map((task, i) => {
                             if (groupRole! === IGroupRole.STUDENT)
                                 return (<TaskPreviewStudent key={task.id}
@@ -84,7 +84,7 @@ const LessonPage: FunctionComponent = () => {
                                                             taskName={task.name}
                                 />)
                             })}
-                    </div>
+                    </>
                 }
             />
         )

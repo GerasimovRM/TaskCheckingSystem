@@ -26,10 +26,11 @@ class CourseStatForStudent(CourseDto):
 
 @exclude_fields(["avatar_url", "status", "vk_id"])
 class UserStat(UserDto):
-    course: CourseStatForStudent
+    lessons: List[LessonStat]
 
 
-class CourseStatForTeacher(BaseModel):
+@exclude_field("description")
+class CourseStatForTeacher(CourseDto):
     users: List[UserStat]
 
 

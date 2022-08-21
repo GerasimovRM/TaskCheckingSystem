@@ -38,6 +38,7 @@ export default function BreadcrumbGenerator(): ReactElement {
             )
             .filter((s) => !Common.isNumeric(s) && s !== "");
         const hrefs = location.pathname.split('/');
+        console.log(hrefs)
         for (let i = 0; i < hrefs.length; i++) {
             if (Common.isNumeric(hrefs[i + 1])) {
                 hrefs[i] = hrefs.slice(i, i + 2).join('/');
@@ -45,12 +46,13 @@ export default function BreadcrumbGenerator(): ReactElement {
                 i--;
             }
         }
+        console.log(hrefs.slice(0, 3).join('/'))
         // console.log(pathLinks)
         const breadcrumps: ReactElement[] = pathLinks.map((link, i) => {
             return (
-                <BreadcrumbItem key={`${baseURL}${hrefs.slice(0, 1 + i).join('/')}`}
+                <BreadcrumbItem key={i}
                                 isCurrentPage={i + 1 === pathLinks.length}>
-                    <BreadcrumbLink as={Link} to={`${hrefs.slice(0, 1 + i).join('/')}`}>
+                    <BreadcrumbLink as={Link} to={`${i === 0 ? "/" : hrefs.slice(0, 1 + i).join('/')}`}>
                         <Center>
                             <Icon as={ icons[link] ? icons[link] : BiErrorAlt } fontSize="3xl"/>
                         </Center>

@@ -2,6 +2,7 @@ import axios, {AxiosRequestConfig, Method} from "axios";
 import {store} from "../store";
 import {AuthActionCreators} from "../store/reducers/auth/action-creators";
 import {IAuthLogin} from "../models/IAuthLogin";
+import UserService from "../services/UserService";
 
 
 export interface IRequestConfig {

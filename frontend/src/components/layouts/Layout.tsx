@@ -42,20 +42,35 @@ export const Layout: React.FC<LayoutChildren> = ({
             "main aside"
             "footer footer"`}
               gridTemplateRows={'1fr 3fr 3fr 1fr'}
-              gridTemplateColumns={"2fr 1fr"}
+              gridTemplateColumns={"3fr 1fr"}
               gap={3}
               paddingLeft={"5vh"}
               paddingRight={"5vh"}
         >
+
             <GridItem area={"header"}>
-                <VStack alignItems={"flex-start"}>
+                <VStack alignItems={"flex"}>
                     <BreadcrumbGenerator/>
                     {headerChildren}
                 </VStack>
             </GridItem>
+
             <GridItem area={"main"}>
                 {mainChildren}
             </GridItem>
+
+            <GridItem area={"aside"}>
+                <VStack>
+                    {asideChildren}
+                </VStack>
+            </GridItem>
+
+            <GridItem area={"footer"}>
+                <VStack>
+                    {footerChildren}
+                </VStack>
+            </GridItem>
+
         </Grid>
     );
 }

@@ -1,7 +1,14 @@
 import React, {useEffect, useState} from 'react';
 import {useParams} from 'react-router';
 import {
-    Button, Center, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay,
+    Button,
+    Center,
+    Drawer,
+    DrawerBody,
+    DrawerCloseButton,
+    DrawerContent,
+    DrawerHeader,
+    DrawerOverlay,
     Flex,
     Grid,
     GridItem,
@@ -12,7 +19,8 @@ import {
     TabPanel,
     TabPanels,
     Tabs,
-    Text, useDisclosure,
+    Text,
+    useDisclosure,
 } from '@chakra-ui/react';
 import {TaskAttachment} from "../components/TaskAttachment";
 import {TaskInfo} from "../components/TaskInfo";
@@ -27,7 +35,6 @@ import {useTypedSelector} from "../hooks/useTypedSelector";
 import {useActions} from "../hooks/useActions";
 import TaskService from "../services/TaskService";
 import {BorderShadowBox} from "../components/BorderShadowBox";
-import Chat from "../components/Chat";
 import {ISolution} from "../models/ISolution";
 import {SolutionInfo} from "../components/SolutionInfo";
 
@@ -60,16 +67,18 @@ export default function TaskPage() {
              */
             SolutionService.postSolution(groupId!, courseId!, lessonId!, taskId!, files)
                 .then((solution) => setSolution(solution))
-
         })
     }
 
     useEffect(() => {
         GroupService.getGroupRole(groupId!).then((role) => setGroupRole(role))
         TaskService.getTask(groupId!, courseId!, lessonId!, taskId!).then((task) => setTask(task))
-    }, [groupId, courseId, lessonId, taskId])
+    }, [])
 
     useEffect(() => {
+        console.log(groupRole)
+        console.log(user)
+        console.log(groupRole === IGroupRole.STUDENT)
         if (groupRole === IGroupRole.STUDENT) {
             setSelectedUser(user!)
             SolutionService.getBestSolution(groupId!, courseId!, taskId!).then((solution) => {

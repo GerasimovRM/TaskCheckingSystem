@@ -34,7 +34,7 @@ export const TaskPreviewTeacher: (props: ITaskPreviewTeacher) => JSX.Element = (
         <Link to={`task/${props.taskId}`}>
             <BorderShadowBox padding="0.5vw" mb="5px">
                 <Grid templateColumns="repeat(20, 1fr)">
-                    <GridItem colSpan={10} verticalAlign="middle">
+                    <GridItem colSpan={10} verticalAlign="middle" ml={2}>
                         <Text fontSize="2xl">{props.taskName}</Text>
                     </GridItem>
                     <GridItem colSpan={4} colEnd={21} justifySelf={"flex-end"}>

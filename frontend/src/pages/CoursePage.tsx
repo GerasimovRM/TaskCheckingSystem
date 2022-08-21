@@ -51,11 +51,11 @@ const CoursePage: FunctionComponent = () => {
     return (
         <Layout
             headerChildren={
-                <div>
-                    <Accordion allowMultiple alignItems={"justify"}>
+                <VStack alignItems={"flex"}>
+                    <Accordion allowMultiple>
                         <AccordionItem borderBottom="none" borderTop="none">
                             <AccordionButton borderWidth="1px" borderRadius="lg" padding="1vw">
-                                <Box >
+                                <Box flex="1" textAlign="left">
                                     <Heading>{course?.name}</Heading>
                                 </Box>
                                 <AccordionIcon/>
@@ -66,10 +66,10 @@ const CoursePage: FunctionComponent = () => {
                         </AccordionItem>
                     </Accordion>
                     <Heading padding="1vw">Уроки</Heading>
-                </div>
+                </VStack>
             }
             mainChildren={
-                <div>
+                <>
                     {lessonsResponse?.lessons.map((v) => (
                         <LessonPreview
                             groupId={groupId!}
@@ -80,7 +80,7 @@ const CoursePage: FunctionComponent = () => {
                             key={v.id}
                         />
                     ))}
-                </div>
+                </>
             }
         />
     );

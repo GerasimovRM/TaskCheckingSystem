@@ -50,9 +50,9 @@ export const SolutionInfo: (props: ISolution) => JSX.Element = (props: ISolution
 
         <SimpleGrid m={1}>
             <LinkBox as={"article"}
-                     borderWidth={(current_solution && props.id === current_solution.id) ? 3 : undefined}
+                     borderWidth={(current_solution && props.id === current_solution.id) ? 3 : 1}
                      borderRadius={10}
-                     borderColor={colorMode === "light" ? "gray.700" : "gray.200"}
+                     borderColor={colorMode === "dark" ? "gray.700" : "gray.200"}
                      alignItems={"flex-start"}
                      padding={1}
                      onClick={() => {
