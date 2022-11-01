@@ -72,23 +72,23 @@ async def test(session: AsyncSession = Depends(get_session)):
     task = await session.get(Task, 1)
     task.attachments = [
         {
-            "attachment_type": 'input_output',
+            "attachment_type": "input_output",
             "data": {
-                "input": ['123', 'dfgdfg', 'bucks'],
-                "output": ['bucks', 'dfgdfg', '123'],
+                "input": ["123", "dfgdfg", "bucks"],
+                "output": ["bucks", "dfgdfg", "123"],
             },
         },
         {
-            "attachment_type": 'input_output',
+            "attachment_type": "input_output",
             "data": {
-                "input": ['112312323', 'dfasfasfgdfg', 'buasfsafcks'],
-                "output": ['buck123213s', 'd123213213fgdfg', '123asdfsafd'],
+                "input": ["112312323", "dfasfasfgdfg", "buasfsafcks"],
+                "output": ["buck123213s", "d123213213fgdfg", "123asdfsafd"],
             },
         },
         {
-            "attachment_type": 'image',
+            "attachment_type": "image",
             "data": {
-                "url": 'https://avatars.githubusercontent.com/u/26022093?v=4',
+                "url": "https://avatars.githubusercontent.com/u/26022093?v=4",
             },
         },
     ]

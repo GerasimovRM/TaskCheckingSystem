@@ -8,11 +8,12 @@ import {
     AccordionItem,
     AccordionPanel,
     Box,
-    Heading, VStack,
+    Heading,
+    VStack,
 } from '@chakra-ui/react';
 
 import {BaseSpinner} from "../components/BaseSpinner";
-import {LessonPreview} from "../components/LessonPreview";
+import {LessonPreviewForStudent} from "../components/LessonPreviewForStudent";
 import LessonService from "../services/LessonService";
 import {ILessonsResponse} from "../models/ILessonsResponse";
 import {ICourse} from "../models/ICourse";
@@ -21,6 +22,7 @@ import {IGroupRole} from "../models/IGroupRole";
 import GroupService from "../services/GroupService";
 import {useTypedSelector} from "../hooks/useTypedSelector";
 import {Layout} from "../components/layouts/Layout";
+import {LessonPreviewForTeacher} from "../components/LessonPreviewForTeacher";
 
 
 const CoursePage: FunctionComponent = () => {
@@ -70,16 +72,29 @@ const CoursePage: FunctionComponent = () => {
             }
             mainChildren={
                 <>
-                    {lessonsResponse?.lessons.map((v) => (
-                        <LessonPreview
-                            groupId={groupId!}
-                            lessonId={v.id}
-                            name={v.name}
-                            courseId={courseId!}
-                            groupRole={groupRole!}
-                            key={v.id}
-                        />
-                    ))}
+
+                    {lessonsResponse && (groupRole === IGroupRole.STUDENT ?
+                        lessonsResponse.lessons.map((v) => (
+                            <LessonPreviewForStudent
+                                groupId={groupId!}
+                                lessonId={v.id}
+                                name={v.name}
+                                courseId={courseId!}
+                                groupRole={groupRole!}
+                                key={v.id}
+                            />
+                        ))
+                        :
+                        lessonsResponse.lessons.map((v) => (
+                            <LessonPreviewForTeacher
+                                groupId={groupId!}
+                                lessonId={v.id}
+                                name={v.name}
+                                courseId={courseId!}
+                                groupRole={groupRole!}
+                                key={v.id}
+                            />
+                        )))}
                 </>
             }
         />

@@ -9,10 +9,17 @@ export enum ISolutionStatus {
     UNDEFINED = -3
 }
 
+export enum ITaskType {
+    CLASS_WORK = 1,
+    HOME_WORK = 2,
+    ADDITIONAL_WORK = 3
+}
+
 export interface ITask {
     id: number | string;
     name: string;
     description: string | null;
     max_score: number;
     attachments: IAttachmentTask[];
+    task_type: ITaskType
 }

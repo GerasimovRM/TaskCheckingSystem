@@ -33,11 +33,14 @@ export default function Chat() {
         const loadedUsersIds = users.map((user) => user.id)
         const neededUsersIds = chatMessages.map((message) => message.from_id)
             .filter(x => !loadedUsersIds.includes(x))
-        neededUsersIds.forEach(userId => fetchUserData(userId))
-
-        return () => {
-            clearChatMessages()
+        const neededUsersIdWithoutRepeats = neededUsersIds.filter(function(elem, index, self) {
+            return index === self.indexOf(elem);
+        })
+        console.log(loadedUsersIds, neededUsersIdWithoutRepeats)
+        for (const userId in neededUsersIdWithoutRepeats) {
+            fetchUserData(userId)
         }
+
     }, [selectedUser])
     useEffect(() => {
         // TODO: костыльное решение с прокруткой чата

@@ -8,6 +8,7 @@ LessonDto = sqlalchemy_to_pydantic(Lesson)
 
 
 class TaskDto(sqlalchemy_to_pydantic(Task)):
+    task_type: Optional[int]
     attachments: Optional[list]
 
     class Config:

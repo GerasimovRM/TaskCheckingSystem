@@ -17,6 +17,7 @@ export const UsersDataActionCreators = {
     setErrorUsersData: (payload: string): SetErrorUsersDataAction => ({type: UsersDataActionEnum.SET_ERROR_USERS_DATA, payload}),
     addUserData: (payload: IUser): AddUserDataAction => ({type: UsersDataActionEnum.ADD_USER_DATA, payload}),
     fetchUserData: (user_id: number | string) => async (dispatch: AppDispatch) => {
+        console.log(567)
         dispatch(UsersDataActionCreators.setIsLoadingUsersData(true))
         const response = await UserService.getUserById(user_id)
         if (response) {

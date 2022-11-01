@@ -39,6 +39,9 @@ export default function ChatBlob({ user_id, text, date}: IChatBlob) {
                 setIsSelf(false)
                 setIsLoading(false)
             }
+            else {
+
+            }
         }
     },[users])
     return (

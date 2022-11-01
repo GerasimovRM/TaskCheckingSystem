@@ -20,27 +20,12 @@ import {useActions} from "../hooks/useActions";
 import {useEffect} from "react";
 import {get_format_date} from "../api/Common";
 import {SolutionCheckSystemInfo} from "./SolutionCheckSystemInfo";
+import {ISolutionInfo} from "../models/ISolutionInfo";
 
-export const SolutionInfo: (props: ISolution) => JSX.Element = (props: ISolution) => {
+export const SolutionInfo: (props: ISolutionInfo) => JSX.Element = (props: ISolutionInfo) => {
     const {current_solution} = useTypedSelector(state => state.solution)
     const {setSolution} = useActions()
-    const theme = {
-        bg: 'gray.500',
-        text: 'Не отправлялось',
-    };
-    if (props.status === ISolutionStatus.ERROR) {
-        theme.bg = 'red.500';
-        theme.text = 'Доработать';
-    } else if (props.status === ISolutionStatus.ON_REVIEW) {
-        theme.bg = 'yellow.500';
-        theme.text = 'На проверке';
-    } else if (props.status === ISolutionStatus.COMPLETE_NOT_MAX) {
-        theme.bg = 'green.300'
-        theme.text = 'Зачтено'
-    } else if (props.status === ISolutionStatus.COMPLETE) {
-        theme.bg = 'green.600'
-        theme.text = 'Зачтено'
-    }
+
     const {colorMode} = useColorMode()
 
     useEffect(() => {
@@ -61,7 +46,7 @@ export const SolutionInfo: (props: ISolution) => JSX.Element = (props: ISolution
             >
                 <HStack>
                     <VStack divider={<Divider borderColor={colorMode === "dark" ? "white" : "black"}/>} spacing={1}>
-                        <Text fontSize='sm'>
+                        <Text fontSize='sm' width={"fit-content"}>
                             Решение № {props.id}
                         </Text>
 
@@ -69,11 +54,12 @@ export const SolutionInfo: (props: ISolution) => JSX.Element = (props: ISolution
                             {props.time_finish ? get_format_date(props.time_finish) : get_format_date(props.time_start)}
                         </Text>
                     </VStack>
-                    <Text>
-                        Результат: {props.score}/TODO
+                    <Spacer/>
+                    <Text fontSize={"sm"}>
+                        {props.score}/{props.max_score}
                     </Text>
                     <Spacer/>
-                    <SolutionCheckSystemInfo {...props}/>
+                    <SolutionCheckSystemInfo {...props} key={props.id}/>
                 </HStack>
             </LinkBox>
         </SimpleGrid>

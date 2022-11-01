@@ -61,7 +61,7 @@ async def get_solution_count(group_id: int,
                              task_id: int,
                              current_user: User = Depends(get_teacher_or_admin),
                              session: AsyncSession = Depends(get_session)) -> Optional[SolutionsCountResponse]:
-    user_groups = await UsersGroupsService.get_group_users(group_id, session)
+    user_groups = await UsersGroupsService.get_group_students(group_id, session)
     solutions_count = len(user_groups)
 
     solutions = await SolutionService.get_best_solutions(group_id, course_id, task_id, session)
@@ -93,14 +93,6 @@ async def get_solution_best(group_id: int,
                             user_id: Optional[int] = None,
                             current_user: User = Depends(get_current_active_user),
                             session: AsyncSession = Depends(get_session)) -> Optional[SolutionResponse]:
-    solution_on_review = await SolutionService.get_user_solution_on_review(group_id,
-                                                                           course_id,
-                                                                           task_id,
-                                                                           (user_id if user_id else current_user.id),
-                                                                           session)
-    if solution_on_review:
-        return SolutionResponse.from_orm(solution_on_review)
-
     solution = await SolutionService.get_best_user_solution(group_id,
                                                             course_id,
                                                             task_id,
@@ -108,8 +100,14 @@ async def get_solution_best(group_id: int,
                                                             session)
     if solution:
         return SolutionResponse.from_orm(solution)
-    else:
-        return
+
+    solution_on_review = await SolutionService.get_user_solution_on_review(group_id,
+                                                                           course_id,
+                                                                           task_id,
+                                                                           (user_id if user_id else current_user.id),
+                                                                           session)
+    if solution_on_review:
+        return SolutionResponse.from_orm(solution_on_review)
 
 
 @router.get("/get_one", response_model=Optional[SolutionResponse])

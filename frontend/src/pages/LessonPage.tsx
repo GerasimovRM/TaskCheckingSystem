@@ -8,20 +8,22 @@ import {
     AccordionItem,
     AccordionPanel,
     Box,
-    Heading, SimpleGrid, VStack,
+    Heading,
+    VStack,
 } from '@chakra-ui/react';
 
 
 import {BaseSpinner} from "../components/BaseSpinner";
-import {TaskPreviewStudent} from "../components/TaskPreviewStudent";
 import TaskService from "../services/TaskService";
 import {ITasksResponse} from "../models/ITasksResponse";
 import LessonService from "../services/LessonService";
 import {ILesson} from "../models/ILesson";
 import GroupService from "../services/GroupService";
 import {IGroupRole} from "../models/IGroupRole";
-import { TaskPreviewTeacher } from '../components/TaskPreviewTeacher';
 import {Layout} from "../components/layouts/Layout";
+import {ITaskType} from "../models/ITask";
+import {TaskPreviewStudent} from "../components/TaskPreviewStudent";
+import {TaskPreviewTeacher} from "../components/TaskPreviewTeacher";
 
 
 const LessonPage: FunctionComponent = () => {
@@ -39,15 +41,17 @@ const LessonPage: FunctionComponent = () => {
             setTasksResponse(tasksResponse)
             setLesson(lessonResponse)
             setGroupRole(groupRole)
+            console.log(tasksResponse)
         }
+
         fetchTasks()
             .then(() => {
                 setIsLoading(false)
-        })
+            })
     }, [courseId, groupId, lessonId])
 
     if (isLoading) {
-        return <BaseSpinner />
+        return <BaseSpinner/>
     } else {
         return (
             <Layout
@@ -59,7 +63,7 @@ const LessonPage: FunctionComponent = () => {
                                     <Box flex="1" textAlign="left">
                                         <Heading>{lesson!.name}</Heading>
                                     </Box>
-                                    <AccordionIcon />
+                                    <AccordionIcon/>
                                 </AccordionButton>
                                 <AccordionPanel pb={4}>
                                     {lesson!.description}
@@ -71,19 +75,32 @@ const LessonPage: FunctionComponent = () => {
                 }
                 mainChildren={
                     <>
-                        {tasksResponse!.tasks.map((task, i) => {
-                            if (groupRole! === IGroupRole.STUDENT)
-                                return (<TaskPreviewStudent key={task.id}
-                                                            taskId={task.id}
-                                                            taskName={task.name}
-                                                            taskMaxScore={task.max_score}
-                                />)
-                            else
-                                return (<TaskPreviewTeacher key={task.id}
-                                                            taskId={task.id}
-                                                            taskName={task.name}
-                                />)
-                            })}
+                        {[
+                            ["Классная работа", ITaskType.CLASS_WORK],
+                            ["Домашняя работа", ITaskType.HOME_WORK],
+                            ["Дополнительные задачи", ITaskType.ADDITIONAL_WORK]].map((elem) => {
+                            return <>
+                                < Heading size={"sm"}>
+                                    {elem[0]}
+                                </Heading>
+                                {tasksResponse!.tasks.filter((task) => {
+                                    return task.task_type === elem[1]
+                                }).map((task, i) => {
+                                    if (groupRole! === IGroupRole.STUDENT)
+                                        return (<TaskPreviewStudent key={task.id}
+                                                                    taskId={task.id}
+                                                                    taskName={task.name}
+                                                                    taskMaxScore={task.max_score}
+                                        />)
+                                    else
+                                        return (<TaskPreviewTeacher key={task.id}
+                                                                    taskId={task.id}
+                                                                    taskName={task.name}
+                                        />)
+                                })}
+                            </>
+                        })
+                        }
                     </>
                 }
             />

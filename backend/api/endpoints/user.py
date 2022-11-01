@@ -73,8 +73,8 @@ async def get_students_group(group_id: int,
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Bad access to group")
 
-    group_users = await UsersGroupsService.get_group_users(group_id=group_id,
-                                                           session=session)
+    group_users = await UsersGroupsService.get_group_students(group_id=group_id,
+                                                              session=session)
     return list(map(UserDto.from_orm, map(lambda t: t.user, group_users)))
 
 

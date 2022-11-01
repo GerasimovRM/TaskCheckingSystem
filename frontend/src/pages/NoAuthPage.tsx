@@ -11,7 +11,6 @@ const NoAuthPage: FunctionComponent = () => {
         const encodeAccessToken = localStorage.getItem("access_token");
         if (encodeAccessToken)
             loadUser()
-        setIsLoading(false)
         const timer = setTimeout(() => setIsLoading(false), 2000)
         return () => clearTimeout(timer)
     }, [])

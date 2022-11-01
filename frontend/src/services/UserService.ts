@@ -38,7 +38,7 @@ export default class UserService {
                 user_id: user_id
             }
         }
-        return await request(requestConfig)
+        return request(requestConfig)
     }
 
     static async getUserData() : Promise<IUser> {

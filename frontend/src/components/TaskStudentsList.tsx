@@ -32,8 +32,8 @@ export const TaskStudentsList: () => JSX.Element = () => {
     if (isLoading)
         return <BaseSpinner/>
     return (
-        <BorderShadowBox>
-            <Heading size="lg" textAlign="center" paddingBottom={2}>
+        <BorderShadowBox w={"100%"}>
+            <Heading size="sm" textAlign="center" paddingBottom={2}>
                 Список студентов
             </Heading>
             <VStack padding={2} alignItems={"start"}>
