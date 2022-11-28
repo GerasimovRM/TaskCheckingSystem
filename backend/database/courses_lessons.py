@@ -5,7 +5,6 @@ from database.base_meta import BaseSQLAlchemyModel
 
 class CoursesLessons(BaseSQLAlchemyModel):
     __tablename__ = "dbo_courses_lessons"
-
     lesson_id = Column(ForeignKey("dbo_lesson.id"), primary_key=True)
     course_id = Column(ForeignKey("dbo_course.id"), primary_key=True)
     is_hidden = Column(Boolean, default=True)

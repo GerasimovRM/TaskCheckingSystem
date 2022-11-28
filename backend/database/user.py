@@ -23,7 +23,7 @@ class User(BaseSQLAlchemyModel):
     password = Column(String(1000), nullable=True)
     vk_id = Column(String(20), nullable=True)
     status = Column(Enum(UserStatus), default=UserStatus.UNDEFINED)
-    vk_access_token = Column(String(200), nullable=True)
+    vk_access_token = Column(String(400), nullable=True)
     avatar_url = Column(String(200), nullable=True)
 
     groups = relationship("UsersGroups", back_populates="user")

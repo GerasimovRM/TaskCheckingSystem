@@ -43,9 +43,9 @@ export default class SolutionService {
                               course_id: number | string,
                               lesson_id: number | string,
                               task_id: number | string,
-                              files: FileList): Promise<ISolution> {
+                              file: File): Promise<ISolution> {
         const formData = new FormData()
-        formData.append("file", files[0], files[0].name)
+        formData.append("file", file, file.name)
         const requestConfig: IRequestConfig = {
             method: "post",
             url: `/solution/post_file`,

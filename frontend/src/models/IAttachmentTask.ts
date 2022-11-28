@@ -1,7 +1,7 @@
 
 export enum IAttachmentTaskTypeName {
-    INPUT_OUTPUT = "INPUT_OUTPUT",
-    IMAGE = "IMAGE"
+    INPUT_OUTPUT = "input_output",
+    IMAGE = "image"
 }
 
 interface IAttachmentTaskInputOutputData {

@@ -64,10 +64,10 @@ export const SolutionCheckSystemInfo: (solution: ISolution) => JSX.Element = (so
                         Решение № {solution.id}
                     </DrawerHeader>
                     <DrawerBody>
-                        <VStack spacing={1}>
+                        <VStack spacing={1} alignItems={"flex-start"}>
                         {
                             solution.check_system_answer?.split("\n").map((st, i) => {
-                                return <Code fontSize="lg" children={st} textAlign={"left"} key={i}/>
+                                return <Text fontSize="lg" children={st} textAlign={"left"} key={i}/>
                             })
                         }
                         </VStack>

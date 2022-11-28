@@ -201,7 +201,8 @@ async def post_solution(group_id: int,
                                                                                 current_user.id,
                                                                                 session)
     # TODO: update running tests in background tasks
-    last_solution_on_review.status = SolutionStatus.ERROR
+    if last_solution_on_review:
+        last_solution_on_review.status = SolutionStatus.ERROR
     code = await file.read()
     solution = Solution(user_id=current_user.id,
                         group_id=group_id,
@@ -210,6 +211,7 @@ async def post_solution(group_id: int,
                         code=code.decode("utf-8"))
     session.add(solution)
     await session.commit()
+    result = check_solution.delay(solution.id)
     return SolutionResponse.from_orm(solution)
 
 

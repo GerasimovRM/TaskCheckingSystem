@@ -36,7 +36,15 @@ app.include_router(stat_router)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://tcs-fronend.web.app", "http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=["https://tcs-fronend.web.app",
+                   "http://localhost:3000",
+                   "http://127.0.0.1:3000",
+                   "http://localhost:5500",
+                   "http://127.0.0.1:5500",
+                   "http://localhost",
+                   "http://82.179.114.28",
+                   "http://82.179.114.28:3000",
+                   "http://82.179.114.28:5500"],
     # allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],

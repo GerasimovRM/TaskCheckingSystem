@@ -3,12 +3,13 @@
 
 import React from 'react';
 
-import {Image, Table, Tbody, Td, Th, Thead, Tr} from '@chakra-ui/react';
+import {Image, Table, Tbody, Td, Th, Thead, Tr, Text} from '@chakra-ui/react';
 import './TaskAttachment.css';
 import {IAttachmentTask, IAttachmentTaskTypeName} from "../models/IAttachmentTask";
 import {baseApi} from "../api/api";
 
 export const TaskAttachment: (props: IAttachmentTask) => JSX.Element = (props: IAttachmentTask) => {
+    console.log(props)
     switch (props.attachment_type) {
         case IAttachmentTaskTypeName.INPUT_OUTPUT:
             return (
@@ -26,12 +27,12 @@ export const TaskAttachment: (props: IAttachmentTask) => JSX.Element = (props: I
                         <Tr >
                             <Td className="io_table_border">
                                 {props.data.input.map((v, index) => (
-                                    <p key={index}>{v}</p>
+                                    <Text key={index}>{v}</Text>
                                 ))}
                             </Td>
                             <Td className="io_table_border">
                                 {props.data.output.map((v, index) => (
-                                    <p key={index}>{v}</p>
+                                    <Text key={index}>{v}</Text>
                                 ))}
                             </Td>
                         </Tr>
