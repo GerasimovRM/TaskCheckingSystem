@@ -101,9 +101,11 @@ async def get_task(group_id: int,
 
 
 @router.put("/")
-async def put_task(current_user: User = Depends(get_admin),
-                   session: AsyncSession = Depends(get_session)):
-    task = await TaskService
+async def put_tasks(tasks_json: List[TaskDto],
+                    current_user: User = Depends(get_admin),
+                    session: AsyncSession = Depends(get_session),):
+    tasks = await TaskService.create_tasks_by_json(tasks_json, session)
+
 
 
 @router.post("/upload_image")
