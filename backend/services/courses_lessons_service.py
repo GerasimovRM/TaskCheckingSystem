@@ -23,7 +23,8 @@ class CoursesLessonsService:
                                  session: AsyncSession) -> List[CoursesLessons]:
         query = await session.execute(select(CoursesLessons)
                                       .where(CoursesLessons.course_id == course_id)
-                                      .options(joinedload(CoursesLessons.lesson)))
+                                      .options(joinedload(CoursesLessons.lesson))
+                                      .order_by(CoursesLessons.queue_number))
         course_lessons = query.scalars().all()
         return course_lessons
 
