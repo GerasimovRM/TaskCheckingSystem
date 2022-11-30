@@ -40,6 +40,7 @@ import {TaskStudentsList} from "../components/TaskStudentsList";
 import Chat from "../components/Chat";
 import {BaseSpinner} from "../components/BaseSpinner";
 import Dropzone from "react-dropzone";
+import {useHistory} from "react-router-dom";
 
 
 export default function TaskPage() {
@@ -54,6 +55,7 @@ export default function TaskPage() {
     const {isOpen, onOpen, onClose} = useDisclosure()
     const [solutions, setSolutions] = useState<ISolution[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(true)
+    const history = useHistory()
 
     const [asideChildWidthStudentsList, setAsideChildWidthStudentsList] = useState<React.ReactNode>()
 
@@ -69,7 +71,13 @@ export default function TaskPage() {
     }
     useEffect(() => {
         GroupService.getGroupRole(groupId!).then((role) => setGroupRole(role))
-        TaskService.getTask(groupId!, courseId!, lessonId!, taskId!).then((task) => setTask(task))
+        TaskService.getTask(groupId!, courseId!, lessonId!, taskId!)
+            .then((task) => setTask(task))
+            .catch((error) => {
+                if (error.response.status === 403) {
+                    history.push("/not_found404")
+                }
+            })
     }, [])
 
     useEffect(() => {
