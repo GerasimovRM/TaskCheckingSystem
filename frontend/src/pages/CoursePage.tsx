@@ -92,6 +92,7 @@ const CoursePage: FunctionComponent = () => {
                                 name={v.name}
                                 courseId={courseId!}
                                 groupRole={groupRole!}
+                                is_hidden={v.is_hidden}
                                 key={v.id}
                             />
                         )))}

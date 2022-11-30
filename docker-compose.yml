@@ -11,7 +11,7 @@ services:
       - POSTGRES_DB=${DB_DATABASE}
       - POSTGRES_HOST=${DB_HOST}
     volumes:  
-      - ~/Volumes/postgresql:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     networks:
       - db-backend
       - backend-frontend
@@ -60,8 +60,8 @@ services:
       - 5672:5672
       - 15672:15672
     volumes:
-      - ~/Volumes/rabbitmq/data:/var/lib/rabbitmq
-      - ~/Volumes/rabbitmq/log:/var/log/rabbitmq
+      - d:/Volumes/TCS/rabbitmq/data:/var/lib/rabbitmq
+      - d:/Volumes/TCS/rabbitmq/log:/var/log/rabbitmq
     networks:
       - rabbitmq-go-net
       
@@ -71,7 +71,7 @@ services:
     ports:
       - 6379:6379
     volumes:
-      - ~/Volumes/redis:/data
+      - D:\Volumes\TCS\redis:/data
     networks:
       - redis-go-net
       
@@ -112,3 +112,6 @@ networks:
   backend-frontend:
   rabbitmq-go-net:
   redis-go-net:
+  
+volumes:
+    pgdata:
