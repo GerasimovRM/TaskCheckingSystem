@@ -5,12 +5,13 @@ import {ILessonPreview} from "../models/ILessonPreview";
 import {BorderShadowBox} from "./BorderShadowBox";
 import React, {useEffect, useState} from "react";
 import {LessonPreviewTaskInfoForStudent} from "./LessonPreviewTaskInfoForStudent";
-import {MdKeyboardArrowDown, MdKeyboardArrowUp} from 'react-icons/all';
+import {AiOutlineEye, AiOutlineEyeInvisible, MdKeyboardArrowDown, MdKeyboardArrowUp} from 'react-icons/all';
 import {IStatusTaskColor} from "../models/IStatusTaskColor";
 import {ITaskCountForStudentResponse} from "../models/ITaskCountForStudentResponse";
 import TaskService from "../services/TaskService";
 import {IGroupRole} from "../models/IGroupRole";
 import {ITaskCountForTeacherResponse} from "../models/ITaskCountForTeacherResponse";
+import CourseService from "../services/CourseService";
 
 export const LessonPreviewForTeacher: (props: ILessonPreview) => JSX.Element = (props: ILessonPreview) => {
     const [statusTaskColor, setStatusTaskColor] = useState<IStatusTaskColor>()
@@ -23,6 +24,10 @@ export const LessonPreviewForTeacher: (props: ILessonPreview) => JSX.Element = (
         })
 
     }, [])
+    async function onClickHideButton() {
+        await CourseService.changeVisibility(props.groupId, props.courseId, props.lessonId, !props.is_hidden)
+    }
+
     return (
         <VStack alignSelf={"left"} mb={4}>
             <BorderShadowBox padding="0.5vw" width={"100%"}>
@@ -54,6 +59,13 @@ export const LessonPreviewForTeacher: (props: ILessonPreview) => JSX.Element = (
                                     }}
                         />
                     */}
+                    <IconButton aria-label={"Show/Hide Lesson"}
+                                icon={props.is_hidden ? <AiOutlineEyeInvisible/> : <AiOutlineEye/>}
+                                onClick={onClickHideButton}
+                                bg={"transparent"}
+                                border={"1px"}
+                                _hover={{"background": "transparent"}}
+                    />
                 </HStack>
                 <Progress colorScheme={taskCountForTeacher ? "green" : "gray"}
                           w={"100%"}

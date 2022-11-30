@@ -6,4 +6,5 @@ export interface ILessonPreview {
     name: string;
     courseId: string | number;
     groupRole: IGroupRole;
+    is_hidden?: boolean
 }

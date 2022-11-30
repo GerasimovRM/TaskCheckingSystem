@@ -15,7 +15,7 @@ services:
     networks:
       - db-backend
       - backend-frontend
-
+      
   backend:
     build: ./backend
     command: uvicorn api.server:app --host 0.0.0.0 --reload
@@ -34,7 +34,7 @@ services:
       - db-backend
       - redis-go-net
       - rabbitmq-go-net
-
+      
   frontend:
     build: ./frontend
     env_file:
@@ -50,7 +50,7 @@ services:
     command: npm start
     tty: true
     stdin_open: true
-
+    
   rabbitmq:
     image: rabbitmq:3-management-alpine
     environment:
@@ -60,20 +60,21 @@ services:
       - 5672:5672
       - 15672:15672
     volumes:
-      - rmqdata:/var/lib/rabbitmq
+      - d:/Volumes/TCS/rabbitmq/data:/var/lib/rabbitmq
+      - d:/Volumes/TCS/rabbitmq/log:/var/log/rabbitmq
     networks:
       - rabbitmq-go-net
-
+      
   redis:
     image: redis:7.0.4-alpine
     command: --requirepass ${REDIS_PASSWORD}
     ports:
       - 6379:6379
     volumes:
-      - redisdata:/data
+      - D:\Volumes\TCS\redis:/data
     networks:
       - redis-go-net
-
+      
   celery-worker:
     build: ./backend
     env_file:
@@ -90,7 +91,7 @@ services:
       - rabbitmq-go-net
       - redis-go-net
       - db-backend
-
+    
   celery-flower:
     image: mher/flower:0.9.7
     command: ["flower", "--broker=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672//", "--port=5555"]
@@ -102,17 +103,15 @@ services:
     networks:
       - rabbitmq-go-net
       - redis-go-net
-
-
-
-
+    
+    
+    
+    
 networks:
   db-backend:
   backend-frontend:
   rabbitmq-go-net:
   redis-go-net:
-
+  
 volumes:
     pgdata:
-    redisdata:
-    rmqdata:
