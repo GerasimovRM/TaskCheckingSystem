@@ -1,10 +1,11 @@
 from typing import Optional
 
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
-from database import User, Group, Course, Lesson, Task, Solution, ChatMessage
+from database import User, Group, Course, Lesson, Task, Solution, ChatMessage, CoursesLessons
 
 CourseDto = sqlalchemy_to_pydantic(Course)
 LessonDto = sqlalchemy_to_pydantic(Lesson)
+CoursesLessonsDto = sqlalchemy_to_pydantic(CoursesLessons)
 
 
 class TaskDto(sqlalchemy_to_pydantic(Task)):

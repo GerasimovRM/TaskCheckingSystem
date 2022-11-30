@@ -15,7 +15,7 @@ class CoursesLessonsService:
         query = await session.execute(select(CoursesLessons)
                                       .where(CoursesLessons.course_id == course_id,
                                              CoursesLessons.lesson_id == lesson_id))
-        course_lesson = query.scalars().all()
+        course_lesson = query.scalars().first()
         return course_lesson
 
     @staticmethod
