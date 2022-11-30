@@ -7,7 +7,8 @@ from sqlalchemy.orm import joinedload
 
 from database.users_groups import UserGroupRole, UsersGroups
 from models.pydantic_sqlalchemy_core import LessonDto
-from models.site.lesson import LessonsResponse, LessonResponse, LessonPostRequest, LessonRequest
+from models.site.lesson import LessonsResponse, LessonResponse, LessonPostRequest, LessonRequest, \
+    LessonDtoWithHiddenFlag
 from services.auth_service import get_current_active_user, get_teacher_or_admin
 from database import User, Group, get_session, GroupsCourses, Course, CoursesLessons, Lesson
 from services.course_service import CourseService
@@ -49,7 +50,9 @@ async def get_lessons(group_id: int,
         lessons_dto = list(map(lambda t: LessonDto.from_orm(t.lesson),
                                filter(lambda c_l: not c_l.is_hidden, course_lessons)))
     else:
-        lessons_dto = list(map(lambda t: LessonDto.from_orm(t.lesson), course_lessons))
+        lessons_dto = list(map(lambda t: LessonDtoWithHiddenFlag(**t.lesson.to_dict(),
+                                                                 is_hidden=t.is_hidden),
+                               course_lessons))
     return LessonsResponse(lessons=lessons_dto,
                            course_name=course.name,
                            course_description=course.description)

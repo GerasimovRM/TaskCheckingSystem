@@ -106,7 +106,6 @@ async def put_tasks(tasks_json: TasksPostRequest,
                     session: AsyncSession = Depends(get_session),):
     await TaskService.create_tasks_by_json(tasks_json.tasks, session)
 
-
 @router.post("/upload_image")
 async def upload_image(file: UploadFile = File(...),
                        session: AsyncSession = Depends(get_session)):
@@ -214,3 +213,4 @@ async def get_task_count_for_teacher(group_id: int,
 
     return TaskCountForTeacherResponse(students_count=students_count,
                                        students_with_all_completed_tasks=students_with_all_completed_tasks)
+
