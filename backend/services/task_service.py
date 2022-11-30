@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import Task
 from models.pydantic_sqlalchemy_core import TaskDto
+from models.site.task import TaskPostRequest
 from services.lessons_tasks_service import LessonsTasksService
 
 
@@ -24,9 +25,10 @@ class TaskService:
         return list(map(lambda l_t: l_t.task, lesson_tasks))
 
     @staticmethod
-    async def create_tasks_by_json(task_json: List[TaskDto],
+    async def create_tasks_by_json(task_json: List[TaskPostRequest],
                                    session: AsyncSession) -> None:
         for task_data in task_json:
+            # print(*task_data.dict().items(),sep='\n')
             task = Task(**task_data.dict())
             session.add(task)
         await session.commit()

@@ -3,7 +3,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 from models.pydantic_sqlalchemy_core import TaskDto, SolutionDto
-from services.common import exclude_field
+from services.common import exclude_field, exclude_fields
 
 
 class TasksResponse(BaseModel):
@@ -31,3 +31,12 @@ class TaskCountForTeacherResponse(BaseModel):
 class TaskSolution(BaseModel):
     task: TaskDto
     solution: SolutionDto
+
+
+@exclude_fields(["id", "task_type"])
+class TaskPostRequest(TaskDto):
+    pass
+
+
+class TasksPostRequest(BaseModel):
+    tasks: List[TaskPostRequest]

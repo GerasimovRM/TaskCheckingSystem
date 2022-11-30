@@ -11,7 +11,7 @@ from database.solution import SolutionStatus
 from database.users_groups import UserGroupRole, UsersGroups
 from models.pydantic_sqlalchemy_core import TaskDto
 from models.site.group import GroupsResponse
-from models.site.task import TasksResponse, TaskCountForStudentResponse, TaskCountForTeacherResponse
+from models.site.task import TasksResponse, TaskCountForStudentResponse, TaskCountForTeacherResponse, TasksPostRequest
 from services.auth_service import get_current_active_user, get_admin, get_teacher_or_admin
 from database import User, Group, get_session, GroupsCourses, CoursesLessons, Lesson, LessonsTasks, \
     Solution, Image, ChatMessage
@@ -101,11 +101,10 @@ async def get_task(group_id: int,
 
 
 @router.put("/")
-async def put_tasks(tasks_json: List[TaskDto],
+async def put_tasks(tasks_json: TasksPostRequest,
                     current_user: User = Depends(get_admin),
                     session: AsyncSession = Depends(get_session),):
-    tasks = await TaskService.create_tasks_by_json(tasks_json, session)
-
+    await TaskService.create_tasks_by_json(tasks_json.tasks, session)
 
 
 @router.post("/upload_image")
