@@ -47,7 +47,7 @@ services:
       - ./frontend:/usr/src/app
     networks:
       - backend-frontend
-    command: npm start
+    command: ./node_modules/react-scripts/bin/react-scripts start
     tty: true
     stdin_open: true
 
@@ -60,7 +60,7 @@ services:
       - 5672:5672
       - 15672:15672
     volumes:
-      - ~/Volumes/rabbitmq/data:/var/lib/rabbitmq
+      - ~/Volumes/rabbitmq/data:/var/lib/rabbitmq/mnesia
       - ~/Volumes/rabbitmq/log:/var/log/rabbitmq
     networks:
       - rabbitmq-go-net
