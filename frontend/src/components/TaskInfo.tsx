@@ -131,7 +131,7 @@ const PopoverForm = ({points, maxPoints, editable}) => {
 
     return (
         <>
-            <Box d='inline-block' mr={3}>
+            <Box display='inline-block' mr={3}>
                 {`${points}/${maxPoints}`}
             </Box>
             {editable &&
