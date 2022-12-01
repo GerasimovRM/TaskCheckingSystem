@@ -36,18 +36,17 @@ services:
       - rabbitmq-go-net
 
   frontend:
-    build: ./frontend
+    build: 
+      context: ./frontend
     env_file:
       - .env
-    environment:
-      - WATCHPACK_POLLING=true
     ports:
       - 3000:3000
     volumes:
       - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
     networks:
       - backend-frontend
-    command: yarn start
     tty: true
     stdin_open: true
 
