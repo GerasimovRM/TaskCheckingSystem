@@ -47,7 +47,7 @@ services:
       - ./frontend:/usr/src/app
     networks:
       - backend-frontend
-    command: ./node_modules/react-scripts/bin/react-scripts start
+    command: yarn start
     tty: true
     stdin_open: true
 
