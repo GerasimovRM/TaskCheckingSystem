@@ -143,12 +143,12 @@ async def get_lessons_stat_for_student(group_id: int,
     return lesson_dto
 
 
-@router.get("/get_course_stat_for_teacher", response_model=CourseStatForStudent)
+@router.get("/get_course_stat_for_teacher", response_model=CourseStatForTeacher)
 async def get_course_stat_for_student(group_id: int,
                                       course_id: int,
                                       current_user: User = Depends(get_current_active_user),
                                       session: AsyncSession = Depends(
-                                          get_session)) -> CourseStatForStudent:
+                                          get_session)) -> CourseStatForTeacher:
     # check group access
     user_group = await UsersGroupsService.get_user_group(current_user.id,
                                                          group_id,

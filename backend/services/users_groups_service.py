@@ -46,7 +46,7 @@ class UsersGroupsService:
                                       .where(UsersGroups.group_id == group_id,
                                              UsersGroups.role == UserGroupRole.STUDENT)
                                       .options(joinedload(UsersGroups.user))
-                                      .order_by(User.last_name.asc()))
+                                      .order_by(User.last_name, User.first_name))
         group_users = query.scalars().all()
         return group_users
 

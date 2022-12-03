@@ -6,11 +6,11 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import Task, Solution
+from database import Task, Solution, User
 from database.base_meta import initialize_database, get_session
 from models.site.token import Token
 from services.auth_service import create_access_token_user, create_refresh_token_user, \
-    authenticate_user, get_password_hash
+    authenticate_user, get_password_hash, get_admin
 from api.endpoints import user_router, auth_router, group_router, admin_router,\
     course_router, lesson_router, solution_router, task_router, chat_message_router, stat_router
 from services.solution_service import SolutionService
@@ -68,7 +68,8 @@ async def login_for_access_token(response: Response,
 
 
 @app.get("/test")
-async def test(session: AsyncSession = Depends(get_session)):
+async def test(current_user: User = Depends(get_admin),
+               session: AsyncSession = Depends(get_session)):
     task = await session.get(Task, 1)
     task.attachments = [
         {
