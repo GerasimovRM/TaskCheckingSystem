@@ -30,7 +30,7 @@ export const request = async (requestConfig: IRequestConfig): Promise<any> => {
             axiosRequestConfig.headers = {...axiosRequestConfig.headers, Authorization: `Bearer ${token}`}
         }
     }
-
+    console.log(axiosRequestConfig);
     return await axios(axiosRequestConfig)
         .then(response => response.data)
         .catch(async (error) => {

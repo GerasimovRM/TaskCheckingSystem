@@ -34,14 +34,23 @@ services:
       - db-backend
       - redis-go-net
       - rabbitmq-go-net
+      - backend-frontend
 
   frontend:
     build: 
       context: ./frontend
     env_file:
       - .env
+    environment:
+      - REACT_APP_PROD_SITE_URL=${REACT_APP_PROD_SITE_URL}
+      - REACT_APP_DEV_SITE_URL=${REACT_APP_DEV_SITE_URL}
+      - REACT_APP_PROD_API_URL=${REACT_APP_PROD_API_URL}
+      - REACT_APP_DEV_API_URL=${REACT_APP_DEV_API_URL}
+      - REACT_APP_PROD_VK_CLIENT_ID=${REACT_APP_PROD_VK_CLIENT_ID}
+      - REACT_APP_DEV_VK_CLIENT_ID=${REACT_APP_DEV_VK_CLIENT_ID}
+      - REACT_APP_SECRET=${REACT_APP_SECRET}
     ports:
-      - 3000:3000
+      - 443:443
     volumes:
       - ./frontend:/usr/src/app
       - /usr/src/app/node_modules
@@ -51,7 +60,7 @@ services:
     stdin_open: true
 
   rabbitmq:
-    image: rabbitmq:3-management-alpine
+    image: rabbitmq:3.5
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
