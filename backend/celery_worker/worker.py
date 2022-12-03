@@ -39,6 +39,7 @@ def check_solution(solution_id: int):
     solution: Solution = session.query(Solution).get(solution_id)
     tests: List[TaskTest] = session.query(TaskTest)\
         .where(TaskTest.task_id == solution.task_id)\
+        .order_by(TaskTest.queue)\
         .all()
     # check pep8
     temp_file = tempfile.NamedTemporaryFile()
