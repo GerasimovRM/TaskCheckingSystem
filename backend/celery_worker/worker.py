@@ -69,10 +69,11 @@ def check_solution(solution_id: int):
     limits = {'cputime': 10, 'memory': 10}
     if tests:
         for i, test in enumerate(tests, 1):
+            input_data = test.input_data.split("\n") if test.input_data else ""
             test_result = epicbox.run('python', 'python3 main.py',
                                       files=files,
                                       limits=limits,
-                                      stdin="\n".join(map(str.strip, test.input_data.split("\n"))))
+                                      stdin="\n".join(map(str.strip, input_data)))
             logging.info(test_result)
             # logging.info(">>", test.input_data, *map(ord, test.input_data))
             # print(repr(test_result["stdout"].decode("utf-8").strip()), repr(test.output_data))
