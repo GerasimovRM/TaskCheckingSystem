@@ -77,22 +77,30 @@ def check_solution(solution_id: int):
             logging.info(test_result)
             # logging.info(">>", test.input_data, *map(ord, test.input_data))
             # print(repr(test_result["stdout"].decode("utf-8").strip()), repr(test.output_data))
-            test_answer = test_result["stdout"].decode("utf-8").strip().replace("\r", "")
-            accept_answer = "\n".join(map(str.strip, test.output_data.split("\n"))).replace("\r", "")
-            # logging.info(test_answer)
-            # logging.info(accept_answer)
-            # logging.info([ord(c) for c in test_answer])
-            # logging.info([ord(c) for c in accept_answer])
-            # logging.info(test_answer == accept_answer)
-            if test_answer != accept_answer:
-                test_result_text = f"""Wrong answer!
-                Input data:
-                {test.input_data}
-                Except:
-                {accept_answer}
-                Your answer:
-                {test_answer}"""
-                solution.check_system_answer += f'Test № {i}\n{test_result_text}'
+            if test_result["exit_code"] == 0:
+                test_answer = test_result["stdout"].decode("utf-8").strip().replace("\r", "")
+                accept_answer = "\n".join(map(str.strip, test.output_data.split("\n"))).replace("\r", "")
+                # logging.info(test_answer)
+                # logging.info(accept_answer)
+                # logging.info([ord(c) for c in test_answer])
+                # logging.info([ord(c) for c in accept_answer])
+                # logging.info(test_answer == accept_answer)
+                if test_answer != accept_answer:
+                    test_result_text = f"""Wrong answer!
+                    Input data:
+                    {input_data}
+                    Except:
+                    {accept_answer}
+                    Your answer:
+                    {test_answer}"""
+                    solution.check_system_answer += f'Test № {i}\n{test_result_text}'
+                    solution.status = SolutionStatus.ERROR
+                    solution.time_finish = datetime.datetime.now()
+                    session.commit()
+                    session.close()
+                    return {"status": False}
+            elif test_result["exit_code"] == 1:
+                solution.check_system_answer += f"Test № {i}\n{test_result['stderr']}"
                 solution.status = SolutionStatus.ERROR
                 solution.time_finish = datetime.datetime.now()
                 session.commit()
