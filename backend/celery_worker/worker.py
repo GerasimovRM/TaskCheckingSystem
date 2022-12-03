@@ -80,7 +80,7 @@ def check_solution(solution_id: int):
             # print(repr(test_result["stdout"].decode("utf-8").strip()), repr(test.output_data))
             if test_result["exit_code"] == 0:
                 test_answer = test_result["stdout"].decode("utf-8").strip().replace("\r", "")
-                accept_answer = "\n".join(map(str.strip, test.output_data.split("\n"))).replace("\r", "")
+                accept_answer = "\n".join(map(str.strip, (test.output_data if test.output_data else "").split("\n"))).replace("\r", "")
                 # logging.info(test_answer)
                 # logging.info(accept_answer)
                 # logging.info([ord(c) for c in test_answer])
