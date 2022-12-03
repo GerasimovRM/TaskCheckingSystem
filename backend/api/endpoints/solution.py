@@ -296,7 +296,7 @@ async def rerun_solution_on_review(current_user: User = Depends(get_teacher_or_a
     return {"detail": "ok"}
 
 
-@router.post("rerun_solutions_by_task_id")
+@router.post("/rerun_solutions_by_task_id")
 async def rerun_solutions_by_task_id(task_id: int,
                                      current_user: User = Depends(get_teacher_or_admin),
                                      session: AsyncSession = Depends(get_session)):
@@ -304,11 +304,12 @@ async def rerun_solutions_by_task_id(task_id: int,
                                                                         session)
     for solution in solutions:
         solution.status = SolutionStatus.ON_REVIEW
+        solution.score = 0
         await session.commit()
         check_solution.delay(solution.id)
 
 
-@router.post("rerun_solutions_by_lesson_id")
+@router.post("/rerun_solutions_by_lesson_id")
 async def rerun_solutions_by_task_id(lesson_id: int,
                                      current_user: User = Depends(get_teacher_or_admin),
                                      session: AsyncSession = Depends(get_session)):
@@ -319,5 +320,17 @@ async def rerun_solutions_by_task_id(lesson_id: int,
                                                                             session)
         for solution in solutions:
             solution.status = SolutionStatus.ON_REVIEW
+            solution.score = 0
             await session.commit()
             check_solution.delay(solution.id)
+
+
+@router.post("/rerun_solution_by_id")
+async def rerun_solutions_by_task_id(solution_id: int,
+                                     current_user: User = Depends(get_teacher_or_admin),
+                                     session: AsyncSession = Depends(get_session)):
+    solution = await SolutionService.get_solution_by_id(solution_id)
+    solution.status = SolutionStatus.ON_REVIEW
+    solution.score = 0
+    await session.commit()
+    check_solution.delay(solution.id)
