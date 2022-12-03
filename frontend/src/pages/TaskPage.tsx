@@ -123,7 +123,7 @@ export default function TaskPage() {
             onDrop={acceptedFiles => sendFile(acceptedFiles[0])}
         >
             {({getRootProps, isDragActive, getInputProps}) => (
-                <div {...getRootProps({onClick: () => void 0})}>
+                <div>
                     <Layout
                         headerChildren={
                             <>
@@ -170,7 +170,7 @@ export default function TaskPage() {
                                  borderStyle={"dashed solid"}
                                  borderWidth={3}
                             >
-                                <input {...getInputProps()} />
+                                {/*<input {...getInputProps()} />*/}
                                 <Text>Drop Here!</Text>
                             </Box>
                             :
