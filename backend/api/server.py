@@ -36,7 +36,8 @@ app.include_router(stat_router)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://taskcheckingsystem.ru"],
+    allow_origins=["https://taskcheckingsystem.ru",
+                   "http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
