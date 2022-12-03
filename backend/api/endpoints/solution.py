@@ -17,6 +17,7 @@ from services.courses_lessons_service import CoursesLessonsService
 from services.groups_courses_serivce import GroupsCoursesService
 from services.lessons_tasks_service import LessonsTasksService
 from services.solution_service import SolutionService
+from services.task_service import TaskService
 from services.user_service import UserService
 from services.users_groups_service import UsersGroupsService
 
@@ -305,3 +306,18 @@ async def rerun_solutions_by_task_id(task_id: int,
         solution.status = SolutionStatus.ON_REVIEW
         await session.commit()
         check_solution.delay(solution.id)
+
+
+@router.post("rerun_solutions_by_lesson_id")
+async def rerun_solutions_by_task_id(lesson_id: int,
+                                     current_user: User = Depends(get_teacher_or_admin),
+                                     session: AsyncSession = Depends(get_session)):
+    tasks = await TaskService.get_tasks_by_lesson_id(lesson_id,
+                                                     session)
+    for task in tasks:
+        solutions = await SolutionService.get_solution_for_rerun_by_task_id(task.id,
+                                                                            session)
+        for solution in solutions:
+            solution.status = SolutionStatus.ON_REVIEW
+            await session.commit()
+            check_solution.delay(solution.id)
