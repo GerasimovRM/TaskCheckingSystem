@@ -64,6 +64,13 @@ class SolutionService:
         return solution_on_review
 
     @staticmethod
+    async def get_solutions_on_review(session: AsyncSession) -> List[Solution]:
+        q = select(Solution).where(SolutionStatus.ON_REVIEW)
+        query = await session.execute(q)
+        solutions_on_review = query.scalars().all()
+        return solutions_on_review
+
+    @staticmethod
     async def get_best_user_solution(group_id: int,
                                      course_id: int,
                                      task_id: int,
