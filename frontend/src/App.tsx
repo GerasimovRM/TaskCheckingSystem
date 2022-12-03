@@ -9,7 +9,7 @@ import {MainHeader} from "./components/layouts/MainHeader";
 
 const App: FunctionComponent = () => {
     return (
-        <ChakraProvider>
+        <ChakraProvider theme={theme}>
             <ColorModeScript initialColorMode={theme.config.initialColorMode} />
             <BrowserRouter>
                 <MainHeader/>

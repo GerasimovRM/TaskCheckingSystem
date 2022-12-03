@@ -53,7 +53,7 @@ export const LessonPreviewForStudent: (props: ILessonPreview) => JSX.Element = (
                                 }}
                     />
                 </HStack>
-                <Progress colorScheme={taskCountForStudent ? "green" : "gray"}
+                <Progress colorScheme={taskCountForStudent ? "const_green" : "gray"}
                           w={"100%"}
                           size='lg'
                           borderRadius="lg"

@@ -21,15 +21,15 @@ export const getTaskStatusColorScheme = (status: ISolutionStatus | undefined | n
             }
         case ISolutionStatus.COMPLETE:
             return {
-                iconColor: 'green.500',
-                progressColor: 'green',
+                iconColor: "const_green.500",
+                progressColor: "const_green",
                 icon: MdCheckCircle,
                 textStatus: 'Зачёт'
             }
         case ISolutionStatus.COMPLETE_NOT_MAX:
             return {
-                iconColor: 'green.500',
-                progressColor: 'green',
+                iconColor: 'const_green.500',
+                progressColor: "const_green",
                 icon: MdCheckCircle,
                 textStatus: 'Зачёт (неполный балл)'
             }
