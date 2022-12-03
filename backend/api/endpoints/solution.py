@@ -293,3 +293,15 @@ async def rerun_solution_on_review(current_user: User = Depends(get_teacher_or_a
     for solution in solutions:
         result = check_solution.delay(solution.id)
     return {"detail": "ok"}
+
+
+@router.post("rerun_solutions_by_task_id")
+async def rerun_solutions_by_task_id(task_id: int,
+                                     current_user: User = Depends(get_teacher_or_admin),
+                                     session: AsyncSession = Depends(get_session)):
+    solutions = await SolutionService.get_solution_for_rerun_by_task_id(task_id,
+                                                                        session)
+    for solution in solutions:
+        solution.status = SolutionStatus.ON_REVIEW
+        await session.commit()
+        check_solution.delay(solution.id)

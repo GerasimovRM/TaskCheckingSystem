@@ -18,7 +18,7 @@ class SolutionService:
         q = select(Solution).where(Solution.group_id == group_id,
                                    Solution.course_id == course_id,
                                    Solution.task_id == task_id,
-                                   Solution.user_id == user_id)\
+                                   Solution.user_id == user_id) \
             .order_by(Solution.id.asc())
         print(q, "<---------------------")
         query = await session.execute(q)
@@ -39,6 +39,21 @@ class SolutionService:
             .where(Solution.group_id == group_id,
                    Solution.course_id == course_id,
                    Solution.task_id == task_id) \
+            .order_by(Solution.time_start.asc())
+        query = await session.execute(q)
+        solutions = list(map(lambda s: s[0], filter(lambda t: t[1] == 1, query.fetchall())))
+        return solutions
+
+    @staticmethod
+    async def get_solution_for_rerun_by_task_id(task_id: int,
+                                                session: AsyncSession) -> List[Solution]:
+        row_column = func.row_number() \
+            .over(partition_by=Solution.user_id,
+                  order_by=(desc(Solution.status), desc(Solution.time_start), desc(Solution.score))) \
+            .label('row_number')
+        q = select(Solution, row_column) \
+            .select_from(Solution) \
+            .where(Solution.task_id == task_id) \
             .order_by(Solution.time_start.asc())
         query = await session.execute(q)
         solutions = list(map(lambda s: s[0], filter(lambda t: t[1] == 1, query.fetchall())))
