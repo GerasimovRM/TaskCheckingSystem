@@ -80,25 +80,36 @@ const LessonPage: FunctionComponent = () => {
                             ["Домашняя работа", ITaskType.HOME_WORK],
                             ["Дополнительные задачи", ITaskType.ADDITIONAL_WORK]].map((elem) => {
                             return <>
-                                < Heading size={"sm"}>
-                                    {elem[0]}
-                                </Heading>
                                 {tasksResponse!.tasks.filter((task) => {
-                                    return task.task_type === elem[1]
-                                }).map((task, i) => {
-                                    if (groupRole! === IGroupRole.STUDENT)
-                                        return (<TaskPreviewStudent key={task.id}
-                                                                    taskId={task.id}
-                                                                    taskName={task.name}
-                                                                    taskMaxScore={task.max_score}
-                                        />)
-                                    else
-                                        return (<TaskPreviewTeacher key={task.id}
-                                                                    taskId={task.id}
-                                                                    taskName={task.name}
-                                        />)
-                                })}
+                                        return task.task_type === elem[1]
+                                    }).length ?
+                                    <>
+                                        < Heading size={"sm"}>
+                                            {elem[0]}
+                                        </Heading>
+                                        {
+                                            tasksResponse!.tasks.filter((task) => {
+                                                return task.task_type === elem[1]
+                                            }).map((task, i) => {
+                                                if (groupRole! === IGroupRole.STUDENT)
+                                                    return (<TaskPreviewStudent key={task.id}
+                                                                                taskId={task.id}
+                                                                                taskName={task.name}
+                                                                                taskMaxScore={task.max_score}
+                                                    />)
+                                                else
+                                                    return (<TaskPreviewTeacher key={task.id}
+                                                                                taskId={task.id}
+                                                                                taskName={task.name}
+                                                    />)
+                                            })
+                                        }
+                                    </>
+                                    :
+                                    <></>
+                                }
                             </>
+
                         })
                         }
                     </>

@@ -92,7 +92,7 @@ export const TaskStudentsListItem: (props: ITaskStudentsList) => JSX.Element = (
                 </SkeletonCircle>
                 <SkeletonText isLoaded={!isLoading}>
                     <Text wordBreak={"break-word"}>
-                        {`${user?.first_name} ${user?.last_name}`}
+                        {`${user?.last_name} ${user?.first_name}`}
                     </Text>
                 </SkeletonText>
             </HStack>

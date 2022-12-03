@@ -23,6 +23,7 @@ interface LayoutChildren {
     asideChildren?: React.ReactNode
     footerChildren?: React.ReactNode
     noPadding?: boolean
+    gridTemplateColumns?: string
 }
 
 export const Layout: React.FC<LayoutChildren> = ({
@@ -30,7 +31,8 @@ export const Layout: React.FC<LayoutChildren> = ({
                                                      mainChildren,
                                                      footerChildren,
                                                      asideChildren,
-                                                     noPadding
+                                                     noPadding,
+                                                     gridTemplateColumns
                                                  }: LayoutChildren) => {
     const {isAuth, user} = useTypedSelector(state => state.auth)
     const {logout} = useActions()
@@ -47,7 +49,7 @@ export const Layout: React.FC<LayoutChildren> = ({
     return (
         <Grid templateAreas={templateAreas}
               gridTemplateRows={gridRows}
-              gridTemplateColumns={"3fr 1fr"}
+              gridTemplateColumns={gridTemplateColumns || "3fr 1fr"}
               gap={3}
               paddingLeft={noPadding ? undefined : "5vh"}
               paddingRight={noPadding ? undefined : "5vh"}
