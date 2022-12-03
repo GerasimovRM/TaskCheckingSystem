@@ -123,7 +123,7 @@ export default function TaskPage() {
             onDrop={acceptedFiles => sendFile(acceptedFiles[0])}
         >
             {({getRootProps, isDragActive, getInputProps}) => (
-                <div {...getRootProps()}>
+                <div {...getRootProps({onClick: () => void 0})}>
                     <Layout
                         headerChildren={
                             <>
