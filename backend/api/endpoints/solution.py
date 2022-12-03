@@ -329,7 +329,7 @@ async def rerun_solutions_by_task_id(lesson_id: int,
 async def rerun_solutions_by_task_id(solution_id: int,
                                      current_user: User = Depends(get_teacher_or_admin),
                                      session: AsyncSession = Depends(get_session)):
-    solution = await SolutionService.get_solution_by_id(solution_id)
+    solution = await SolutionService.get_solution_by_id(solution_id, session)
     solution.status = SolutionStatus.ON_REVIEW
     solution.score = 0
     await session.commit()
