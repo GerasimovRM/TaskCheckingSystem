@@ -73,15 +73,16 @@ def check_solution(solution_id: int):
                                       files=files,
                                       limits=limits,
                                       stdin="\n".join(map(str.strip, test.input_data.split("\n"))))
-            logging.info(">>", test.input_data, *map(ord, test.input_data))
+            logging.info(test_result)
+            # logging.info(">>", test.input_data, *map(ord, test.input_data))
             # print(repr(test_result["stdout"].decode("utf-8").strip()), repr(test.output_data))
             test_answer = test_result["stdout"].decode("utf-8").strip().replace("\r", "")
             accept_answer = "\n".join(map(str.strip, test.output_data.split("\n"))).replace("\r", "")
-            logging.info(test_answer)
-            logging.info(accept_answer)
-            logging.info([ord(c) for c in test_answer])
-            logging.info([ord(c) for c in accept_answer])
-            logging.info(test_answer == accept_answer)
+            # logging.info(test_answer)
+            # logging.info(accept_answer)
+            # logging.info([ord(c) for c in test_answer])
+            # logging.info([ord(c) for c in accept_answer])
+            # logging.info(test_answer == accept_answer)
             if test_answer != accept_answer:
                 test_result_text = f"""Wrong answer!
                 Input data:
