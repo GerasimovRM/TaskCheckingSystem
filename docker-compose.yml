@@ -16,6 +16,18 @@ services:
       - db-backend
       - backend-frontend
 
+  postgres-db-test:
+    image: postgres
+    ports:
+      - 55001:5432
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD_TEST}
+      - POSTGRES_DB=${DB_DATABASE}
+      - POSTGRES_HOST=${DB_HOST}
+    volumes:
+      - ~/Volumes/postgresql-test:/var/lib/postgresql/data
+
   backend:
     build: ./backend
     command: uvicorn api.server:app --host 0.0.0.0 --reload
