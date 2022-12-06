@@ -4,7 +4,6 @@ import {Layout} from "./components/layouts/Layout";
 import {ChakraProvider, ColorModeScript} from "@chakra-ui/react";
 import theme from "./theme";
 import AppRouter from "./components/AppRouter";
-import BreadcrumbGenerator from "./components/BreadcrumbGenerator";
 import {MainHeader} from "./components/layouts/MainHeader";
 
 const App: FunctionComponent = () => {

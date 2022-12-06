@@ -84,7 +84,7 @@ const LessonPage: FunctionComponent = () => {
                                         return task.task_type === elem[1]
                                     }).length ?
                                     <>
-                                        < Heading size={"sm"}>
+                                        < Heading size={"md"} paddingBottom={2}>
                                             {elem[0]}
                                         </Heading>
                                         {
