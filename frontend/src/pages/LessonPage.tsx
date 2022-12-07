@@ -109,7 +109,6 @@ const LessonPage: FunctionComponent = () => {
                                     <></>
                                 }
                             </>
-
                         })
                         }
                     </>

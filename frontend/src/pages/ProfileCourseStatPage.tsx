@@ -1,56 +1,28 @@
 import React, {FunctionComponent, useEffect, useState} from 'react';
-import {Box, Heading, HStack, Icon, SimpleGrid, useMediaQuery, VStack, Text, Spacer, Divider} from "@chakra-ui/react";
-
-import {ICourseStat} from "../models/stat/ICourseStat";
-import StatService from "../services/StatService";
+import ProfileCourseStatForStudent from "../components/ProfileCourseStatForStudent";
+import {IGroupRole} from "../models/IGroupRole";
+import GroupService from "../services/GroupService";
 import {useParams} from "react-router";
-import {BorderShadowBox} from "../components/BorderShadowBox";
-import {IStatusTaskColor} from "../models/IStatusTaskColor";
-import {getTaskStatusColorScheme} from "../common/colors";
+import ProfileCourseStatForTeacher from "../components/ProfileCourseStatForTeacher";
 
 const ProfileCourseStatPage: FunctionComponent = () => {
-    const {groupId, courseId} = useParams();
-    const [courseStat, setCourseStat] = useState<ICourseStat>()
-    const [isLoading, setIsLoading] = useState<boolean>(true)
+    const {groupId, courseId} = useParams()
+    const [groupRole, setGroupRole] = useState<IGroupRole>()
+
     useEffect(() => {
-        StatService.getCourseStatForStudent(groupId!, courseId!).then((course) => {
-            setCourseStat(course)
-            setIsLoading(false)
+        GroupService.getGroupRole(groupId!).then((role) => {
+            setGroupRole(role)
         })
-    }, [])
+    })
+
     return (
-        <VStack alignItems={"left"} style={{margin: '0 2.5% 0 2.5%'}}>
-            {courseStat?.lessons.map((lesson) => {
-                return (
-                    <BorderShadowBox padding={3}>
-                        <Heading size="md">{lesson.name}</Heading>
-                        {lesson.tasks.map(((task) => {
-                            return (
-                                <>
-                                    <HStack alignItems={"center"}>
-                                        <Icon
-                                            as={getTaskStatusColorScheme(task.status).icon}
-                                            color={getTaskStatusColorScheme(task.status).iconColor}
-                                            display={"flex"}
-                                            w="4"
-                                            h="4"
-                                        />
-                                        <Text>
-                                            {task.name}
-                                        </Text>
-                                        <Spacer/>
-                                        <Text>
-                                            {task.best_score} / {task.max_score}
-                                        </Text>
-                                    </HStack>
-                                    <Divider/>
-                                </>
-                            );
-                        }))}
-                    </BorderShadowBox>
-                );
-            })}
-        </VStack>
+        <>
+        {groupRole! === IGroupRole.TEACHER ?
+            <ProfileCourseStatForTeacher/>
+            :
+            <ProfileCourseStatForStudent/>
+        }
+        </>
     );
 
 }
