@@ -19,7 +19,7 @@ const ProfileCourseStatPage: FunctionComponent = () => {
         })
     }, [])
     return (
-        <VStack alignItems={"left"}>
+        <VStack alignItems={"left"} style={{margin: '0 2.5% 0 2.5%'}}>
             {courseStat?.lessons.map((lesson) => {
                 return (
                     <BorderShadowBox padding={3}>

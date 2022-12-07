@@ -19,7 +19,12 @@ const NoAuthPage: FunctionComponent = () => {
     }
     return (
         <>
-            <Heading size="2xl" mb={5}>
+            <Heading size="2xl" mb={5} style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '80vh',
+            }}>
                 Не авторизован
             </Heading>
         </>

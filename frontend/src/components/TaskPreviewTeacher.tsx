@@ -110,7 +110,7 @@ export const TaskPreviewTeacher: (props: ITaskPreviewTeacher) => JSX.Element = (
                         </SkeletonText>
                     </GridItem>
                 </Grid>
-                <Progress colorScheme={"green"}
+                <Progress colorScheme={"const_green"}
                           size='lg'
                           borderRadius="lg"
                           value={(solutionsCount?.solutions_complete_count! + solutionsCount?.solutions_complete_not_max_count!) / solutionsCount?.solutions_count! * 100}

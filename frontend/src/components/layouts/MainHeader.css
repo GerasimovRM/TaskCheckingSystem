@@ -1,0 +1,14 @@
+.header {
+    display: flex;
+    padding: 2vh 3vw 3vh 3vw;
+}
+
+.header__link {
+    height: 48px;
+    width: 48px;
+}
+
+.header__image {
+    width: 2.5rem;
+    height: 2.5rem;
+}

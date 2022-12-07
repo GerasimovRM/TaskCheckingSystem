@@ -195,21 +195,28 @@ async def get_task_count_for_teacher(group_id: int,
     students = list(map(lambda g_u: g_u.user, group_students))
     students_count = len(students)
     students_with_all_completed_tasks = 0
-    for student in students:
-        student: User
-        is_all = True
-        for task in tasks:
-            best_solution = await SolutionService \
-                .get_best_user_solution(group_id,
-                                        course_id,
-                                        task.id,
-                                        student.id,
-                                        session)
-            if best_solution.status != SolutionStatus.COMPLETE:
-                is_all = False
-                break
-        if is_all:
-            students_with_all_completed_tasks += 1
+    if tasks:
+        for student in students:
+            student: User
+            is_all = True
+
+            for task in tasks:
+                best_solution = await SolutionService \
+                    .get_best_user_solution(group_id,
+                                            course_id,
+                                            task.id,
+                                            student.id,
+                                            session)
+                if best_solution and best_solution.status != SolutionStatus.COMPLETE:
+                    is_all = False
+                    break
+                elif not best_solution:
+                    is_all = False
+                    break
+            if is_all:
+                students_with_all_completed_tasks += 1
+    else:
+        students_with_all_completed_tasks = 0
 
     return TaskCountForTeacherResponse(students_count=students_count,
                                        students_with_all_completed_tasks=students_with_all_completed_tasks)

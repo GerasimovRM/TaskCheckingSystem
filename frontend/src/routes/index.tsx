@@ -10,6 +10,7 @@ import TaskPage from "../pages/TaskPage";
 import {TestPage} from "../pages/TestPage";
 import ProfilePage from "../pages/ProfilePage";
 import ProfileCourseStatPage from "../pages/ProfileCourseStatPage";
+import {TSTPage} from "../pages/TSTPAge";
 
 export interface IRoute {
     path: string;
@@ -29,7 +30,8 @@ export enum RouteNames {
     TASK = "/group/:groupId/course/:courseId/lesson/:lessonId/task/:taskId",
     TEST = "/test",
     PROFILE = "/profile",
-    PROFILE_COURSE_STAT = "/profile/group/:groupId/course/:courseId"
+    PROFILE_COURSE_STAT = "/profile/group/:groupId/course/:courseId",
+    TSTP = "/tstp",
 }
 
 export const publicRoutes: IRoute[] = [
@@ -47,5 +49,6 @@ export const privateRoutes: IRoute[] = [
     {path: RouteNames.TASK, key: RouteNames.TASK, element: <TaskPage />},
     {path: RouteNames.TEST, key: RouteNames.TEST, element: <TestPage />},
     {path: RouteNames.PROFILE, key: RouteNames.PROFILE, element: <ProfilePage />},
-    {path: RouteNames.PROFILE_COURSE_STAT, key: RouteNames.PROFILE_COURSE_STAT, element: <ProfileCourseStatPage />}
+    {path: RouteNames.PROFILE_COURSE_STAT, key: RouteNames.PROFILE_COURSE_STAT, element: <ProfileCourseStatPage />},
+    {path: RouteNames.TSTP, key: RouteNames.TSTP, element: <TSTPage />},
 ]

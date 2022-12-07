@@ -125,6 +125,7 @@ export default function TaskPage() {
             {({getRootProps, isDragActive, getInputProps}) => (
                 <div>
                     <Layout
+                        gridTemplateColumns={"4fr 1fr"}
                         headerChildren={
                             <>
                                 <Heading mb={2}>{task?.name}</Heading>

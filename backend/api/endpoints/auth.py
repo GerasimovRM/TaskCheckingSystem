@@ -1,3 +1,5 @@
+import logging
+
 import aiohttp
 import json
 from typing import Optional
@@ -28,7 +30,7 @@ router = APIRouter(
 
 @router.get("/logout")
 async def logout(response: Response, refresh_token: Optional[str] = Cookie(None)):
-    print(refresh_token)
+    logging.debug(refresh_token)
     response.delete_cookie("refresh_token")
     return {"status": "Ok"}
 
@@ -48,7 +50,7 @@ async def login(
             "code": vk_code,
             "scopes": "photos"
         }
-        print(f"https://oauth.vk.com/access_token?{'&'.join(map(lambda x: f'{x[0]}={x[1]}', data.items()))}")
+        logging.debug(f"https://oauth.vk.com/access_token?{'&'.join(map(lambda x: f'{x[0]}={x[1]}', data.items()))}")
         async with http_session.get("https://oauth.vk.com/access_token", params=data) as response_session:
             print(response_session.url)
             response_data = await response_session.json()

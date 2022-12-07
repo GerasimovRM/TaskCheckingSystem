@@ -44,9 +44,9 @@ const ProfilePage: FunctionComponent = () => {
                 />
             ));
             return (
-                <div>
+                <div style={{marginLeft: '2.5%'}}>
                     <Heading mb={5}>Курсы</Heading>
-                    <SimpleGrid columns={4} spacing={10}>
+                    <SimpleGrid columns={4} spacing={10} >
                         {previews}
                     </SimpleGrid>
                 </div>

@@ -49,7 +49,32 @@ async def get_table_for_teacher(group_id: int,
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Bad access to course")
 
-    # TODO: продолжить тут!
+    lessons = await LessonService.get_lessons_by_course_id(course_id, session)
+    lessons_dto: List[LessonDataForTeacher] = []
+    for lesson in lessons:
+        tasks = await TaskService.get_tasks_by_lesson_id(lesson.id, session)
+        tasks_dto = list(map(lambda task: TaskLessonDataForTeacher.from_orm(task), tasks))
+        lesson_dto = LessonDataForTeacher(**lesson.to_dict(), tasks=tasks_dto)
+        lessons_dto.append(lesson_dto)
+
+    students = await UserService.get_students_by_group_id(group_id, session)
+    students_dto: List[StudentTaskDataForTeacher] = []
+    for student in students:
+        for lesson in lessons:
+            tasks = await TaskService.get_tasks_by_lesson_id(lesson.id, session)
+            best_solutions = [await SolutionService.get_best_user_solution(group_id,
+                                                                           course_id,
+                                                                           task.id,
+                                                                           student.id,
+                                                                           session) for task in tasks]
+            tasks_dto = [TaskStudentDataForTeacher(**{"id": task.id} | ({"best_score": solution.score,
+                                                                         "status": solution.status} if solution else
+                                                                        {"best_score": 0,
+                                                                         "status": SolutionStatus.NOT_SENT}))
+                         for task, solution in zip(tasks, best_solutions)]
+            students_dto.append(StudentTaskDataForTeacher(student=UserDto.from_orm(student),
+                                                          tasks=tasks_dto))
+    return TableDataForTeacher(lessons=lessons_dto, students=students_dto)
 
 
 @router.get("/get_course_stat_for_student", response_model=CourseStatForStudent)
@@ -143,12 +168,12 @@ async def get_lessons_stat_for_student(group_id: int,
     return lesson_dto
 
 
-@router.get("/get_course_stat_for_teacher", response_model=CourseStatForStudent)
+@router.get("/get_course_stat_for_teacher", response_model=CourseStatForTeacher)
 async def get_course_stat_for_student(group_id: int,
                                       course_id: int,
                                       current_user: User = Depends(get_current_active_user),
                                       session: AsyncSession = Depends(
-                                          get_session)) -> CourseStatForStudent:
+                                          get_session)) -> CourseStatForTeacher:
     # check group access
     user_group = await UsersGroupsService.get_user_group(current_user.id,
                                                          group_id,
