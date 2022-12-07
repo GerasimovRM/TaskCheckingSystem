@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 from sqlalchemy import select
@@ -28,7 +29,7 @@ class TaskService:
     async def create_tasks_by_json(task_json: List[TaskPostRequest],
                                    session: AsyncSession) -> None:
         for task_data in task_json:
-            # print(*task_data.dict().items(),sep='\n')
+            # logging.debug(*task_data.dict().items(),sep='\n')
             task = Task(**task_data.dict())
             session.add(task)
         await session.commit()
