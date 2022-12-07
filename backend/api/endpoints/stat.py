@@ -9,7 +9,8 @@ from database.solution import SolutionStatus
 from database.users_groups import UserGroupRole, UsersGroups
 from models.pydantic_sqlalchemy_core import LessonDto, UserDto
 from models.site.lesson import LessonsResponse, LessonResponse, LessonPostRequest, LessonRequest
-from models.site.stat import CourseStatForStudent, TaskStat, LessonStat, UserStat, CourseStatForTeacher, \
+from models.site.stat import CourseStatForStudent, TaskStat, LessonStat, UserStat, \
+    CourseStatForTeacher, \
     TableDataForTeacher, LessonDataForTeacher, TaskLessonDataForTeacher, TaskStudentDataForTeacher, \
     StudentTaskDataForTeacher
 from services.auth_service import get_current_active_user, get_teacher_or_admin, get_teacher
@@ -34,7 +35,8 @@ router = APIRouter(
 async def get_table_for_teacher(group_id: int,
                                 course_id: int,
                                 current_user: User = Depends(get_teacher),
-                                session: AsyncSession = Depends(get_session)) -> TableDataForTeacher:
+                                session: AsyncSession = Depends(
+                                    get_session)) -> TableDataForTeacher:
     user_group = await UsersGroupsService.get_user_group(current_user.id,
                                                          group_id,
                                                          session)
@@ -55,27 +57,36 @@ async def get_table_for_teacher(group_id: int,
     lessons_dto: List[LessonDataForTeacher] = []
     for lesson in lessons:
         tasks = await TaskService.get_tasks_by_lesson_id(lesson.id, session)
-        tasks_dto = list(map(lambda task: TaskLessonDataForTeacher.from_orm(task), tasks))
-        lesson_dto = LessonDataForTeacher(**lesson.to_dict(), tasks=tasks_dto)
+        tasks_dto = list(map(lambda task: TaskLessonDataForTeacher(task_id=task.id,
+                                                                   task_name=task.name,
+                                                                   max_score=task.max_score),
+                             tasks))
+        lesson_dto = LessonDataForTeacher(lesson_id=lesson.id,
+                                          lesson_name=lesson.name,
+                                          tasks=tasks_dto)
         lessons_dto.append(lesson_dto)
 
     students = await UserService.get_students_by_group_id(group_id, session)
     students_dto: List[StudentTaskDataForTeacher] = []
+    # need to optimize
     for student in students:
+        tasks_dto = []
         for lesson in lessons:
             tasks = await TaskService.get_tasks_by_lesson_id(lesson.id, session)
             best_solutions = [await SolutionService.get_best_user_solution(group_id,
                                                                            course_id,
                                                                            task.id,
                                                                            student.id,
-                                                                           session) for task in tasks]
-            tasks_dto = [TaskStudentDataForTeacher(**{"id": task.id} | ({"best_score": solution.score,
-                                                                         "status": solution.status} if solution else
-                                                                        {"best_score": 0,
-                                                                         "status": SolutionStatus.NOT_SENT}))
-                         for task, solution in zip(tasks, best_solutions)]
-            students_dto.append(StudentTaskDataForTeacher(student=UserDto.from_orm(student),
-                                                          tasks=tasks_dto))
+                                                                           session) for task in
+                              tasks]
+            tasks_dto += [
+                TaskStudentDataForTeacher(**{"task_id": task.id} | ({"best_score": solution.score,
+                                                                     "status": solution.status} if solution else
+                                                                    {"best_score": 0,
+                                                                     "status": SolutionStatus.NOT_SENT}))
+                for task, solution in zip(tasks, best_solutions)]
+        students_dto.append(StudentTaskDataForTeacher(student=UserDto.from_orm(student),
+                                                      tasks=tasks_dto))
     return TableDataForTeacher(lessons=lessons_dto, students=students_dto)
 
 

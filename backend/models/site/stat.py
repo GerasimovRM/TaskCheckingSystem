@@ -36,14 +36,14 @@ class CourseStatForTeacher(CourseDto):
 
 
 class TaskStudentDataForTeacher(BaseModel):
-    id: int
+    task_id: int
     best_score: int
     status: SolutionStatus
 
 
 class TaskLessonDataForTeacher(BaseModel):
-    id: int
-    name: str
+    task_id: int
+    task_name: str
     max_score: int
 
     class Config:
@@ -51,8 +51,8 @@ class TaskLessonDataForTeacher(BaseModel):
 
 
 class LessonDataForTeacher(BaseModel):
-    id: int
-    name: str
+    lesson_id: int
+    lesson_name: str
     tasks: List[TaskLessonDataForTeacher]
 
 
@@ -64,7 +64,6 @@ class StudentTaskDataForTeacher(BaseModel):
 class TableDataForTeacher(BaseModel):
     lessons: List[LessonDataForTeacher]
     students: List[StudentTaskDataForTeacher]
-
 
 
 
