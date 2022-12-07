@@ -15,6 +15,8 @@ import {BorderShadowBox} from "./BorderShadowBox";
 import {ITableDataForTeacher} from "../models/stat/ITableDataForTeacher";
 import {BaseSpinner} from "./BaseSpinner";
 
+import './ProfileCourse.css'
+
 const ProfileCourseStatForTeacher: FunctionComponent = () => {
     const {groupId, courseId} = useParams();
     const [tableData, setTableData] = useState<ITableDataForTeacher>()
@@ -28,10 +30,10 @@ const ProfileCourseStatForTeacher: FunctionComponent = () => {
         })
     }, [])
     if (isLoading) {
-        <BaseSpinner/>
+        return <BaseSpinner />
     }
     return (
-        <TableContainer>
+        <TableContainer className={'profile-course'}>
             <Table>
                 <Thead>
                     <Tr>

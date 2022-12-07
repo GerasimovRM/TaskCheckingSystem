@@ -7,6 +7,9 @@ import {useParams} from "react-router";
 import {getTaskStatusColorScheme} from "../common/colors";
 import {BorderShadowBox} from "./BorderShadowBox";
 
+import './ProfileCourse.css'
+import {BaseSpinner} from "./BaseSpinner";
+
 const ProfileCourseStatForStudent: FunctionComponent = () => {
     const {groupId, courseId} = useParams();
     const [courseStat, setCourseStat] = useState<ICourseStat>()
@@ -17,8 +20,13 @@ const ProfileCourseStatForStudent: FunctionComponent = () => {
             setIsLoading(false)
         })
     }, [])
+
+    if (isLoading) {
+        return <BaseSpinner />
+    }
+
     return (
-        <VStack alignItems={"left"}>
+        <VStack alignItems={"left"} className={'profile-course'}>
             {courseStat?.lessons.map((lesson) => {
                 return (
                     <BorderShadowBox padding={3}>
