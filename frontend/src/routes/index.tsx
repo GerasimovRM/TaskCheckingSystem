@@ -10,7 +10,6 @@ import TaskPage from "../pages/TaskPage";
 import {TestPage} from "../pages/TestPage";
 import ProfilePage from "../pages/ProfilePage";
 import ProfileCourseStatPage from "../pages/ProfileCourseStatPage";
-import {TSTPage} from "../pages/TSTPAge";
 
 export interface IRoute {
     path: string;
