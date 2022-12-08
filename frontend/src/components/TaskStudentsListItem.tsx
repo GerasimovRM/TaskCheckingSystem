@@ -10,6 +10,8 @@ import SolutionService from "../services/SolutionService";
 import { getTaskStatusColorScheme } from "../common/colors";
 import {IStatusTaskColor} from "../models/IStatusTaskColor";
 
+import './TaskStudentsListItem.css';
+
 interface ITaskStudentsList {
     studentId: number;
     index: number;
@@ -85,13 +87,12 @@ export const TaskStudentsListItem: (props: ITaskStudentsList) => JSX.Element = (
             <HStack>
                 <SkeletonCircle boxSize="34px" isLoaded={!isLoading}>
                     <Image
-                        borderRadius="full"
-                        boxSize="34px"
+                        className={'task-students-list-item__image'}
                         src={user?.avatar_url}
                     />
                 </SkeletonCircle>
                 <SkeletonText isLoaded={!isLoading}>
-                    <Text wordBreak={"break-word"}>
+                    <Text className={'task-students-list-item__text'}>
                         {`${user?.last_name} ${user?.first_name}`}
                     </Text>
                 </SkeletonText>

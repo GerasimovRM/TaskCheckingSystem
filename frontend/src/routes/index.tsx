@@ -29,7 +29,7 @@ export enum RouteNames {
     TASK = "/group/:groupId/course/:courseId/lesson/:lessonId/task/:taskId",
     TEST = "/test",
     PROFILE = "/profile",
-    PROFILE_COURSE_STAT = "/profile/group/:groupId/course/:courseId"
+    PROFILE_COURSE_STAT = "/profile/group/:groupId/course/:courseId",
 }
 
 export const publicRoutes: IRoute[] = [
@@ -47,5 +47,5 @@ export const privateRoutes: IRoute[] = [
     {path: RouteNames.TASK, key: RouteNames.TASK, element: <TaskPage />},
     {path: RouteNames.TEST, key: RouteNames.TEST, element: <TestPage />},
     {path: RouteNames.PROFILE, key: RouteNames.PROFILE, element: <ProfilePage />},
-    {path: RouteNames.PROFILE_COURSE_STAT, key: RouteNames.PROFILE_COURSE_STAT, element: <ProfileCourseStatPage />}
+    {path: RouteNames.PROFILE_COURSE_STAT, key: RouteNames.PROFILE_COURSE_STAT, element: <ProfileCourseStatPage />},
 ]

@@ -7,6 +7,8 @@ import {useTypedSelector} from "../hooks/useTypedSelector";
 import GroupService from "../services/GroupService";
 import CourseService from "../services/CourseService";
 
+import './ProfilePage.css';
+
 const ProfilePage: FunctionComponent = () => {
     const [coursePreviews, setCoursePreviews] = useState<ICoursePreview[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -44,18 +46,18 @@ const ProfilePage: FunctionComponent = () => {
                 />
             ));
             return (
-                <div>
+                <main className={'profile-page'}>
                     <Heading mb={5}>Курсы</Heading>
-                    <SimpleGrid columns={4} spacing={10}>
+                    <SimpleGrid columns={4} spacing={10} >
                         {previews}
                     </SimpleGrid>
-                </div>
+                </main>
             )
         }
         return (
-            <div>
+            <main>
                 <Heading>Нет доступных курсов</Heading>
-            </div>
+            </main>
         );
     }
 }

@@ -16,21 +16,19 @@ import {useTypedSelector} from "../../hooks/useTypedSelector";
 import {useActions} from "../../hooks/useActions";
 import {baseURL, vkClientId} from "../../api/api";
 
+import './MainHeader.css';
+
 export const MainHeader: FunctionComponent = () => {
     const {isAuth, user} = useTypedSelector(state => state.auth)
     const {logout} = useActions()
     // console.log(process.env.REACT_APP_DEV_SITE_URL)
     const {colorMode} = useColorMode()
     return (
-        <div>
-            <Flex
-                style={{
-                    padding: '0.5vh 3vw 3vh 3vw',
-                }}
-            >
+        <header> {/* Но можно div или header оставить*/}
+            <nav className={'header'}> {/* Flex was here */}
                 <Wrap>
                     <WrapItem>
-                        <Center h="48px" w="48px">
+                        <Center className={'header__link'}>
                             <Link to="/">
                                 <Image
                                     borderRadius='full'
@@ -52,7 +50,7 @@ export const MainHeader: FunctionComponent = () => {
                         ?
                         <>
                             <Link to="/settings">
-                                <Center w="48px" h="48px">
+                                <Center className={'header__link'}>
                                     <Icon as={FiSettings}
                                           w="10"
                                           h="10"
@@ -60,7 +58,7 @@ export const MainHeader: FunctionComponent = () => {
                                 </Center>
                             </Link>
                             <Link to="/profile">
-                                <Center w="48px" h="48px">
+                                <Center className={'header__link'}>
                                     <Icon
                                         w="10"
                                         h="10"
@@ -69,10 +67,10 @@ export const MainHeader: FunctionComponent = () => {
                                 </Center>
                             </Link>
                             <Link to="/">
-                                <Center w="48px" h="48px">
+                                <Center className={'header__link'}>
                                     <Icon
                                         w="10"
-                                        h="10"
+                                        h="20"
                                         as={ImExit}
                                         onClick={logout}
                                     />
@@ -82,11 +80,11 @@ export const MainHeader: FunctionComponent = () => {
                         :
                         <>
                             <Link to="/settings">
-                                <Center w="48px" h="48px">
+                                <Center className={'header__link'}>
                                     <Icon as={FiSettings} w="10" h="10"/>
                                 </Center>
                             </Link>
-                            <Center w="48px" h="48px">
+                            <Center className={'header__link'}>
                                 <a
                                     href={`https://oauth.vk.com/authorize?${encode({
                                         client_id: vkClientId,
@@ -104,7 +102,7 @@ export const MainHeader: FunctionComponent = () => {
 
                     }
                 </Flex>
-            </Flex>
-        </div>
+            </nav>
+        </header>
     );
 }

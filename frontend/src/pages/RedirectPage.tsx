@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
-import { Spinner } from '@chakra-ui/react';
 import {useActions} from "../hooks/useActions";
 import {useNavigate} from "react-router-dom";
+import {BaseSpinner} from "../components/BaseSpinner";
 
 export default function RedirectPage() {
     const navigate = useNavigate();
@@ -10,7 +10,7 @@ export default function RedirectPage() {
     const {login} = useActions()
     useEffect(() => {
         login(code);
-        navigate("/")
-    })
-    return <Spinner />;
+        setTimeout(() => navigate("/"), 1000)
+    }, [])
+    return <BaseSpinner />;
 }

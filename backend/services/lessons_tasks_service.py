@@ -24,7 +24,7 @@ class LessonsTasksService:
         query = await session.execute(select(LessonsTasks)
                                       .where(LessonsTasks.lesson_id == lesson_id)
                                       .options(joinedload(LessonsTasks.task))
-                                      .order_by(LessonsTasks.queue_number))
+                                      .order_by(LessonsTasks.queue_number.asc()))
         lesson_tasks = query.scalars().all()
         return lesson_tasks
 

@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
@@ -98,7 +100,7 @@ def create_jwt_token(data: dict,
 
 async def get_current_user(token: str = Depends(oauth2_scheme),
                            session: AsyncSession = Depends(get_session)) -> User:
-    print(session)
+    logging.debug(session)
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
