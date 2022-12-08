@@ -16,11 +16,10 @@ from api.endpoints import user_router, auth_router, group_router, admin_router,\
 from services.solution_service import SolutionService
 from services.user_service import UserService
 
-"""
+
 import logging
-logger = logging.getLogger("databases")
-logger.setLevel(logging.DEBUG)
-"""
+logging.basicConfig(level=logging.DEBUG)
+
 app = FastAPI(docs_url="/")
 app.include_router(admin_router)
 app.include_router(auth_router)

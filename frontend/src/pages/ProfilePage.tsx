@@ -6,6 +6,7 @@ import {ICoursePreview} from "../models/ICoursePreview";
 import {useTypedSelector} from "../hooks/useTypedSelector";
 import GroupService from "../services/GroupService";
 import CourseService from "../services/CourseService";
+import {Layout} from "../components/layouts/Layout";
 
 const ProfilePage: FunctionComponent = () => {
     const [coursePreviews, setCoursePreviews] = useState<ICoursePreview[]>([])
@@ -44,12 +45,14 @@ const ProfilePage: FunctionComponent = () => {
                 />
             ));
             return (
-                <div>
-                    <Heading mb={5}>Курсы</Heading>
-                    <SimpleGrid columns={4} spacing={10}>
-                        {previews}
-                    </SimpleGrid>
-                </div>
+                <Layout mainChildren={
+                    <div>
+                        <Heading mb={5}>Рейтинг по курсам</Heading>
+                        <SimpleGrid columns={4} spacing={10}>
+                            {previews}
+                        </SimpleGrid>
+                    </div>
+                }/>
             )
         }
         return (

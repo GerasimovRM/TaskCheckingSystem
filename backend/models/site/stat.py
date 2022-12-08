@@ -35,29 +35,36 @@ class CourseStatForTeacher(CourseDto):
     users: List[UserStat]
 
 
-class TaskUserTableDataForTeacher(BaseModel):
+class TaskStudentDataForTeacher(BaseModel):
+    task_id: int
     task_name: str
-    best_solution_score: int
-    best_solution_status: SolutionStatus
+    best_score: int
+    status: SolutionStatus
 
 
-class LessonUserTableDataForTeacher(BaseModel):
+class TaskLessonDataForTeacher(BaseModel):
+    task_id: int
+    task_name: str
+    max_score: int
+
+    class Config:
+        orm_mode = True
+
+
+class LessonDataForTeacher(BaseModel):
+    lesson_id: int
     lesson_name: str
-    tasks: List[TaskUserTableDataForTeacher]
-    lesson_date: datetime.datetime
+    tasks: List[TaskLessonDataForTeacher]
 
 
-class UserTableDataForTeacher(BaseModel):
-    first_name: str
-    last_name: str
-    middle_name: Optional[str]
-    image_logo: str
-    lessons: List[LessonUserTableDataForTeacher]
+class StudentTaskDataForTeacher(BaseModel):
+    student: UserDto
+    tasks: List[TaskStudentDataForTeacher]
 
 
-class ResponseTableForTeacher(BaseModel):
-    users: List[UserTableDataForTeacher]
-
+class TableDataForTeacher(BaseModel):
+    lessons: List[LessonDataForTeacher]
+    students: List[StudentTaskDataForTeacher]
 
 
 

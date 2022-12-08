@@ -39,6 +39,7 @@ services:
   frontend:
     build: 
       context: ./frontend
+      dockerfile: Dockerfile.dev
     env_file:
       - .env
     environment:
@@ -49,18 +50,20 @@ services:
       - REACT_APP_PROD_VK_CLIENT_ID=${REACT_APP_PROD_VK_CLIENT_ID}
       - REACT_APP_DEV_VK_CLIENT_ID=${REACT_APP_DEV_VK_CLIENT_ID}
       - REACT_APP_SECRET=${REACT_APP_SECRET}
+      - NODE_ENV=development
     ports:
-      - 443:443
+      - 3000:3000
     volumes:
       - ./frontend:/usr/src/app
       - /usr/src/app/node_modules
+    command: npm start
     networks:
       - backend-frontend
     tty: true
     stdin_open: true
 
   rabbitmq:
-    image: rabbitmq:3.5
+    image: rabbitmq:3.11-alpine
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}

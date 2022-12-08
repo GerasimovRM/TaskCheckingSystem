@@ -14,14 +14,16 @@ import {
     Text,
     useDisclosure,
 } from '@chakra-ui/react';
+import {useNavigate} from "react-router-dom";
 
 export default function NotFoundPage() {
-    const { isOpen, onOpen, onClose } = useDisclosure();
+    const {isOpen, onOpen, onClose} = useDisclosure();
     const [buttonText, setButtonText] = useState('Понял');
     const closeHelper = () => {
         setButtonText('Понял');
         onClose();
     };
+    const navigate = useNavigate()
 
     return (
         <>
@@ -41,18 +43,17 @@ export default function NotFoundPage() {
                 <Text color="gray.500" mb={6}>
                     Страница, которую вы ищете, похоже, не существует
                 </Text>
-                <Link href="/">
-                    <Button
-                        colorScheme="blue"
-                        bgGradient="linear(to-r, blue.400, blue.500, blue.600)"
-                        color="white"
-                        variant="solid"
-                    >
-                        Вернуться на домашнюю
-                    </Button>
-                </Link>
-                <br />
-                <br />
+                <Button
+                    colorScheme="blue"
+                    bgGradient="linear(to-r, blue.400, blue.500, blue.600)"
+                    color="white"
+                    variant="solid"
+                    onClick={() => navigate("/")}
+                >
+                    Вернуться на домашнюю
+                </Button>
+                <br/>
+                <br/>
                 <Button
                     colorScheme="blue"
                     bgGradient="linear(to-r, blue.400, blue.500, blue.600)"
@@ -63,7 +64,7 @@ export default function NotFoundPage() {
                     ПОМОГИТЕ :(
                 </Button>
                 <Modal isOpen={isOpen} onClose={closeHelper}>
-                    <ModalOverlay />
+                    <ModalOverlay/>
                     <ModalContent>
                         <ModalHeader>Виджет помощи</ModalHeader>
                         <ModalBody>

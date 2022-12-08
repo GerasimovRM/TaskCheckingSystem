@@ -1,3 +1,4 @@
+import logging
 from typing import AsyncIterator, Dict, Any
 
 from pydantic import BaseModel
@@ -12,7 +13,7 @@ from sqlalchemy.orm import sessionmaker, Session, exc, scoped_session
 
 engine_async = create_async_engine(DATABASE_URL, future=True, echo=SQL_ECHO)
 engine_sync = create_engine(DATABASE_URL_SYNC, echo=SQL_ECHO)
-print(DATABASE_URL_SYNC)
+logging.debug(DATABASE_URL_SYNC)
 Base = declarative_base()
 metadata = Base.metadata
 async_session_factory = sessionmaker(engine_async,

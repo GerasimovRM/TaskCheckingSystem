@@ -1,7 +1,10 @@
+from typing import List
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import User, Admin, Teacher
+from services.users_groups_service import UsersGroupsService
 
 
 class UserService:
@@ -53,3 +56,9 @@ class UserService:
         if is_teacher:
             return True
         return False
+
+    @staticmethod
+    async def get_students_by_group_id(group_id: int,
+                                       session) -> List[User]:
+        group_students = await UsersGroupsService.get_group_students(group_id, session)
+        return list(map(lambda g_s: g_s.user, group_students))

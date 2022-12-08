@@ -1,4 +1,5 @@
-from typing import List, Tuple
+import logging
+from typing import List, Tuple, Optional
 
 from sqlalchemy import func, desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -20,7 +21,7 @@ class SolutionService:
                                    Solution.task_id == task_id,
                                    Solution.user_id == user_id) \
             .order_by(Solution.id.asc())
-        print(q, "<---------------------")
+        logging.debug(q, "<---------------------")
         query = await session.execute(q)
         solutions = query.scalars().all()
         return solutions
@@ -90,7 +91,7 @@ class SolutionService:
                                      course_id: int,
                                      task_id: int,
                                      user_id: int,
-                                     session: AsyncSession) -> Solution:
+                                     session: AsyncSession) -> Optional[Solution]:
         q = select(Solution) \
             .where(Solution.group_id == group_id,
                    Solution.course_id == course_id,
