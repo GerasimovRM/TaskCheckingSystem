@@ -3,6 +3,7 @@ import {IUser} from "../IUser";
 
 interface ITaskStudentDataForTeacher {
     task_id: number
+    task_name: string
     best_score: number
     status: ISolutionStatus
 }

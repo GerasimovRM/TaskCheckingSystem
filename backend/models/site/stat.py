@@ -37,6 +37,7 @@ class CourseStatForTeacher(CourseDto):
 
 class TaskStudentDataForTeacher(BaseModel):
     task_id: int
+    task_name: str
     best_score: int
     status: SolutionStatus
 
