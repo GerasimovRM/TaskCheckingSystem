@@ -53,6 +53,7 @@ export const Layout: React.FC<LayoutChildren> = ({
               gap={3}
               paddingLeft={noPadding ? undefined : "5vh"}
               paddingRight={noPadding ? undefined : "5vh"}
+              paddingBottom={noPadding ? undefined : "5vh"}
         >
             {headerChildren &&
                 <GridItem area={"header"}>

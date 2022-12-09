@@ -4,7 +4,7 @@ import {
     Icon,
     Image,
     Text,
-    TableContainer, Thead, Tr, Th, Table, Td, Tbody, Divider
+    TableContainer, Thead, Tr, Th, Table, Td, Tbody, Divider, Tooltip
 } from "@chakra-ui/react";
 
 import {ICourseStat} from "../models/stat/ICourseStat";
@@ -21,14 +21,22 @@ const ProfileCourseStatForTeacher: FunctionComponent = () => {
     const {groupId, courseId} = useParams();
     const [tableData, setTableData] = useState<ITableDataForTeacher>()
     const [isLoading, setIsLoading] = useState<boolean>(true)
+    const [maxScore, setMaxScore] = useState<number>()
     useEffect(() => {
         StatService.getTableForTeacher(groupId!, courseId!).then((tableData) => {
             setTableData(tableData)
-            console.log(tableData)
-        }).then(() => {
-            setIsLoading(false)
         })
     }, [])
+    useEffect(() => {
+        setIsLoading(false)
+        {/*
+        if (tableData?.lessons.length !== 0)
+            setMaxScore(tableData?.lessons.map((lesson) =>
+                lesson.tasks.map((task) =>
+                    task.max_score).reduce((a, b) => a + b)).reduce((a, b) => a + b))
+         */}
+    }, [tableData])
+
     if (isLoading) {
         return <BaseSpinner />
     }
@@ -38,26 +46,93 @@ const ProfileCourseStatForTeacher: FunctionComponent = () => {
                 <Thead>
                     <Tr>
                         <Th
-                            borderRight={"1px"}
-                            borderRightColor={"gray.700"}
+                            borderRight={1}
+                            borderRightStyle={"inherit"}
+                            borderRightColor={"inherit"}
+                            borderTop={1}
+                            borderTopStyle={"inherit"}
+                            borderTopColor={"inherit"}
+                            borderLeft={1}
+                            borderLeftStyle={"inherit"}
+                            borderLeftColor={"inherit"}
                             width={1}
+                            rowSpan={2}
                         >
                             №
                         </Th>
-                        <Th borderRight={"1px"}>Ученик</Th>
+                        <Th
+                            rowSpan={2}
+                            borderRight={1}
+                            borderRightStyle={"inherit"}
+                            borderRightColor={"inherit"}
+                            borderTop={1}
+                            borderTopStyle={"inherit"}
+                            borderTopColor={"inherit"}
+                        >
+                            Ученик
+                        </Th>
                         {tableData?.lessons.map((lesson, index) => {
-                            return <Th borderRight={"1px"} key={index} colSpan={lesson.tasks.length}>
-                                {lesson.lesson_name}
-                            </Th>
+                            return (
+                                <Th
+                                    borderRight={1}
+                                    borderRightStyle={"inherit"}
+                                    borderRightColor={"inherit"}
+                                    borderTop={1}
+                                    borderTopStyle={"inherit"}
+                                    borderTopColor={"inherit"}
+                                    rowSpan={1}
+                                    key={index}
+                                    colSpan={lesson.tasks.length}>
+                                    {lesson.lesson_name}
+                                </Th>
+                            );
                         })}
+                    </Tr>
+                    <Tr>
+                        {tableData?.lessons.map((lesson) => {
+                            return (
+                                <>
+                                    {lesson.tasks.map((task) => {
+                                        return (
+                                            <Td
+                                            borderRight={1}
+                                            borderRightStyle={"inherit"}
+                                            borderRightColor={"inherit"}
+                                            style={{writingMode: "vertical-rl"}}
+                                            >
+                                                <Tooltip label={task.task_name}>
+                                                    <Text maxH={"120px"} overflow={"hidden"}>
+                                                        {task.task_name}
+                                                    </Text>
+                                                </Tooltip>
+                                            </Td>
+                                        );
+                                    })}
+                                </>
+                            );
+
+                        })
+                        }
                     </Tr>
                 </Thead>
                 <Tbody>
                     {tableData?.students.map((student, index) => {
                         return (
                             <Tr>
-                                <Td>{index + 1}</Td>
-                                <Td>
+                                <Td borderRight={1}
+                                    borderRightStyle={"inherit"}
+                                    borderRightColor={"inherit"}
+                                    borderLeft={1}
+                                    borderLeftStyle={"inherit"}
+                                    borderLeftColor={"inherit"}
+                                >
+                                    {index + 1}
+                                </Td>
+                                <Td
+                                    borderRight={1}
+                                    borderRightStyle={"inherit"}
+                                    borderRightColor={"inherit"}
+                                >
                                     <HStack>
                                         <Image borderRadius="full" boxSize="32px" src={student.student.avatar_url}/>
                                         <Text>
@@ -70,13 +145,22 @@ const ProfileCourseStatForTeacher: FunctionComponent = () => {
                                 </Td>
                                 {student.tasks.map((task) => {
                                     return (
-                                        <Td>
-                                            <Icon
-                                                as={getTaskStatusColorScheme(task.status).icon}
-                                                color={getTaskStatusColorScheme(task.status).iconColor}
-                                                display={"flex"}
-                                                w="4"
-                                                h="4"/>
+                                        <Td
+                                            borderRight={1}
+                                            borderRightStyle={"inherit"}
+                                            borderRightColor={"inherit"}
+                                        >
+                                            <Tooltip label={task.task_name}>
+                                                <div>
+                                                    <Icon
+                                                        as={getTaskStatusColorScheme(task.status).icon}
+                                                        color={getTaskStatusColorScheme(task.status).iconColor}
+                                                        display={"flex"}
+                                                        w="5"
+                                                        h="5"
+                                                    />
+                                                </div>
+                                            </Tooltip>
                                         </Td>
                                     );
                                 })}

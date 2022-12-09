@@ -80,10 +80,11 @@ async def get_table_for_teacher(group_id: int,
                                                                            session) for task in
                               tasks]
             tasks_dto += [
-                TaskStudentDataForTeacher(**{"task_id": task.id} | ({"best_score": solution.score,
-                                                                     "status": solution.status} if solution else
-                                                                    {"best_score": 0,
-                                                                     "status": SolutionStatus.NOT_SENT}))
+                TaskStudentDataForTeacher(**{"task_id": task.id,
+                                             "task_name": task.name} | ({"best_score": solution.score,
+                                                                         "status": solution.status} if solution else
+                                                                        {"best_score": 0,
+                                                                         "status": SolutionStatus.NOT_SENT}))
                 for task, solution in zip(tasks, best_solutions)]
         students_dto.append(StudentTaskDataForTeacher(student=UserDto.from_orm(student),
                                                       tasks=tasks_dto))
