@@ -70,6 +70,8 @@ services:
       - backend-frontend
     tty: true
     stdin_open: true
+    depends_on:
+      - backend
 
   rabbitmq:
     image: rabbitmq:3.5

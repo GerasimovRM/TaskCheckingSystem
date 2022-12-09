@@ -4,6 +4,7 @@ import {IGroupRole} from "../models/IGroupRole";
 import GroupService from "../services/GroupService";
 import {useParams} from "react-router";
 import ProfileCourseStatForTeacher from "../components/ProfileCourseStatForTeacher";
+import {Layout} from "../components/layouts/Layout";
 
 const ProfileCourseStatPage: FunctionComponent = () => {
     const {groupId, courseId} = useParams()
@@ -16,13 +17,12 @@ const ProfileCourseStatPage: FunctionComponent = () => {
     })
 
     return (
-        <>
-        {groupRole! === IGroupRole.TEACHER ?
+        <Layout mainChildren={groupRole! === IGroupRole.TEACHER ?
             <ProfileCourseStatForTeacher/>
             :
             <ProfileCourseStatForStudent/>
         }
-        </>
+        />
     );
 
 }
