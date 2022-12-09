@@ -229,13 +229,10 @@ export default function TaskPage() {
                                         <BorderShadowBox width={"100%"}>
                                             <Tabs isFitted>
                                                 <TabList mb='1em'>
-                                                    <Tab>Чат</Tab>
                                                     <Tab>Решения</Tab>
+                                                    <Tab>Чат</Tab>
                                                 </TabList>
                                                 <TabPanels>
-                                                    <TabPanel>
-                                                        <Chat/>
-                                                    </TabPanel>
                                                     <TabPanel>
                                                         <Flex maxH="60vh" direction="column"
                                                               overflowY={"scroll"} width={"100%"}
@@ -265,6 +262,9 @@ export default function TaskPage() {
                                                                 </Center>
                                                             }
                                                         </Flex>
+                                                    </TabPanel>
+                                                    <TabPanel>
+                                                        <Chat/>
                                                     </TabPanel>
                                                 </TabPanels>
                                             </Tabs>
