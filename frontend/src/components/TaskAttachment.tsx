@@ -27,12 +27,12 @@ export const TaskAttachment: (props: IAttachmentTask) => JSX.Element = (props: I
                         <Tr >
                             <Td className="io_table_border">
                                 {props.data.input.map((v, index) => (
-                                    <Text key={index}>{v}</Text>
+                                    <Text whiteSpace={"pre"} key={index}>{v}</Text>
                                 ))}
                             </Td>
                             <Td className="io_table_border">
                                 {props.data.output.map((v, index) => (
-                                    <Text key={index}>{v}</Text>
+                                    <Text whiteSpace={"pre"} key={index}>{v}</Text>
                                 ))}
                             </Td>
                         </Tr>

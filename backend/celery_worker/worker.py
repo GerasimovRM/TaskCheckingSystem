@@ -77,10 +77,10 @@ def check_solution(solution_id: int):
                                       stdin=input_data)
             logging.info(test_result)
             # logging.info(">>", test.input_data, *map(ord, test.input_data))
-            # print(repr(test_result["stdout"].decode("utf-8").strip()), repr(test.output_data))
+            # print(repr(test_result["stdout"].decode("utf-8").rstrip()), repr(test.output_data))
             if test_result["exit_code"] == 0:
-                test_answer = test_result["stdout"].decode("utf-8").strip().replace("\r", "")
-                accept_answer = "\n".join(map(str.strip, (test.output_data if test.output_data else "").split("\n"))).replace("\r", "")
+                test_answer = "\n".join(map(str.rstrip, test_result["stdout"].decode("utf-8").rstrip().replace("\r", "").split('\n')))
+                accept_answer = "\n".join(map(str.rstrip, (test.output_data if test.output_data else "").split("\n"))).replace("\r", "")
                 logging.info(test_answer)
                 logging.info(accept_answer)
                 logging.info([ord(c) for c in test_answer])
@@ -88,12 +88,12 @@ def check_solution(solution_id: int):
                 logging.info(test_answer == accept_answer)
                 if test_answer != accept_answer:
                     test_result_text = f"""Wrong answer!
-                    Input data:
-                    {input_data}
-                    Except:
-                    {accept_answer}
-                    Your answer:
-                    {test_answer}"""
+Input data:
+{input_data}
+Except:
+{accept_answer}
+Your answer:
+{test_answer}"""
                     solution.check_system_answer += f'Test № {i}\n{test_result_text}'
                     solution.status = SolutionStatus.ERROR
                     solution.time_finish = datetime.datetime.now()

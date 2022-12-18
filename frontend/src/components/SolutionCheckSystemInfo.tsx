@@ -67,7 +67,7 @@ export const SolutionCheckSystemInfo: (solution: ISolution) => JSX.Element = (so
                         <VStack spacing={1} alignItems={"flex-start"}>
                         {
                             solution.check_system_answer?.split("\n").map((st, i) => {
-                                return <Text fontSize="lg" children={st} textAlign={"left"} key={i}/>
+                                return <Text whiteSpace={"pre"} fontSize="lg" children={st} textAlign={"left"} key={i}/>
                             })
                         }
                         </VStack>
