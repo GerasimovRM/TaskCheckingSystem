@@ -25,7 +25,7 @@ export const MainHeader: FunctionComponent = () => {
     const {colorMode} = useColorMode()
     return (
         <div> {/* Но можно div или header оставить*/}
-            <Flex className={'header'}> {/* Flex was here */}
+            <nav className={'header'}> {/* Flex was here */}
                 <Wrap>
                     <WrapItem>
                         <Center className={'header__link'}>
@@ -102,7 +102,7 @@ export const MainHeader: FunctionComponent = () => {
 
                     }
                 </Flex>
-            </Flex>
+            </nav>
         </div>
     );
 }
