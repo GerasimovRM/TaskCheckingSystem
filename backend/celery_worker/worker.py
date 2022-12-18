@@ -101,7 +101,7 @@ Your answer:
                     session.close()
                     return {"status": False}
             elif test_result["exit_code"] == 1:
-                solution.check_system_answer += f"Test № {i}\n{test_result['stderr'].decode('utf-8')}"
+                solution.check_system_answer += f"Test № {i}\nInput data:\n{input_data}\n{test_result['stderr'].decode('utf-8')}"
                 solution.status = SolutionStatus.ERROR
                 solution.time_finish = datetime.datetime.now()
                 session.commit()
