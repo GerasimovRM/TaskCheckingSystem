@@ -1,9 +1,9 @@
 import {AuthAction, AuthActionEnum, AuthState} from "./types";
-import {encodeLocal} from "../../../api/Common";
 
-const initialState: AuthState = {
+export const initialState: AuthState = {
     isAuth: false,
     isLoading: false,
+    user: undefined
 }
 
 export default function authReducer(state: AuthState = initialState, action: AuthAction): AuthState {
@@ -15,9 +15,11 @@ export default function authReducer(state: AuthState = initialState, action: Aut
         case AuthActionEnum.SET_AUTH_IS_LOADING:
             return {...state, isLoading: action.payload}
         case AuthActionEnum.SET_LOGIN:
-            return {...state, ...action.payload, isLoading: false, isAuth: true, error: undefined}
+            return {...state, user: action.payload.user, isLoading: false, isAuth: true, error: undefined}
         case AuthActionEnum.SET_AUTH_USER:
             return {...state, user: action.payload, isLoading: false, error: undefined, isAuth: true}
+        case AuthActionEnum.SET_RESET_STATE:
+            return {...initialState}
         default:
             return state;
     }
