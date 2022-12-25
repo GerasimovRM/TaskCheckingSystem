@@ -33,10 +33,10 @@ export const AuthActionCreators = {
             dispatch(AuthActionCreators.setErrorAuth("Ошибка при логине"))
         }
     },
-    logout: () => async (dispatch: AppDispatch) => {
+    logout: () => async (dispatch: AppDispatch): Promise<SetAuthAction> => {
         await LoginService.logoutRequest()
         localStorage.removeItem("access_token")
         dispatch(AuthActionCreators.setIsAuth(false))
-        // return {type: AuthActionEnum.SET_AUTH, payload: false}
+        return AuthActionCreators.setIsAuth(false)
     }
 }
