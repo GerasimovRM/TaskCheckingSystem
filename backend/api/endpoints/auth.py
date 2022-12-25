@@ -29,8 +29,15 @@ router = APIRouter(
 
 
 @router.get("/logout")
-async def logout(response: Response, refresh_token: Optional[str] = Cookie(None)):
+async def logout(response: Response,
+                 refresh_token: Optional[str] = Cookie(None),
+                 session: AsyncSession = Depends(get_session)):
     logging.debug(refresh_token)
+    query = await session.execute(select(RefreshToken).where(RefreshToken.token == refresh_token))
+    old_refresh_token = query.scalar()
+    if old_refresh_token:
+        await session.delete(old_refresh_token)
+        await session.commit()
     response.delete_cookie("refresh_token")
     return {"status": "Ok"}
 
