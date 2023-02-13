@@ -9,11 +9,6 @@ from database.base_meta import BaseSQLAlchemyModel
 from database.solution import SolutionStatus
 
 
-class TaskTestType(Enum, str):
-    STDIN = "STDIN"
-    CODE = "CODE"
-
-
 class TaskTest(BaseSQLAlchemyModel):
     __tablename__ = "dbo_task_test"
 
@@ -21,6 +16,7 @@ class TaskTest(BaseSQLAlchemyModel):
     queue = Column(Integer, nullable=True)
     input_data = Column(String, nullable=True)
     output_data = Column(String, nullable=True)
+    unit_test_code = Column(String(10000), nullable=True)
 
     task_id = Column(Integer, ForeignKey("dbo_task.id"))
     task = relationship("Task", back_populates="task_test")

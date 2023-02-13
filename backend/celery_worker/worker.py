@@ -92,6 +92,73 @@ def python_io_run(solution: Solution, session: Session):
     return {"status": True}
 
 
+def python_ut_run(solution: Solution, session: Session):
+    # check tests from db
+    tests: List[TaskTest] = session.query(TaskTest) \
+        .where(TaskTest.task_id == solution.task_id) \
+        .order_by(TaskTest.queue) \
+        .all()
+    base_files = [{'name': 'solution.py', 'content': solution.code.encode()}]
+    limits = {'cputime': 10, 'memory': 10}
+    if tests:
+        for i, test in enumerate(tests, 1):
+            test: TaskTest
+            files = base_files + [{'name': 'main.py', 'content': test.unit_test_code.encode()}]
+            input_data = test.input_data.replace("\r", "") if test.input_data else "\n"
+            test_result = epicbox.run('python', 'python3 main.py',
+                                      files=files,
+                                      limits=limits,
+                                      stdin=input_data)
+            logging.info(test_result)
+            # logging.info(">>", test.input_data, *map(ord, test.input_data))
+            # print(repr(test_result["stdout"].decode("utf-8").rstrip()), repr(test.output_data))
+            if test_result["exit_code"] == 0:
+                test_answer = "\n".join(map(str.rstrip,
+                                            test_result["stdout"].decode("utf-8").rstrip().replace(
+                                                "\r", "").split('\n'))).rstrip()
+                accept_answer = "\n".join(map(str.rstrip,
+                                              (test.output_data if test.output_data else "").split(
+                                                  "\n"))).replace("\r", "").rstrip()
+                logging.info(test_answer)
+                logging.info(accept_answer)
+                logging.info([ord(c) for c in test_answer])
+                logging.info([ord(c) for c in accept_answer])
+                logging.info(test_answer == accept_answer)
+                if test_answer != accept_answer:
+                    test_result_text = f"""Wrong answer!
+        Input data:
+        {input_data}
+        Except:
+        {accept_answer}
+        Your answer:
+        {test_answer}"""
+                    solution.check_system_answer += f'Test № {i}\n{test_result_text}'
+                    solution.status = SolutionStatus.ERROR
+                    solution.time_finish = datetime.datetime.now()
+                    session.commit()
+                    session.close()
+                    return {"status": False}
+            elif test_result["exit_code"] == 1:
+                solution.check_system_answer += f"Test № {i}\nInput data:\n{input_data}\n{test_result['stderr'].decode('utf-8')}"
+                solution.status = SolutionStatus.ERROR
+                solution.time_finish = datetime.datetime.now()
+                session.commit()
+                session.close()
+                return {"status": False}
+
+        solution.score = solution.task.max_score
+        solution.status = SolutionStatus.COMPLETE
+        solution.time_finish = datetime.datetime.now()
+        solution.check_system_answer += "All test are accepted!"
+        session.commit()
+        session.close()
+
+    else:
+        pass
+        # TODO: dont run worker if no tests
+    return {"status": True}
+
+
 @celery_app.task(acks_late=True)
 def check_solution(solution_id: int):
     current_task.update_state(state="PROGRESS")
@@ -128,3 +195,7 @@ def check_solution(solution_id: int):
 
     if solution.test_type == TestType.PYTHON_IO:
         return python_io_run(solution, session)
+    elif solution.test_type == TestType.PYTHON_UT:
+        return python_ut_run(solution, session)
+    else:
+        raise KeyError
