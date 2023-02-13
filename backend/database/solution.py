@@ -1,5 +1,5 @@
 from datetime import datetime
-from enum import IntEnum
+from enum import IntEnum, Enum as BaseEnum
 
 from sqlalchemy import Column, Integer, String, Float, ForeignKeyConstraint, Boolean, Enum, \
     DateTime, ForeignKey
@@ -14,6 +14,11 @@ class SolutionStatus(IntEnum):
     ON_REVIEW: int = 0
     COMPLETE_NOT_MAX: int = 1
     COMPLETE: int = 2
+
+
+class TestType(BaseEnum):
+    PYTHON_IO = "PYTHON_IO"
+    PYTHON_UT = "PYTHON_UT"
 
 
 class Solution(BaseSQLAlchemyModel):
@@ -31,6 +36,7 @@ class Solution(BaseSQLAlchemyModel):
     time_start = Column(DateTime, nullable=False, default=datetime.now)
     time_finish = Column(DateTime, nullable=True)
     check_system_answer = Column(String, nullable=True)
+    test_type = Column(Enum(TestType), nullable=True)
 
     user = relationship("User", back_populates="solutions")
     task = relationship("Task", back_populates="solutions")
