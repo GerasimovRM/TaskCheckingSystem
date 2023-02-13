@@ -10,7 +10,7 @@ from config import DATABASE_URL, SQL_ECHO, DATABASE_URL_SYNC
 import database
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session, exc, scoped_session
-
+print(DATABASE_URL)
 engine_async = create_async_engine(DATABASE_URL, future=True, echo=SQL_ECHO)
 engine_sync = create_engine(DATABASE_URL_SYNC, echo=SQL_ECHO)
 logging.debug(DATABASE_URL_SYNC)

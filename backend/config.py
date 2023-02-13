@@ -4,7 +4,8 @@ import os
 from dotenv import load_dotenv
 
 if not os.getenv("DOCKER"):
-    load_dotenv(f"{Path(__file__).parent.resolve()}/.env")
+    # print(Path(__file__).parent.joinpath('..', '.env').resolve())
+    load_dotenv(Path(__file__).parent.joinpath('..', '.env').resolve())
 VK_CLIENT_ID = os.getenv("VK_CLIENT_ID")
 VK_CLIENT_SECRET = os.getenv("VK_CLIENT_SECRET")
 VK_REDIRECT_URI = os.getenv("VK_REDIRECT_URI")
