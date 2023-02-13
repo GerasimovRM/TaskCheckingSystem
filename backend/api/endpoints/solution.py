@@ -264,14 +264,15 @@ async def post_solution(group_id: int,
                                                                                 task_id,
                                                                                 current_user.id,
                                                                                 session)
-    # TODO: update running tests in background tasks
+    task = await TaskService.get_task_by_id(task_id, session)
     if last_solution_on_review:
         last_solution_on_review.status = SolutionStatus.ERROR
     solution = Solution(user_id=current_user.id,
                         group_id=group_id,
                         course_id=course_id,
                         task_id=task_id,
-                        code=code)
+                        code=code,
+                        test_type=task.test_type)
     session.add(solution)
     await session.commit()
     result = check_solution.delay(solution.id)
