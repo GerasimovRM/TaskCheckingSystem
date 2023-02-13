@@ -27,7 +27,7 @@ export const TaskAttachment: (props: IAttachmentTask) => JSX.Element = (props: I
                         <Tr >
                             <Td className="io_table_border">
                                 {props.data.input.map((v, index) => (
-                                    <Text whiteSpace={"pre"} key={index}>{v}</Text>
+                                    <Text whiteSpace={"pre"} key={index}>{v === '' ? '&nbsp' : v}</Text>
                                 ))}
                             </Td>
                             <Td className="io_table_border">
