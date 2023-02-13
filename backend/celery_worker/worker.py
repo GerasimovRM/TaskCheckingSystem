@@ -12,7 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from database import get_sync_session, Solution, TaskTest
-from database.solution import SolutionStatus
+from database.solution import SolutionStatus, TestType
 from .app import celery_app
 import epicbox
 import tempfile
@@ -27,45 +27,12 @@ def test_celery(word: str) -> str:
     return f"test task return {word}"
 
 
-@celery_app.task(acks_late=True)
-def check_solution(solution_id: int):
-    current_task.update_state(state="PROGRESS")
-    epicbox.configure(
-        profiles=[
-            epicbox.Profile('python', 'python:3.10.5-alpine')
-        ]
-    )
-    session: Session = get_sync_session()
-    solution: Solution = session.query(Solution).get(solution_id)
-    tests: List[TaskTest] = session.query(TaskTest)\
-        .where(TaskTest.task_id == solution.task_id)\
-        .order_by(TaskTest.queue)\
-        .all()
-    # check pep8
-    temp_file = tempfile.NamedTemporaryFile()
-    with open(temp_file.name, "w") as tmp:
-        solution_code = solution.code
-        tmp.write(solution_code)
-
-    pep8_checker = pycodestyle.Checker(temp_file.name, show_source=True)
-    f = io.StringIO()
-    with redirect_stdout(f):
-        file_errors = pep8_checker.check_all()
-    data = f.getvalue().splitlines()
-    pep8_checker_out = list(map(lambda t: t.replace(temp_file.name, "solution.py"), filter(lambda x: x.startswith(temp_file.name), data)))
-    pep8_checker_out_errors = list(filter(lambda t: t.split(": ")[-1].startswith("E"), pep8_checker_out))
-    pep8_checker_out_others = list(filter(lambda t: t not in pep8_checker_out_errors, pep8_checker_out))
-    solution.check_system_answer = ""
-    if pep8_checker_out_others:
-        solution.check_system_answer += f"PEP8 Warnings:\n" + '\n'.join(pep8_checker_out_others) + "\n"
-    if pep8_checker_out_errors:
-        solution.check_system_answer += f"PEP8 Errors:\n" + '\n'.join(pep8_checker_out_errors) + "\n"
-        solution.status = SolutionStatus.ERROR
-        solution.time_finish = datetime.datetime.now()
-        session.commit()
-        return {"status": False}
-
+def python_io_run(solution: Solution, session: Session):
     # check tests from db
+    tests: List[TaskTest] = session.query(TaskTest) \
+        .where(TaskTest.task_id == solution.task_id) \
+        .order_by(TaskTest.queue) \
+        .all()
     files = [{'name': 'main.py', 'content': solution.code.encode()}]
     limits = {'cputime': 10, 'memory': 10}
     if tests:
@@ -79,8 +46,12 @@ def check_solution(solution_id: int):
             # logging.info(">>", test.input_data, *map(ord, test.input_data))
             # print(repr(test_result["stdout"].decode("utf-8").rstrip()), repr(test.output_data))
             if test_result["exit_code"] == 0:
-                test_answer = "\n".join(map(str.rstrip, test_result["stdout"].decode("utf-8").rstrip().replace("\r", "").split('\n'))).rstrip()
-                accept_answer = "\n".join(map(str.rstrip, (test.output_data if test.output_data else "").split("\n"))).replace("\r", "").rstrip()
+                test_answer = "\n".join(map(str.rstrip,
+                                            test_result["stdout"].decode("utf-8").rstrip().replace(
+                                                "\r", "").split('\n'))).rstrip()
+                accept_answer = "\n".join(map(str.rstrip,
+                                              (test.output_data if test.output_data else "").split(
+                                                  "\n"))).replace("\r", "").rstrip()
                 logging.info(test_answer)
                 logging.info(accept_answer)
                 logging.info([ord(c) for c in test_answer])
@@ -88,12 +59,12 @@ def check_solution(solution_id: int):
                 logging.info(test_answer == accept_answer)
                 if test_answer != accept_answer:
                     test_result_text = f"""Wrong answer!
-Input data:
-{input_data}
-Except:
-{accept_answer}
-Your answer:
-{test_answer}"""
+    Input data:
+    {input_data}
+    Except:
+    {accept_answer}
+    Your answer:
+    {test_answer}"""
                     solution.check_system_answer += f'Test № {i}\n{test_result_text}'
                     solution.status = SolutionStatus.ERROR
                     solution.time_finish = datetime.datetime.now()
@@ -119,3 +90,41 @@ Your answer:
         pass
         # TODO: dont run worker if no tests
     return {"status": True}
+
+
+@celery_app.task(acks_late=True)
+def check_solution(solution_id: int):
+    current_task.update_state(state="PROGRESS")
+    epicbox.configure(
+        profiles=[
+            epicbox.Profile('python', 'python:3.10.5-alpine')
+        ]
+    )
+    session: Session = get_sync_session()
+    solution: Solution = session.query(Solution).get(solution_id)
+    # check pep8
+    temp_file = tempfile.NamedTemporaryFile()
+    with open(temp_file.name, "w") as tmp:
+        solution_code = solution.code
+        tmp.write(solution_code)
+
+    pep8_checker = pycodestyle.Checker(temp_file.name, show_source=True)
+    f = io.StringIO()
+    with redirect_stdout(f):
+        file_errors = pep8_checker.check_all()
+    data = f.getvalue().splitlines()
+    pep8_checker_out = list(map(lambda t: t.replace(temp_file.name, "solution.py"), filter(lambda x: x.startswith(temp_file.name), data)))
+    pep8_checker_out_errors = list(filter(lambda t: t.split(": ")[-1].startswith("E"), pep8_checker_out))
+    pep8_checker_out_others = list(filter(lambda t: t not in pep8_checker_out_errors, pep8_checker_out))
+    solution.check_system_answer = ""
+    if pep8_checker_out_others:
+        solution.check_system_answer += f"PEP8 Warnings:\n" + '\n'.join(pep8_checker_out_others) + "\n"
+    if pep8_checker_out_errors:
+        solution.check_system_answer += f"PEP8 Errors:\n" + '\n'.join(pep8_checker_out_errors) + "\n"
+        solution.status = SolutionStatus.ERROR
+        solution.time_finish = datetime.datetime.now()
+        session.commit()
+        return {"status": False}
+
+    if solution.test_type == TestType.PYTHON_IO:
+        return python_io_run(solution, session)
