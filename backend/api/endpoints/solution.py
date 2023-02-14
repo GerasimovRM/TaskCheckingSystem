@@ -242,6 +242,7 @@ async def post_solution(group_id: int,
     group_course = await GroupsCoursesService.get_group_course(group_id,
                                                                course_id,
                                                                session)
+
     if not group_course:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -259,14 +260,15 @@ async def post_solution(group_id: int,
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Bad access to task")
 
+
     last_solution_on_review = await SolutionService.get_user_solution_on_review(group_id,
                                                                                 course_id,
                                                                                 task_id,
                                                                                 current_user.id,
                                                                                 session)
-    task = await TaskService.get_task_by_id(task_id, session)
     if last_solution_on_review:
         last_solution_on_review.status = SolutionStatus.ERROR
+    task = await TaskService.get_task_by_id(task_id, session)
     solution = Solution(user_id=current_user.id,
                         group_id=group_id,
                         course_id=course_id,

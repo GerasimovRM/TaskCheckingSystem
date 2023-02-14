@@ -10,14 +10,13 @@ from config import DATABASE_URL, SQL_ECHO, DATABASE_URL_SYNC
 import database
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session, exc, scoped_session
-print(DATABASE_URL)
-engine_async = create_async_engine(DATABASE_URL, future=True, echo=SQL_ECHO)
-engine_sync = create_engine(DATABASE_URL_SYNC, echo=SQL_ECHO)
-logging.debug(DATABASE_URL_SYNC)
 Base = declarative_base()
+engine_async = create_async_engine(DATABASE_URL, echo=SQL_ECHO, future=True)
+engine_sync = create_engine(DATABASE_URL_SYNC, echo=SQL_ECHO)
 metadata = Base.metadata
 async_session_factory = sessionmaker(engine_async,
                                      expire_on_commit=False,
+                                     autoflush=False,
                                      class_=AsyncSession)
 sync_session_factory = sessionmaker(engine_sync,
                                     autocommit=False)

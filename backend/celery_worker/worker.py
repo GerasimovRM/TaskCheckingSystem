@@ -59,12 +59,12 @@ def python_io_run(solution: Solution, session: Session):
                 logging.info(test_answer == accept_answer)
                 if test_answer != accept_answer:
                     test_result_text = f"""Wrong answer!
-    Input data:
-    {input_data}
-    Except:
-    {accept_answer}
-    Your answer:
-    {test_answer}"""
+Input data:
+{input_data}
+Except:
+{accept_answer}
+Your answer:
+{test_answer}"""
                     solution.check_system_answer += f'Test № {i}\n{test_result_text}'
                     solution.status = SolutionStatus.ERROR
                     solution.time_finish = datetime.datetime.now()
@@ -100,6 +100,7 @@ def python_ut_run(solution: Solution, session: Session):
         .all()
     base_files = [{'name': 'solution.py', 'content': solution.code.encode()}]
     limits = {'cputime': 10, 'memory': 10}
+    logging.info("Tests length:", len(tests))
     if tests:
         for i, test in enumerate(tests, 1):
             test: TaskTest
@@ -126,12 +127,14 @@ def python_ut_run(solution: Solution, session: Session):
                 logging.info(test_answer == accept_answer)
                 if test_answer != accept_answer:
                     test_result_text = f"""Wrong answer!
-        Input data:
-        {input_data}
-        Except:
-        {accept_answer}
-        Your answer:
-        {test_answer}"""
+Input data:
+{input_data}
+Using:
+{test.unit_test_code}
+Except:
+{accept_answer}
+Your answer:
+{test_answer}"""
                     solution.check_system_answer += f'Test № {i}\n{test_result_text}'
                     solution.status = SolutionStatus.ERROR
                     solution.time_finish = datetime.datetime.now()
