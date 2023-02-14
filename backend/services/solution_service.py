@@ -21,7 +21,6 @@ class SolutionService:
                                    Solution.task_id == task_id,
                                    Solution.user_id == user_id) \
             .order_by(Solution.id.asc())
-        logging.debug(q, "<---------------------")
         query = await session.execute(q)
         solutions = query.scalars().all()
         return solutions

@@ -47,4 +47,3 @@ class Solution(BaseSQLAlchemyModel):
     course = relationship("Course", back_populates="solutions")
     group = relationship("Group", back_populates="solutions")
     docker_run_images = relationship("SolutionsDockerRunImages", back_populates="solution")
-    

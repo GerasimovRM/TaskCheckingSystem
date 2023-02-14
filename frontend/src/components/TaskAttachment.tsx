@@ -13,6 +13,12 @@ export const TaskAttachment: (props: IAttachmentTask) => JSX.Element = (props: I
     switch (props.attachment_type) {
         case IAttachmentTaskTypeName.INPUT_OUTPUT:
             return (
+                <>
+                    <VStack spacing={1} alignItems={"flex-start"}>
+                        <>
+                            <Text whiteSpace={"pre-line"}>{props.data.output}</Text>
+                        </>
+                    </VStack>
                 <Table
                     width="100%"
                     marginBottom="2vh"
@@ -26,22 +32,15 @@ export const TaskAttachment: (props: IAttachmentTask) => JSX.Element = (props: I
                     <Tbody>
                         <Tr >
                             <Td className="io_table_border">
-                                <VStack spacing={1} alignItems={"flex-start"}>
-                                    {props.data.input.map((v, index) => (
-                                        <Text whiteSpace={"pre-line"}>{v ? v : '\n'}</Text>
-                                    ))}
-                                </VStack>
+                                <Text whiteSpace={"pre-line"}>{props.data.input}</Text>
                             </Td>
                             <Td className="io_table_border">
-                                <VStack spacing={1} alignItems={"flex-start"}>
-                                    {props.data.output.map((v, index) => (
-                                        <Text whiteSpace={"pre-line"}>{v ? v : '\n'}</Text>
-                                    ))}
-                                </VStack>
+                                <Text whiteSpace={"pre-line"}>{props.data.output}</Text>
                             </Td>
                         </Tr>
                     </Tbody>
                 </Table>
+                </>
             );
         case IAttachmentTaskTypeName.IMAGE:
             return <Image src={`${baseApi}/task/load_image?image_id=${props.data.url}`} alt="Ошибка при загрузке изображения" />;
