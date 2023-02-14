@@ -58,21 +58,18 @@ def python_io_run(solution: Solution, session: Session):
                 logging.info([ord(c) for c in accept_answer])
                 logging.info(test_answer == accept_answer)
                 if test_answer != accept_answer:
-                    test_result_text = f"""Wrong answer!
-Input data:
-{input_data}
-Except:
-{accept_answer}
-Your answer:
-{test_answer}"""
-                    solution.check_system_answer += f'Test № {i}\n{test_result_text}'
+                    solution.input_data = input_data
+                    solution.except_answer = accept_answer
+                    solution.user_answer = test_answer
+                    solution.check_system_answer += f'Wrong answer!\nTest № {i}:\n'
                     solution.status = SolutionStatus.ERROR
                     solution.time_finish = datetime.datetime.now()
                     session.commit()
                     session.close()
                     return {"status": False}
             elif test_result["exit_code"] == 1:
-                solution.check_system_answer += f"Test № {i}\nInput data:\n{input_data}\n{test_result['stderr'].decode('utf-8')}"
+                solution.input_data = input_data
+                solution.check_system_answer += f"Test № {i}\n{test_result['stderr'].decode('utf-8')}"
                 solution.status = SolutionStatus.ERROR
                 solution.time_finish = datetime.datetime.now()
                 session.commit()
@@ -126,23 +123,20 @@ def python_ut_run(solution: Solution, session: Session):
                 logging.info([ord(c) for c in accept_answer])
                 logging.info(test_answer == accept_answer)
                 if test_answer != accept_answer:
-                    test_result_text = f"""Wrong answer!
-Input data:
-{input_data}
-Using:
-{test.unit_test_code}
-Except:
-{accept_answer}
-Your answer:
-{test_answer}"""
-                    solution.check_system_answer += f'Test № {i}\n{test_result_text}'
+                    solution.input_data = input_data
+                    solution.unit_test_code = test.unit_test_code
+                    solution.except_answer = accept_answer
+                    solution.user_answer = test_answer
+                    solution.check_system_answer += f'Wrong answer!\nTest № {i}:\n'
                     solution.status = SolutionStatus.ERROR
                     solution.time_finish = datetime.datetime.now()
                     session.commit()
                     session.close()
                     return {"status": False}
             elif test_result["exit_code"] == 1:
-                solution.check_system_answer += f"Test № {i}\nInput data:\n{input_data}\n{test_result['stderr'].decode('utf-8')}"
+                solution.input_data = input_data
+                solution.unit_test_code = test.unit_test_code
+                solution.check_system_answer += f"Test № {i}\n{test_result['stderr'].decode('utf-8')}"
                 solution.status = SolutionStatus.ERROR
                 solution.time_finish = datetime.datetime.now()
                 session.commit()
@@ -187,8 +181,8 @@ def check_solution(solution_id: int):
     pep8_checker_out_errors = list(filter(lambda t: t.split(": ")[-1].startswith("E"), pep8_checker_out))
     pep8_checker_out_others = list(filter(lambda t: t not in pep8_checker_out_errors, pep8_checker_out))
     solution.check_system_answer = ""
-    if pep8_checker_out_others:
-        solution.check_system_answer += f"PEP8 Warnings:\n" + '\n'.join(pep8_checker_out_others) + "\n"
+    # if pep8_checker_out_others:
+    #     solution.check_system_answer += f"PEP8 Warnings:\n" + '\n'.join(pep8_checker_out_others) + "\n"
     if pep8_checker_out_errors:
         solution.check_system_answer += f"PEP8 Errors:\n" + '\n'.join(pep8_checker_out_errors) + "\n"
         solution.status = SolutionStatus.ERROR

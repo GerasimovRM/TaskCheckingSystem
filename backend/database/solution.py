@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import IntEnum, Enum as BaseEnum
 
 from sqlalchemy import Column, Integer, String, Float, ForeignKeyConstraint, Boolean, Enum, \
-    DateTime, ForeignKey
+    DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
 
 from database.base_meta import BaseSQLAlchemyModel
@@ -37,9 +37,14 @@ class Solution(BaseSQLAlchemyModel):
     time_finish = Column(DateTime, nullable=True)
     check_system_answer = Column(String, nullable=True)
     test_type = Column(Enum(TestType), nullable=True)
+    input_data = Column(Text, nullable=True)
+    except_answer = Column(Text, nullable=True)
+    user_answer = Column(Text, nullable=True)
+    unit_test_code = Column(Text, nullable=True)
 
     user = relationship("User", back_populates="solutions")
     task = relationship("Task", back_populates="solutions")
     course = relationship("Course", back_populates="solutions")
     group = relationship("Group", back_populates="solutions")
     docker_run_images = relationship("SolutionsDockerRunImages", back_populates="solution")
+    

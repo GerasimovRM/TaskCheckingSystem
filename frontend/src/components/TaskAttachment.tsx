@@ -3,7 +3,7 @@
 
 import React from 'react';
 
-import {Image, Table, Tbody, Td, Th, Thead, Tr, Text} from '@chakra-ui/react';
+import {Image, Table, Tbody, Td, Th, Thead, Tr, Text, VStack} from '@chakra-ui/react';
 import './TaskAttachment.css';
 import {IAttachmentTask, IAttachmentTaskTypeName} from "../models/IAttachmentTask";
 import {baseApi} from "../api/api";
@@ -26,14 +26,18 @@ export const TaskAttachment: (props: IAttachmentTask) => JSX.Element = (props: I
                     <Tbody>
                         <Tr >
                             <Td className="io_table_border">
-                                {props.data.input.map((v, index) => (
-                                    <Text whiteSpace={"pre"} key={index}>{v === '' ? '&nbsp' : v}</Text>
-                                ))}
+                                <VStack spacing={1} alignItems={"flex-start"}>
+                                    {props.data.input.map((v, index) => (
+                                        <Text whiteSpace={"pre-line"}>{v ? v : '\n'}</Text>
+                                    ))}
+                                </VStack>
                             </Td>
                             <Td className="io_table_border">
-                                {props.data.output.map((v, index) => (
-                                    <Text whiteSpace={"pre"} key={index}>{v}</Text>
-                                ))}
+                                <VStack spacing={1} alignItems={"flex-start"}>
+                                    {props.data.output.map((v, index) => (
+                                        <Text whiteSpace={"pre-line"}>{v ? v : '\n'}</Text>
+                                    ))}
+                                </VStack>
                             </Td>
                         </Tr>
                     </Tbody>
