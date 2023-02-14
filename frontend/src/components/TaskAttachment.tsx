@@ -13,12 +13,6 @@ export const TaskAttachment: (props: IAttachmentTask) => JSX.Element = (props: I
     switch (props.attachment_type) {
         case IAttachmentTaskTypeName.INPUT_OUTPUT:
             return (
-                <>
-                    <VStack spacing={1} alignItems={"flex-start"}>
-                        <>
-                            <Text whiteSpace={"pre-line"}>{props.data.output}</Text>
-                        </>
-                    </VStack>
                 <Table
                     width="100%"
                     marginBottom="2vh"
@@ -40,7 +34,6 @@ export const TaskAttachment: (props: IAttachmentTask) => JSX.Element = (props: I
                         </Tr>
                     </Tbody>
                 </Table>
-                </>
             );
         case IAttachmentTaskTypeName.IMAGE:
             return <Image src={`${baseApi}/task/load_image?image_id=${props.data.url}`} alt="Ошибка при загрузке изображения" />;
