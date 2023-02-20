@@ -81,7 +81,6 @@ def python_io_run(solution: Solution, session: Session):
         solution.time_finish = datetime.datetime.now()
         solution.check_system_answer += "All test are accepted!"
         session.commit()
-        session.close()
 
     else:
         pass
@@ -97,7 +96,6 @@ def python_ut_run(solution: Solution, session: Session):
         .all()
     base_files = [{'name': 'solution.py', 'content': solution.code.encode()}]
     limits = {'cputime': 10, 'memory': 10}
-    logging.info("Tests length:", len(tests))
     if tests:
         for i, test in enumerate(tests, 1):
             test: TaskTest
@@ -148,7 +146,6 @@ def python_ut_run(solution: Solution, session: Session):
         solution.time_finish = datetime.datetime.now()
         solution.check_system_answer += "All test are accepted!"
         session.commit()
-        session.close()
 
     else:
         pass
