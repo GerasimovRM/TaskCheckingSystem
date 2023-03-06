@@ -8,7 +8,7 @@ class Lesson(BaseSQLAlchemyModel):
     __tablename__ = "dbo_lesson"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(40))
+    name = Column(String(200))
     description = Column(String(2000), nullable=True)
 
     courses = relationship("CoursesLessons", back_populates="lesson")
