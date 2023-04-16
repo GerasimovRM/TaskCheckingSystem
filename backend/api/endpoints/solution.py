@@ -208,7 +208,6 @@ async def post_solution(group_id: int,
                                                                                 task_id,
                                                                                 current_user.id,
                                                                                 session)
-    # TODO: update running tests in background tasks
     if last_solution_on_review:
         last_solution_on_review.status = SolutionStatus.ERROR
     code = await file.read()

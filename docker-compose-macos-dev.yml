@@ -1,21 +1,6 @@
 version: '3.8'
 
 services:
-  postgres-db:
-    image: postgres
-    ports:
-      - "${DB_EXTERNAL_PORT}:5432"
-    environment:
-      - POSTGRES_USER=${DB_USERNAME}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_DATABASE}
-      - POSTGRES_HOST=${DB_HOST}
-    volumes:  
-      - ~/Volumes/postgresql:/var/lib/postgresql/data
-    networks:
-      - db-backend
-      - backend-frontend
-
   backend:
     build: ./backend
     command: uvicorn api.server:app --host 0.0.0.0 --reload
@@ -31,7 +16,6 @@ services:
     depends_on:
       - postgres-db
     networks:
-      - db-backend
       - redis-go-net
       - rabbitmq-go-net
       - backend-frontend
@@ -68,8 +52,8 @@ services:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
     ports:
-      - 5672:5672
-      - 15672:15672
+      - ${RABBITMQ_PORT}:5672
+      - ${RABBITMQ_PORT_ADD}:15672
     volumes:
       - ~/Volumes/rabbitmq/data:/var/lib/rabbitmq/mnesia
       - ~/Volumes/rabbitmq/log:/var/log/rabbitmq
@@ -80,7 +64,7 @@ services:
     image: redis:7.0.4-alpine
     command: --requirepass ${REDIS_PASSWORD}
     ports:
-      - 6379:6379
+      - ${REDIS_PORT}:6379
     volumes:
       - ~/Volumes/redis:/data
     networks:
@@ -93,7 +77,6 @@ services:
     depends_on:
       - rabbitmq
       - redis
-      - postgres-db
     volumes:
       - ./backend:/code
       - /var/run/docker.sock:/var/run/docker.sock
@@ -101,7 +84,6 @@ services:
     networks:
       - rabbitmq-go-net
       - redis-go-net
-      - db-backend
 
   celery-flower:
     image: mher/flower:0.9.7
@@ -119,7 +101,6 @@ services:
 
 
 networks:
-  db-backend:
   backend-frontend:
   rabbitmq-go-net:
   redis-go-net:
