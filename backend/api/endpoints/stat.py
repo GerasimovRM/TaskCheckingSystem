@@ -223,7 +223,8 @@ async def get_rating_for_teacher(group_id: int,
                                                                              task.id,
                                                                              rating.user_id,
                                                                              session)
-                rating.current_score += user_solution.score
+                if user_solution:
+                    rating.current_score += user_solution.score
 
     for rating in rating_group_for_teacher:
         rating.max_score = max_score_of_course
