@@ -1,3 +1,4 @@
+import os
 from typing import Optional
 
 from fastapi import FastAPI, Depends, HTTPException, status, Response, Cookie
@@ -18,7 +19,7 @@ from services.user_service import UserService
 
 
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 app = FastAPI(docs_url="/")
 app.include_router(admin_router)

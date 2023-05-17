@@ -67,4 +67,14 @@ class TableDataForTeacher(BaseModel):
     students: List[StudentTaskDataForTeacher]
 
 
+class RatingStudentForTeacher(BaseModel):
+    user_id: int
+    user_first_name: str
+    user_last_name: str
+    max_score: int = 0
+    current_score: int = 0
+    current_score_procent: float = 0
 
+
+class RatingGroupForTeacher(BaseModel):
+    ratings: List[RatingStudentForTeacher]

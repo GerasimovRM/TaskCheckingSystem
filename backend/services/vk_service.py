@@ -15,6 +15,6 @@ async def get_vk_user_with_photo(access_token: str) -> VkUserWithPhoto:
             response_data = response_data["response"][0]
             vk_user = VkUserWithPhoto(first_name=response_data["first_name"],
                                       last_name=response_data["last_name"],
-                                      avatar_url=response_data["photo_400"] if response_data["photo_400"] else "https://hostenko.com/wpcafe/wp-content/uploads/wpavatar.png",
+                                      avatar_url=response_data.get("photo_400", "https://hostenko.com/wpcafe/wp-content/uploads/wpavatar.png"),
                                       vk_id=response_data["id"])
             return vk_user
