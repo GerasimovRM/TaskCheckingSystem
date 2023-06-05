@@ -73,6 +73,14 @@ services:
     stdin_open: true
     depends_on:
       - backend
+      - auth-frontend
+  
+  auth-frontend:
+    build:
+      context: ./auth-frontend
+    ports:
+      - 3340:3000
+    stdin_open: true
 
   rabbitmq:
     image: rabbitmq:3.5
