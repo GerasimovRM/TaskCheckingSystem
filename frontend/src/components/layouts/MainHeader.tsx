@@ -19,7 +19,7 @@ import { observer } from 'mobx-react-lite';
 import { RootStoreContext } from '../../context';
 
 // @ts-ignore
-const Notifications = React.lazy(() => import('notifications/App'));
+// const Notifications = React.lazy(() => import('notifications/App'));
 
 export const MainHeader: FunctionComponent = observer(() => {
     const RS = useContext(RootStoreContext);
@@ -55,7 +55,7 @@ export const MainHeader: FunctionComponent = observer(() => {
                         <>
                             <Suspense>
                                 <Center className={'header__link'}>
-                                    <Notifications/>
+
                                 </Center>
                             </Suspense>
                             <Link to="/settings">
