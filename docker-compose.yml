@@ -69,18 +69,21 @@ services:
       - /usr/src/app/node_modules
     networks:
       - backend-frontend
+      - frontend-services
     tty: true
     stdin_open: true
     depends_on:
       - backend
-      - auth-frontend
+      - auth
   
-  auth-frontend:
+  auth:
     build:
       context: ./auth-frontend
     ports:
       - 3340:3340
     stdin_open: true
+    networks:
+      - frontend-services
 
   rabbitmq:
     image: rabbitmq:3.5
@@ -143,4 +146,5 @@ networks:
   backend-frontend:
   rabbitmq-go-net:
   redis-go-net:
+  frontend-service:
 
