@@ -1,9 +1,8 @@
 import axios, {AxiosRequestConfig, Method} from "axios";
-import {store} from "../store";
-import {AuthActionCreators} from "../store/reducers/auth/action-creators";
+import { useContext } from "react";
+import { RootStoreContext } from "../context";
 import {IAuthLogin} from "../models/IAuthLogin";
-import UserService from "../services/UserService";
-
+import {decodeLocal} from "./Common";
 
 export interface IRequestConfig {
     method: Method,
@@ -12,8 +11,40 @@ export interface IRequestConfig {
     data?: any,
     headers?: any,
     auth?: boolean,
-    withCredentials?: boolean
+    withCredentials?: boolean,
 }
+
+axios.interceptors.response.use(
+    (response) => {
+        return response;
+    },
+    async (error) => {
+        const originalRequest = error.config
+        if (error.response.status === 401) {
+            originalRequest._retry = true
+            const axiosRefreshTokenRequestConfig: AxiosRequestConfig = {
+                method: "get",
+                url: `${baseApi}/auth/refresh_token`,
+                withCredentials: false
+            }
+            const RS = useContext(RootStoreContext);
+            return await axios(axiosRefreshTokenRequestConfig)
+                .then(async (refresh_token_response) => {
+                    const login_data: IAuthLogin = refresh_token_response.data
+                    console.log(login_data)
+                    RS.authStore.setLogin(login_data.user)
+                    localStorage.setItem("access_token", decodeLocal(login_data.access_token))
+                    originalRequest.headers = {...originalRequest.headers, Authorization: `Bearer ${login_data.access_token}`}
+                    return axios(error.config)
+                   })
+                .catch(async () => {
+                    await RS.authStore.logout()
+                })
+        }
+        return Promise.reject(error);
+    }
+);
+
 
 export const request = async (requestConfig: IRequestConfig): Promise<any> => {
     const axiosRequestConfig: AxiosRequestConfig = {
@@ -32,27 +63,7 @@ export const request = async (requestConfig: IRequestConfig): Promise<any> => {
     }
     console.log(axiosRequestConfig);
     return await axios(axiosRequestConfig)
-        .then(response => response.data)
-        .catch(async (error) => {
-            // если токен протух, рефрешим, делаем запрос заного, в случае неуспеха - разлогинимся
-            if (error.response.status === 401) {
-                const axiosRefreshTokenRequestConfig: AxiosRequestConfig = {
-                    method: "get",
-                    url: `${baseApi}/auth/refresh_token`,
-                    withCredentials: true
-                }
-                return await axios(axiosRefreshTokenRequestConfig)
-                    .then(async (refresh_token_response) => {
-                        const login_data: IAuthLogin = refresh_token_response.data
-                        store.dispatch(AuthActionCreators.setLogin(login_data))
-                        axiosRequestConfig.headers = {...axiosRequestConfig.headers, Authorization: `Bearer ${login_data.access_token}`}
-                        return await axios(axiosRequestConfig).then(response => response.data)
-                    })
-                    .catch(async () => {
-                        // store.dispatch(AuthActionCreators.logout())
-                    })
-            }
-        });
+        .then(response => response.data);
 }
 
 export const baseApi = process.env.NODE_ENV === "production" ? process.env.REACT_APP_PROD_API_URL : process.env.REACT_APP_DEV_API_URL

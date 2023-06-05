@@ -15,8 +15,6 @@ import {
 import {BorderShadowBox} from "./BorderShadowBox";
 import {ISolution} from "../models/ISolution";
 import {ISolutionStatus} from "../models/ITask";
-import {useTypedSelector} from "../hooks/useTypedSelector";
-import {useActions} from "../hooks/useActions";
 import React, {useEffect} from "react";
 import {get_format_date} from "../api/Common";
 import {GoInfo} from 'react-icons/go';
@@ -65,11 +63,45 @@ export const SolutionCheckSystemInfo: (solution: ISolution) => JSX.Element = (so
                     </DrawerHeader>
                     <DrawerBody>
                         <VStack spacing={1} alignItems={"flex-start"}>
-                        {
-                            solution.check_system_answer?.split("\n").map((st, i) => {
-                                return <Text fontSize="lg" children={st} textAlign={"left"} key={i}/>
-                            })
-                        }
+                            {
+                                solution.check_system_answer?.split("\n").map((st, i) => {
+                                    return <Text whiteSpace={"pre"} fontSize="lg" children={st} textAlign={"left"}
+                                                 key={i}/>
+                                })
+
+                            }
+                            {solution.input_data &&
+                                <>
+                                    <Text fontWeight={'bold'}>Входные данные:</Text>
+                                    <Divider/>
+                                    <Text whiteSpace={'pre-line'}>{solution.input_data}</Text>
+                                    <Divider/>
+                                </>
+                            }
+                            {solution.user_answer &&
+                                <>
+                                    <Text fontWeight={'bold'}>Ваш ответ:</Text>
+                                    <Divider/>
+                                    <Text whiteSpace={'pre-line'}>{solution.user_answer}</Text>
+                                    <Divider/>
+                                </>
+                            }
+                            {solution.except_answer &&
+                                <>
+                                    <Text fontWeight={'bold'}>Верный ответ:</Text>
+                                    <Divider/>
+                                    <Text whiteSpace={'pre-line'}>{solution.except_answer}</Text>
+                                    <Divider/>
+                                </>
+                            }
+                            {solution.unit_test_code &&
+                                <>
+                                    <Text fontWeight={'bold'}>Код проверки:</Text>
+                                    <Divider/>
+                                    <Text whiteSpace={'pre-line'}>{solution.unit_test_code}</Text>
+                                    <Divider/>
+                                </>
+                            }
                         </VStack>
                     </DrawerBody>
                 </DrawerContent>

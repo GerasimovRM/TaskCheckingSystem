@@ -1,16 +1,17 @@
-import React, {FunctionComponent, useEffect, useState} from 'react';
+import React, {FunctionComponent, useContext, useEffect, useState} from 'react';
 import {Heading} from "@chakra-ui/react";
-import {useActions} from "../hooks/useActions";
 import {BaseSpinner} from "../components/BaseSpinner";
+import { RootStoreContext } from '../context';
+import { observer } from 'mobx-react-lite';
 
-const NoAuthPage: FunctionComponent = () => {
-    const {loadUser, setUser} = useActions()
+const NoAuthPage: FunctionComponent = observer(() => {
+    const RS = useContext(RootStoreContext);
     const [isLoading, setIsLoading] = useState<boolean>(true)
 
     useEffect(() => {
         const encodeAccessToken = localStorage.getItem("access_token");
         if (encodeAccessToken)
-            loadUser()
+            RS.authStore.loadUser();
         const timer = setTimeout(() => setIsLoading(false), 2000)
         return () => clearTimeout(timer)
     }, [])
@@ -29,6 +30,6 @@ const NoAuthPage: FunctionComponent = () => {
             </Heading>
         </>
     );
-};
+});
 
 export default NoAuthPage;

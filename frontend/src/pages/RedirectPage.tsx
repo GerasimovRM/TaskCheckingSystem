@@ -1,16 +1,19 @@
-import React, {useEffect} from 'react';
-import {useActions} from "../hooks/useActions";
+import { observer } from 'mobx-react-lite';
+import React, {useContext, useEffect} from 'react';
 import {useNavigate} from "react-router-dom";
 import {BaseSpinner} from "../components/BaseSpinner";
+import { RootStoreContext } from '../context';
 
-export default function RedirectPage() {
+const RedirectPage = observer(() => {
+    const RS = useContext(RootStoreContext);
     const navigate = useNavigate();
     const params = new URLSearchParams(window.location.search);
     const code: string = params.get('code')!;
-    const {login} = useActions()
     useEffect(() => {
-        login(code);
+        RS.authStore.vkLogin(code);
         setTimeout(() => navigate("/"), 1000)
     }, [])
     return <BaseSpinner />;
-}
+})
+
+export default RedirectPage;

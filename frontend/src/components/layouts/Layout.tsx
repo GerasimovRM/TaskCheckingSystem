@@ -1,4 +1,4 @@
-import React, {FunctionComponent, JSXElementConstructor} from 'react';
+import React, {FunctionComponent, JSXElementConstructor, useContext} from 'react';
 import {encode} from 'querystring';
 import {Link} from 'react-router-dom';
 
@@ -13,8 +13,6 @@ import {
     WrapItem,
     Wrap, useColorMode, Grid, GridItem, VStack, ResponsiveValue, GridOptions,
 } from '@chakra-ui/react';
-import {useTypedSelector} from "../../hooks/useTypedSelector";
-import {useActions} from "../../hooks/useActions";
 import BreadcrumbGenerator from "../BreadcrumbGenerator";
 
 interface LayoutChildren {
@@ -34,8 +32,6 @@ export const Layout: React.FC<LayoutChildren> = ({
                                                      noPadding,
                                                      gridTemplateColumns
                                                  }: LayoutChildren) => {
-    const {isAuth, user} = useTypedSelector(state => state.auth)
-    const {logout} = useActions()
     // console.log(process.env.REACT_APP_DEV_SITE_URL)
     const {colorMode} = useColorMode()
     const templateRows = [

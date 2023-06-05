@@ -1,4 +1,4 @@
-import {ReactElement} from "react";
+import React, {ReactElement} from "react";
 import HomePage from "../pages/HomePage";
 import NoAuth from "../pages/NoAuthPage";
 import {SettingsPage} from "../pages/SettingsPage";
@@ -10,6 +10,7 @@ import TaskPage from "../pages/TaskPage";
 import {TestPage} from "../pages/TestPage";
 import ProfilePage from "../pages/ProfilePage";
 import ProfileCourseStatPage from "../pages/ProfileCourseStatPage";
+import AuthPage from "../pages/AuthPage";
 
 export interface IRoute {
     path: string;
@@ -30,11 +31,13 @@ export enum RouteNames {
     TEST = "/test",
     PROFILE = "/profile",
     PROFILE_COURSE_STAT = "/profile/group/:groupId/course/:courseId",
+    AUTH = "/auth"
 }
 
 export const publicRoutes: IRoute[] = [
     {path: RouteNames.REDIRECT, key: RouteNames.REDIRECT, element: <RedirectPage />},
     {path: RouteNames.NO_AUTH, key: RouteNames.NO_AUTH, element: <NoAuth />},
+    {path: RouteNames.AUTH, key: RouteNames.NO_AUTH, element: <AuthPage />},
 ]
 
 export const privateRoutes: IRoute[] = [

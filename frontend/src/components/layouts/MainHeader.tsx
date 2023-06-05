@@ -1,4 +1,4 @@
-import React, {FunctionComponent} from 'react';
+import React, {FunctionComponent, Suspense, useContext} from 'react';
 import { encode } from 'querystring';
 import { Link } from 'react-router-dom';
 
@@ -11,20 +11,24 @@ import {
     WrapItem,
     Wrap, useColorMode,
 } from '@chakra-ui/react';
-import { FiSettings, SiVk, ImExit, ImProfile } from 'react-icons/all';
-import {useTypedSelector} from "../../hooks/useTypedSelector";
-import {useActions} from "../../hooks/useActions";
+import { FiSettings, SiVk, ImExit, ImProfile, AiOutlineLogin } from 'react-icons/all';
 import {baseURL, vkClientId} from "../../api/api";
 
 import './MainHeader.css';
+import { observer } from 'mobx-react-lite';
+import { RootStoreContext } from '../../context';
 
-export const MainHeader: FunctionComponent = () => {
-    const {isAuth, user} = useTypedSelector(state => state.auth)
-    const {logout} = useActions()
+// @ts-ignore
+const Notifications = React.lazy(() => import('notifications/App'));
+
+export const MainHeader: FunctionComponent = observer(() => {
+    const RS = useContext(RootStoreContext);
+    const {isAuth, user} = RS.authStore;
     // console.log(process.env.REACT_APP_DEV_SITE_URL)
     const {colorMode} = useColorMode()
+
     return (
-        <header> {/* Но можно div или header оставить*/}
+        <div> {/* Но можно div или header оставить*/}
             <nav className={'header'}> {/* Flex was here */}
                 <Wrap>
                     <WrapItem>
@@ -49,6 +53,11 @@ export const MainHeader: FunctionComponent = () => {
                     {isAuth
                         ?
                         <>
+                            <Suspense>
+                                <Center className={'header__link'}>
+                                    <Notifications/>
+                                </Center>
+                            </Suspense>
                             <Link to="/settings">
                                 <Center className={'header__link'}>
                                     <Icon as={FiSettings}
@@ -72,7 +81,7 @@ export const MainHeader: FunctionComponent = () => {
                                         w="10"
                                         h="20"
                                         as={ImExit}
-                                        onClick={logout}
+                                        onClick={RS.authStore.logout}
                                     />
                                 </Center>
                             </Link>
@@ -84,25 +93,15 @@ export const MainHeader: FunctionComponent = () => {
                                     <Icon as={FiSettings} w="10" h="10"/>
                                 </Center>
                             </Link>
-                            <Center className={'header__link'}>
-                                <a
-                                    href={`https://oauth.vk.com/authorize?${encode({
-                                        client_id: vkClientId,
-                                        redirect_uri: `${baseURL}/redirect`,
-                                        display: 'page',
-                                        scope: 'offline',
-                                        response_type: 'code',
-                                        v: '5.131',
-                                    })}`}
-                                >
-                                    <Icon as={SiVk} w="10" h="10"/>
-                                </a>
-                            </Center>
+                            <Link to="/auth">
+                                <Center className={'header__link'}>
+                                    <Icon as={AiOutlineLogin} w="10" h="10"/>
+                                </Center>
+                            </Link>
                         </>
-
                     }
                 </Flex>
             </nav>
-        </header>
+        </div>
     );
-}
+})

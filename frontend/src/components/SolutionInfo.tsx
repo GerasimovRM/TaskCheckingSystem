@@ -15,16 +15,16 @@ import {
 import {BorderShadowBox} from "./BorderShadowBox";
 import {ISolution} from "../models/ISolution";
 import {ISolutionStatus} from "../models/ITask";
-import {useTypedSelector} from "../hooks/useTypedSelector";
-import {useActions} from "../hooks/useActions";
-import {useEffect} from "react";
+import React, {useContext, useEffect} from "react";
 import {get_format_date} from "../api/Common";
 import {SolutionCheckSystemInfo} from "./SolutionCheckSystemInfo";
 import {ISolutionInfo} from "../models/ISolutionInfo";
+import { observer } from 'mobx-react-lite';
+import { RootStoreContext } from '../context';
 
-export const SolutionInfo: (props: ISolutionInfo) => JSX.Element = (props: ISolutionInfo) => {
-    const {current_solution} = useTypedSelector(state => state.solution)
-    const {setSolution} = useActions()
+export const SolutionInfo: (props: ISolutionInfo) => JSX.Element = observer((props: ISolutionInfo) => {
+    const RS = useContext(RootStoreContext);
+    const {current_solution} = RS.solutionStore;
 
     const {colorMode} = useColorMode()
 
@@ -41,7 +41,7 @@ export const SolutionInfo: (props: ISolutionInfo) => JSX.Element = (props: ISolu
                      alignItems={"flex-start"}
                      padding={1}
                      onClick={() => {
-                         setSolution(props)
+                        RS.solutionStore.setSolution(props);
                      }}
             >
                 <HStack>
@@ -67,4 +67,4 @@ export const SolutionInfo: (props: ISolutionInfo) => JSX.Element = (props: ISolu
 
     )
         ;
-}
+})
