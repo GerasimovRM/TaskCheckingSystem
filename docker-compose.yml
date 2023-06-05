@@ -10,6 +10,7 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_DATABASE}
       - POSTGRES_HOST=${DB_HOST}
+      - P
     volumes:  
       - ~/Volumes/postgresql:/var/lib/postgresql/data
     networks:
@@ -19,12 +20,12 @@ services:
   postgres-db-test:
     image: postgres
     ports:
-      - 55001:5432
+      - ${DB_TEST_EXTERNAL_PORT}:5432
     environment:
-      - POSTGRES_USER=${DB_USERNAME}
-      - POSTGRES_PASSWORD=${DB_PASSWORD_TEST}
-      - POSTGRES_DB=${DB_DATABASE}
-      - POSTGRES_HOST=${DB_HOST}
+      - POSTGRES_USER=${DB_TEST_USERNAME}
+      - POSTGRES_PASSWORD=${DB_TEST_PASSWORD}
+      - POSTGRES_DB=${DB_TEST_DATABASE}
+      - POSTGRES_HOST=${DB_TEST_HOST}
     volumes:
       - ~/Volumes/postgresql-test:/var/lib/postgresql/data
 
@@ -79,8 +80,8 @@ services:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
     ports:
-      - 5672:5672
-      - 15672:15672
+      - ${RABBITMQ_PORT}:5672
+      - ${RABBITMQ_PORT_ADD}:15672
     volumes:
       - ~/Volumes/rabbitmq/data:/var/lib/rabbitmq/mnesia
       - ~/Volumes/rabbitmq/log:/var/log/rabbitmq
@@ -91,7 +92,7 @@ services:
     image: redis:7.0.4-alpine
     command: --requirepass ${REDIS_PASSWORD}
     ports:
-      - 6379:6379
+      - ${REDIS_PORT}:6379
     volumes:
       - ~/Volumes/redis:/data
     networks:
@@ -116,9 +117,9 @@ services:
 
   celery-flower:
     image: mher/flower:0.9.7
-    command: ["flower", "--broker=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672//", "--port=5555"]
+    command: ["flower", "--broker=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:${RABBITMQ_PORT}//", "--port=${CELERY_FLOWER_PORT}"]
     ports:
-      - "5555:5555"
+      - "${CELERY_FLOWER_PORT}:${CELERY_FLOWER_PORT}"
     depends_on:
       - rabbitmq
       - redis
