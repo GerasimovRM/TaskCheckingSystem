@@ -61,7 +61,7 @@ module.exports = {
       name: "host",
       filename: "remoteEntry.js",
       remotes: {
-        'auth': 'auth@http://auth:3340/remoteEntry.js',
+        'auth': `auth@${process.env.REACT_APP_PROD_API_URL}/service-auth/remoteEntry.js`,
         //'notifications': 'notifications@http://notifications:3000/remoteEntry.js',
         //'chat': 'chat@http://chat:3341/remoteEntry.js'
 
