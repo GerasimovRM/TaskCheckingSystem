@@ -1,8 +1,9 @@
 FROM node:lts-alpine3.17 as build-stage
 WORKDIR /usr/src/app
+COPY package.json ./
+RUN yarn
 COPY . .
 ENV NODE_ENV=production
-RUN yarn
 RUN yarn build
 
 FROM nginx:alpine
