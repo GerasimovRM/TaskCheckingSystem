@@ -61,9 +61,10 @@ module.exports = {
       name: "host",
       filename: "remoteEntry.js",
       remotes: {
-        'auth': 'auth@https://zinch.ddns.net:5002/remoteEntry.js',
-        'notifications': 'notifications@https://zinch.ddns.net:5003/remoteEntry.js',
-        'chat': 'chat@https://zinch.ddns.net:5004/remoteEntry.js'
+        'auth': 'auth@http://auth:3340/remoteEntry.js',
+        //'notifications': 'notifications@http://notifications:3000/remoteEntry.js',
+        'chat': 'chat@http://chat:3341/remoteEntry.js'
+
       },
       exposes: {},
       shared: {
