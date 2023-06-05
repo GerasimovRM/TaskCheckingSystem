@@ -1,13 +1,15 @@
-import React, {FunctionComponent} from 'react';
+import React, {useContext} from 'react';
+import { observer } from "mobx-react-lite"
 import {
     Routes,
     Route,
 } from "react-router-dom";
 import {privateRoutes, publicRoutes} from "../routes";
-import {useTypedSelector} from "../hooks/useTypedSelector";
+import { RootStoreContext } from '../context';
 
-const AppRouter: FunctionComponent = () => {
-    const {isAuth} = useTypedSelector(state => state.auth)
+const AppRouter = observer(() => {
+    const RS = useContext(RootStoreContext);
+    const isAuth = RS.authStore.isAuth;
     return (
         isAuth
             ?
@@ -19,6 +21,6 @@ const AppRouter: FunctionComponent = () => {
                 {publicRoutes.map(route => <Route {...route} />)}
             </Routes>
     );
-};
+});
 
 export default AppRouter;

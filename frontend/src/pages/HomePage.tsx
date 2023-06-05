@@ -1,18 +1,20 @@
-import React, {FunctionComponent, useEffect, useState} from 'react';
+import React, {FunctionComponent, useContext, useEffect, useState} from 'react';
 import {Heading, SimpleGrid, useMediaQuery} from "@chakra-ui/react";
 import {BaseSpinner} from "../components/BaseSpinner";
 import {CoursePreview} from "../components/CoursePreview";
 import {ICoursePreview} from "../models/ICoursePreview";
-import {useTypedSelector} from "../hooks/useTypedSelector";
 import GroupService from "../services/GroupService";
 import CourseService from "../services/CourseService";
 import {Layout} from "../components/layouts/Layout";
+import { observer } from 'mobx-react-lite';
+import { RootStoreContext } from '../context';
 
-const HomePage: FunctionComponent = () => {
+const HomePage: FunctionComponent = observer(() => {
+    const RS = useContext(RootStoreContext);
     const [coursePreviews, setCoursePreviews] = useState<ICoursePreview[]>([])
     const [isLargerThan768] = useMediaQuery('(min-width: 768px)')
     const [isLoading, setIsLoading] = useState<boolean>(true)
-    const {isAuth} = useTypedSelector(state => state.auth)
+    const {isAuth} = RS.authStore;
     useEffect(() => {
         async function fetchCourses() {
             const group_response = await GroupService.getGroups()
@@ -79,6 +81,6 @@ const HomePage: FunctionComponent = () => {
             />
         );
     }
-}
+})
 
 export default HomePage;
