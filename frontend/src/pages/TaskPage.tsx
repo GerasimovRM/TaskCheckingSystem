@@ -268,7 +268,7 @@ const TaskPage = observer(() => {
                                                     </TabPanel>
                                                     <TabPanel>
                                                         <Suspense>
-                                                            <Chat selectedUser={selectedUser} authUser={user}/>
+
                                                         </Suspense>
                                                     </TabPanel>
                                                 </TabPanels>
