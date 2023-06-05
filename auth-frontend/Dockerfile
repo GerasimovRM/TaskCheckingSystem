@@ -10,6 +10,6 @@ FROM node:lts-alpine3.17
 WORKDIR /app
 COPY --from=build /app .
 RUN npm install -g serve
-ENV PORT=3000
-EXPOSE 3000
+ENV PORT=3340
+EXPOSE 3340
 CMD ["serve", "."]

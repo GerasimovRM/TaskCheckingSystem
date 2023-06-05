@@ -79,7 +79,7 @@ services:
     build:
       context: ./auth-frontend
     ports:
-      - 3340:3000
+      - 3340:3340
     stdin_open: true
 
   rabbitmq:
