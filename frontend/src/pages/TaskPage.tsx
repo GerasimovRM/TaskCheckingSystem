@@ -43,7 +43,7 @@ import { RootStoreContext } from "../context";
 import { observer } from "mobx-react-lite";
 
 // @ts-ignore
-const Chat = React.lazy(() => import('chat/App'));
+// const Chat = React.lazy(() => import('chat/App'));
 
 const TaskPage = observer(() => {
     const RS = useContext(RootStoreContext);

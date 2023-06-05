@@ -63,7 +63,7 @@ module.exports = {
       remotes: {
         'auth': 'auth@http://auth:3340/remoteEntry.js',
         //'notifications': 'notifications@http://notifications:3000/remoteEntry.js',
-        'chat': 'chat@http://chat:3341/remoteEntry.js'
+        //'chat': 'chat@http://chat:3341/remoteEntry.js'
 
       },
       exposes: {},
