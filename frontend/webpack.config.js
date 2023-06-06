@@ -61,7 +61,7 @@ module.exports = {
       name: "host",
       filename: "remoteEntry.js",
       remotes: {
-        'auth': 'auth@http://localhost:3340/remoteEntry.js',
+        'auth': 'auth@/remoteEntry.js',
         //'notifications': 'notifications@http://notifications:3000/remoteEntry.js',
         // 'chat': 'chat@http://auth:3341/remoteEntry.js'
       },
