@@ -21,7 +21,7 @@ from services.user_service import UserService
 import logging
 logging.basicConfig(level=logging.INFO)
 
-app = FastAPI(docs_url="/")
+app = FastAPI(docs_url="/", openapi_url="/api_v1/openapi.json")
 app.include_router(admin_router)
 app.include_router(auth_router)
 app.include_router(user_router)
