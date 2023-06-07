@@ -7,7 +7,6 @@ import {
     Text
 } from '@chakra-ui/react';
 import {ChevronRightIcon} from '@chakra-ui/icons';
-import {baseURL} from '../api/api';
 import Common from "../api/Common";
 import {BiErrorAlt, BiGroup, BiHomeSmile, BiTask, FaTasks, FiSettings, ImBooks, ImProfile} from 'react-icons/all';
 import {IconType} from "react-icons";

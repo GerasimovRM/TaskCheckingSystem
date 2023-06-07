@@ -5,6 +5,7 @@ import AuthError from '../components/AuthError';
 import { RootStoreContext } from '../context';
 import { IAuthPageProps } from '../models/IAuthPageProps';
 import ILoginData from '../models/ILoginData';
+import {baseSiteURL, vkClientId} from "../api/api";
 
 // @ts-ignore
 const AuthRemote = React.lazy(() => import('auth/App'));
@@ -20,7 +21,7 @@ const AuthPage = observer(() => {
         signUp: (args: ILoginData) => {
             RS.authStore.signUp(args).then(status => status && navigate('/'));
         },
-        vkLogin: `https://oauth.vk.com/authorize?client_id=${process.env.REACT_APP_PROD_VK_CLIENT_ID}&redirect_uri=http://localhost:3000/redirect&display=page&scope=offline&response_type=code&v=5.131`
+        vkLogin: `https://oauth.vk.com/authorize?client_id=${vkClientId}&redirect_uri=${baseSiteURL}/redirect&display=page&scope=offline&response_type=code&v=5.131`
     }
 return (
     <div>

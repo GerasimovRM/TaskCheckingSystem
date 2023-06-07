@@ -12,7 +12,6 @@ import {
     Wrap, useColorMode,
 } from '@chakra-ui/react';
 import { FiSettings, SiVk, ImExit, ImProfile, AiOutlineLogin } from 'react-icons/all';
-import {baseURL, vkClientId} from "../../api/api";
 
 import './MainHeader.css';
 import { observer } from 'mobx-react-lite';
