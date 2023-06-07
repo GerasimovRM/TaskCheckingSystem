@@ -6,8 +6,8 @@ import ILoginData from "../models/ILoginData";
 export default class LoginService {
     static async loginVkRequest(vk_code: string): Promise<IAuthLogin> {
         const requestConfig: IRequestConfig = {
-            method: "get",
-            url: "/auth/login",
+            method: "post",
+            url: "/auth/login_vk",
             params: {vk_code: vk_code},
             auth: false,
             withCredentials: false

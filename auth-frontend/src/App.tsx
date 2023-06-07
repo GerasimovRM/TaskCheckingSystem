@@ -1,3 +1,4 @@
+// @ts-ignore
 import React, { useState } from "react";
 import { AuthState } from './models/AuthState';
 import Login from "./screens/Login";

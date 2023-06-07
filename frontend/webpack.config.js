@@ -61,7 +61,7 @@ module.exports = {
       name: "host",
       filename: "remoteEntry.js",
       remotes: {
-        'auth': 'auth@/remoteEntry.js',
+        'auth': 'auth@http://localhost:3340/remoteEntry.js',
         //'notifications': 'notifications@http://notifications:3000/remoteEntry.js',
         // 'chat': 'chat@http://auth:3341/remoteEntry.js'
       },
@@ -81,6 +81,8 @@ module.exports = {
     new HtmlWebPackPlugin({
       template: "./public/index.html",
     }),
-    new Dotenv()
+    new Dotenv({
+      path: "../.env"
+    })
   ],
 };

@@ -1,4 +1,5 @@
 import { Button, Container, Flex, FormControl, FormLabel, Heading, Input, Spacer, FormErrorMessage } from '@chakra-ui/react';
+// @ts-ignore
 import React, { useState } from 'react'
 import { AuthState } from '../models/AuthState';
 

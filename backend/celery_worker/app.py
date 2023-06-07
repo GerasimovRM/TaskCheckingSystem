@@ -15,8 +15,8 @@ if not os.getenv("DOCKER"):
 else:
     celery_app = Celery(
         "worker",
-        broker=f"amqp://{RABBITMQ_USER}:{RABBITMQ_PASSWORD}@rabbitmq:{RABBITMQ_PORT}//",
-        backend=f"redis://:{REDIS_PASSWORD}@redis:{REDIS_PORT}/0"
+        broker=f"amqp://{RABBITMQ_USER}:{RABBITMQ_PASSWORD}@rabbitmq:5672//",
+        backend=f"redis://:{REDIS_PASSWORD}@redis:6379/0"
     )
 celery_app.conf.task_routes = {
     "celery_worker.worker.test_celery": "check-solution-queue",
