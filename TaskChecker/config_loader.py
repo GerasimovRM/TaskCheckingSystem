@@ -14,6 +14,7 @@ class ConfigLoader(metaclass=MetaSingleton):
             self.BACKEND_URL = f"http://backend:8000"
         self.TASK_CHECKER_USERNAME = os.getenv("TASK_CHECKER_USERNAME")
         self.TASK_CHECKER_PASSWORD = os.getenv("TASK_CHECKER_PASSWORD")
+        self.TASK_CHECKER_TOPIC_NAME = os.getenv("TASK_CHECKER_TOPIC_NAME")
 
 
 if __name__ == '__main__':
