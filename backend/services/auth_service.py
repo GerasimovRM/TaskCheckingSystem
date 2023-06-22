@@ -71,14 +71,20 @@ async def get_user(vk_id: str, session: AsyncSession) -> Optional[User]:
     return user
 
 
-async def authenticate_user(vk_id: str, password: str, session: AsyncSession) -> Optional[User]:
-    user = await get_user(vk_id, session)
+async def authenticate_user(login: str, password: str, session: AsyncSession) -> User:
+    user = await UserService.get_user_by_login(login, session)
     # user.password = get_password_hash("123")
     # await session.commit()
     if not user:
-        return None
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User {login} not found"
+        )
     if not verify_password(password, user.password):
-        return None
+        raise HTTPException(
+            status_code=status.HTTP_403_NOT_FOUND,
+            detail=f"Wrong password"
+        )
     return user
 
 

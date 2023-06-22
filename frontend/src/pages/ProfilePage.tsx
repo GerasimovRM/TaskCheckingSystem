@@ -3,13 +3,13 @@ import {Heading, SimpleGrid, useMediaQuery} from "@chakra-ui/react";
 import {BaseSpinner} from "../components/BaseSpinner";
 import {CoursePreview} from "../components/CoursePreview";
 import {ICoursePreview} from "../models/ICoursePreview";
-import {useTypedSelector} from "../hooks/useTypedSelector";
 import GroupService from "../services/GroupService";
 import CourseService from "../services/CourseService";
 
 import './ProfilePage.css';
+import { observer } from 'mobx-react-lite';
 
-const ProfilePage: FunctionComponent = () => {
+const ProfilePage = observer(() => {
     const [coursePreviews, setCoursePreviews] = useState<ICoursePreview[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(true)
 
@@ -60,6 +60,6 @@ const ProfilePage: FunctionComponent = () => {
             </main>
         );
     }
-}
+})
 
 export default ProfilePage;

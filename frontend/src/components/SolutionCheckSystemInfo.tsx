@@ -15,8 +15,6 @@ import {
 import {BorderShadowBox} from "./BorderShadowBox";
 import {ISolution} from "../models/ISolution";
 import {ISolutionStatus} from "../models/ITask";
-import {useTypedSelector} from "../hooks/useTypedSelector";
-import {useActions} from "../hooks/useActions";
 import React, {useEffect} from "react";
 import {get_format_date} from "../api/Common";
 import {GoInfo} from 'react-icons/go';

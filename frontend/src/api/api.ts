@@ -1,9 +1,8 @@
 import axios, {AxiosRequestConfig, Method} from "axios";
-import {store} from "../store";
-import {AuthActionCreators} from "../store/reducers/auth/action-creators";
+import { useContext } from "react";
+import { RootStoreContext } from "../context";
 import {IAuthLogin} from "../models/IAuthLogin";
 import {decodeLocal} from "./Common";
-
 
 export interface IRequestConfig {
     method: Method,
@@ -26,19 +25,20 @@ axios.interceptors.response.use(
             const axiosRefreshTokenRequestConfig: AxiosRequestConfig = {
                 method: "get",
                 url: `${baseApi}/auth/refresh_token`,
-                withCredentials: true
+                withCredentials: false
             }
+            const RS = useContext(RootStoreContext);
             return await axios(axiosRefreshTokenRequestConfig)
                 .then(async (refresh_token_response) => {
                     const login_data: IAuthLogin = refresh_token_response.data
                     console.log(login_data)
-                    store.dispatch(AuthActionCreators.setLogin(login_data))
+                    RS.authStore.setLogin(login_data.user)
                     localStorage.setItem("access_token", decodeLocal(login_data.access_token))
                     originalRequest.headers = {...originalRequest.headers, Authorization: `Bearer ${login_data.access_token}`}
                     return axios(error.config)
                    })
                 .catch(async () => {
-                    await AuthActionCreators.logout()(store.dispatch)
+                    await RS.authStore.logout()
                 })
         }
         return Promise.reject(error);
@@ -67,6 +67,5 @@ export const request = async (requestConfig: IRequestConfig): Promise<any> => {
 }
 
 export const baseApi = process.env.NODE_ENV === "production" ? process.env.REACT_APP_PROD_API_URL : process.env.REACT_APP_DEV_API_URL
-export const baseURL = process.env.NODE_ENV === "production" ? process.env.REACT_APP_PROD_SITE_URL : process.env.REACT_APP_DEV_SITE_URL
+export const baseSiteURL = process.env.NODE_ENV === "production" ? process.env.REACT_APP_PROD_SITE_URL : process.env.REACT_APP_DEV_SITE_URL
 export const vkClientId = process.env.NODE_ENV === "production" ? process.env.REACT_APP_PROD_VK_CLIENT_ID : process.env.REACT_APP_DEV_VK_CLIENT_ID
-console.log(baseURL)

@@ -2,4 +2,4 @@ from api.server import app
 import uvicorn
 
 if __name__ == "__main__":
-    uvicorn.run("run:app", host="localhost", port=5500, log_level="info", reload=True)
+    uvicorn.run("run:app", host="0.0.0.0", port=3000, log_level="info", reload=True)

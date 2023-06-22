@@ -18,11 +18,26 @@ class UserService:
 
     @staticmethod
     async def get_user_by_vk_id(vk_id: str,
-                                session: AsyncSession) -> User:
+                                session: AsyncSession) -> User | None:
         t = select(User).where(User.vk_id == vk_id)
         query = await session.execute(t)
         db_user = query.scalars().first()
         return db_user
+
+    @staticmethod
+    async def get_user_by_login(login: str,
+                                session: AsyncSession) -> User | None:
+        sql = select(User).where(User.login == login)
+        query = await session.execute(sql)
+        db_user = query.scalars().first()
+        return db_user
+
+    # @staticmethod
+    # async def get_user_by_login_and_password(login: str,
+    #                                          password: str,
+    #                                          session: AsyncSession) -> User | None:
+    #     user = await UserService.get_user_by_login(login, session)
+
 
     @staticmethod
     async def is_admin(user_id: int,
