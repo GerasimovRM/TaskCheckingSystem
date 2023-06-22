@@ -37,7 +37,7 @@ export default function BreadcrumbGenerator(): ReactElement {
             )
             .filter((s) => !Common.isNumeric(s) && s !== "");
         const hrefs = location.pathname.split('/');
-        console.log(hrefs)
+        //console.log(hrefs)
         for (let i = 0; i < hrefs.length; i++) {
             if (Common.isNumeric(hrefs[i + 1])) {
                 hrefs[i] = hrefs.slice(i, i + 2).join('/');
@@ -45,7 +45,7 @@ export default function BreadcrumbGenerator(): ReactElement {
                 i--;
             }
         }
-        console.log(hrefs.slice(0, 3).join('/'))
+        //console.log(hrefs.slice(0, 3).join('/'))
         // console.log(pathLinks)
         const breadcrumps: ReactElement[] = pathLinks.map((link, i) => {
             return (
@@ -60,7 +60,7 @@ export default function BreadcrumbGenerator(): ReactElement {
             );
         });
         setLinks(breadcrumps);
-    }, [location.pathname]);
+    }, []);
     return (
         <Breadcrumb key="bread"
                     separator={<ChevronRightIcon/>}>

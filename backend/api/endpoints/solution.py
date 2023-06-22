@@ -167,6 +167,16 @@ async def change_solution_score(solution_id: int,
     return SolutionResponse.from_orm(solution)
 
 
+@router.put("/", response_model=SolutionDto)
+async def put_solution(solution: SolutionDto,
+                       current_user: User = Depends(get_current_active_user),
+                       session: AsyncSession = Depends(get_session)):
+    solution_orm = await SolutionService.get_solution_by_id(solution.id, session)
+    solution_orm.update_by_pydantic(solution)
+    await session.commit()
+    return SolutionDto.from_orm(solution_orm)
+
+
 @router.post("/post_file", response_model=SolutionResponse)
 async def post_solution(group_id: int,
                         course_id: int,
@@ -212,11 +222,13 @@ async def post_solution(group_id: int,
     if last_solution_on_review:
         last_solution_on_review.status = SolutionStatus.ERROR
     code = await file.read()
+    task = await TaskService.get_task_by_id(task_id, session)
     solution = Solution(user_id=current_user.id,
                         group_id=group_id,
                         course_id=course_id,
                         task_id=task_id,
-                        code=code.decode("utf-8"))
+                        code=code.decode("utf-8"),
+                        test_type=task.test_type)
     session.add(solution)
     await session.commit()
     result = check_solution.delay(solution.id)
@@ -259,7 +271,6 @@ async def post_solution(group_id: int,
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Bad access to task")
-
 
     last_solution_on_review = await SolutionService.get_user_solution_on_review(group_id,
                                                                                 course_id,

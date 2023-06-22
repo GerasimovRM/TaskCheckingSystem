@@ -14,4 +14,4 @@ class TokenWithUserData(Token):
 
 
 class TokenData(BaseModel):
-    vk_id: Optional[str] = None
+    user_id: Optional[str] = None

@@ -41,7 +41,6 @@ const LessonPage: FunctionComponent = () => {
             setTasksResponse(tasksResponse)
             setLesson(lessonResponse)
             setGroupRole(groupRole)
-            console.log(tasksResponse)
         }
 
         fetchTasks()

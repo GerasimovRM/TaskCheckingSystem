@@ -56,7 +56,7 @@ const HomePage: FunctionComponent = observer(() => {
                         <Heading>Курсы</Heading>
                     }
                     mainChildren={
-                        <SimpleGrid columns={2} spacing={10}>
+                        <SimpleGrid columns={4} spacing={4}>
                             {previews}
                         </SimpleGrid>
                     }

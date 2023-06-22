@@ -72,33 +72,33 @@ export const SolutionCheckSystemInfo: (solution: ISolution) => JSX.Element = (so
                             }
                             {solution.input_data &&
                                 <>
-                                    <Text fontWeight={'bold'}>Входные данные:</Text>
                                     <Divider/>
-                                    <Text whiteSpace={'pre-line'}>{solution.input_data}</Text>
+                                    <Text fontWeight={'bold'}>Входные данные:</Text>
+                                    <Code whiteSpace={'pre-line'}>{solution.input_data}</Code>
                                     <Divider/>
                                 </>
                             }
                             {solution.user_answer &&
                                 <>
-                                    <Text fontWeight={'bold'}>Ваш ответ:</Text>
                                     <Divider/>
-                                    <Text whiteSpace={'pre-line'}>{solution.user_answer}</Text>
+                                    <Text fontWeight={'bold'}>Ваш ответ:</Text>
+                                    <Code whiteSpace={'pre-line'}>{solution.user_answer}</Code>
                                     <Divider/>
                                 </>
                             }
                             {solution.except_answer &&
                                 <>
-                                    <Text fontWeight={'bold'}>Верный ответ:</Text>
                                     <Divider/>
-                                    <Text whiteSpace={'pre-line'}>{solution.except_answer}</Text>
+                                    <Text fontWeight={'bold'}>Верный ответ:</Text>
+                                    <Code whiteSpace={'pre-line'} display={"block"}>{solution.except_answer}</Code>
                                     <Divider/>
                                 </>
                             }
                             {solution.unit_test_code &&
                                 <>
-                                    <Text fontWeight={'bold'}>Код проверки:</Text>
                                     <Divider/>
-                                    <Text whiteSpace={'pre-line'}>{solution.unit_test_code}</Text>
+                                    <Text fontWeight={'bold'}>Код проверки:</Text>
+                                    <Code whiteSpace={'pre-line'}>{solution.unit_test_code}</Code>
                                     <Divider/>
                                 </>
                             }

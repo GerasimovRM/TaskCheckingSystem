@@ -1,8 +1,14 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
-
+const webpack = require('webpack');
 const deps = require("./package.json").dependencies;
 module.exports = {
+  performance: {
+    hints: false,
+    maxEntrypointSize: 512000,
+    maxAssetSize: 512000
+  },
+  mode: "development",
   output: {
     publicPath: "http://localhost:3340/",
   },
@@ -62,5 +68,8 @@ module.exports = {
     new HtmlWebPackPlugin({
       template: "./public/index.html",
     }),
+    new webpack.DefinePlugin({
+      'process.env': JSON.stringify(process.env)
+    })
   ],
 };

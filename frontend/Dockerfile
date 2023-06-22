@@ -14,5 +14,4 @@ COPY ./cert/ca.crt /etc/ssl/ca.crt
 RUN rm -rf /usr/share/nginx/html/*
 COPY --from=build-stage /usr/src/app/dist /usr/share/nginx/html
 RUN chown nginx:nginx /usr/share/nginx/html/*
-EXPOSE 80
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
