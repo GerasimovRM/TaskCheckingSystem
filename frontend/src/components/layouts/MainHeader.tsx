@@ -1,4 +1,4 @@
-import React, {FunctionComponent} from 'react';
+import React, {FunctionComponent, Suspense, useContext} from 'react';
 import { encode } from 'querystring';
 import { Link } from 'react-router-dom';
 
@@ -11,26 +11,27 @@ import {
     WrapItem,
     Wrap, useColorMode,
 } from '@chakra-ui/react';
-import { FiSettings, SiVk, ImExit, ImProfile } from 'react-icons/all';
-import {useTypedSelector} from "../../hooks/useTypedSelector";
-import {useActions} from "../../hooks/useActions";
-import {baseURL, vkClientId} from "../../api/api";
+import { FiSettings, SiVk, ImExit, ImProfile, AiOutlineLogin } from 'react-icons/all';
 
-export const MainHeader: FunctionComponent = () => {
-    const {isAuth, user} = useTypedSelector(state => state.auth)
-    const {logout} = useActions()
+import './MainHeader.css';
+import { observer } from 'mobx-react-lite';
+import { RootStoreContext } from '../../context';
+
+// @ts-ignore
+// const Notifications = React.lazy(() => import('notifications/App'));
+
+export const MainHeader: FunctionComponent = observer(() => {
+    const RS = useContext(RootStoreContext);
+    const {isAuth, user} = RS.authStore;
     // console.log(process.env.REACT_APP_DEV_SITE_URL)
     const {colorMode} = useColorMode()
+
     return (
-        <div>
-            <Flex
-                style={{
-                    padding: '0.5vh 3vw 3vh 3vw',
-                }}
-            >
+        <div> {/* Но можно div или header оставить*/}
+            <nav className={'header'}> {/* Flex was here */}
                 <Wrap>
                     <WrapItem>
-                        <Center h="48px" w="48px">
+                        <Center className={'header__link'}>
                             <Link to="/">
                                 <Image
                                     borderRadius='full'
@@ -51,8 +52,13 @@ export const MainHeader: FunctionComponent = () => {
                     {isAuth
                         ?
                         <>
+                            <Suspense>
+                                <Center className={'header__link'}>
+
+                                </Center>
+                            </Suspense>
                             <Link to="/settings">
-                                <Center w="48px" h="48px">
+                                <Center className={'header__link'}>
                                     <Icon as={FiSettings}
                                           w="10"
                                           h="10"
@@ -60,7 +66,7 @@ export const MainHeader: FunctionComponent = () => {
                                 </Center>
                             </Link>
                             <Link to="/profile">
-                                <Center w="48px" h="48px">
+                                <Center className={'header__link'}>
                                     <Icon
                                         w="10"
                                         h="10"
@@ -69,12 +75,12 @@ export const MainHeader: FunctionComponent = () => {
                                 </Center>
                             </Link>
                             <Link to="/">
-                                <Center w="48px" h="48px">
+                                <Center className={'header__link'}>
                                     <Icon
                                         w="10"
-                                        h="10"
+                                        h="20"
                                         as={ImExit}
-                                        onClick={logout}
+                                        onClick={RS.authStore.logout}
                                     />
                                 </Center>
                             </Link>
@@ -82,29 +88,19 @@ export const MainHeader: FunctionComponent = () => {
                         :
                         <>
                             <Link to="/settings">
-                                <Center w="48px" h="48px">
+                                <Center className={'header__link'}>
                                     <Icon as={FiSettings} w="10" h="10"/>
                                 </Center>
                             </Link>
-                            <Center w="48px" h="48px">
-                                <a
-                                    href={`https://oauth.vk.com/authorize?${encode({
-                                        client_id: vkClientId,
-                                        redirect_uri: `${baseURL}/redirect`,
-                                        display: 'page',
-                                        scope: 'offline',
-                                        response_type: 'code',
-                                        v: '5.131',
-                                    })}`}
-                                >
-                                    <Icon as={SiVk} w="10" h="10"/>
-                                </a>
-                            </Center>
+                            <Link to="/auth">
+                                <Center className={'header__link'}>
+                                    <Icon as={AiOutlineLogin} w="10" h="10"/>
+                                </Center>
+                            </Link>
                         </>
-
                     }
                 </Flex>
-            </Flex>
+            </nav>
         </div>
     );
-}
+})

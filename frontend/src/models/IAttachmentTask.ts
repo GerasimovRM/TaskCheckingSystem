@@ -5,8 +5,8 @@ export enum IAttachmentTaskTypeName {
 }
 
 interface IAttachmentTaskInputOutputData {
-    input: string[];
-    output: string[];
+    input: string;
+    output: string;
 }
 
 interface IAttachmentTaskImageData {

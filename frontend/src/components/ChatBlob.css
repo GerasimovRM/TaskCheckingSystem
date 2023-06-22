@@ -1,0 +1,30 @@
+.chat-blob {
+    padding: 0.5em;
+    flex: 1;
+    margin-bottom: 0.5rem;
+}
+
+.chat-blob__content {
+    border-width: 1px;
+    display: inline-block;
+    border-radius: 0.375rem;
+    padding: 0.5em;
+}
+
+.chat-blob__user {
+    font-weight: 600;
+    letter-spacing: 0.025em;
+    font-size: 0.75rem;
+    text-align: end;
+}
+
+.chat-blob__text {
+    word-break: break-word;
+}
+
+.chat-blob__image {
+    border-radius: 9999px;
+    width: 32px;
+    height: 32px;
+}
+

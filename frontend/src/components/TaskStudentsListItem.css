@@ -1,0 +1,13 @@
+.task-students-list-item {
+
+}
+
+.task-students-list-item__text {
+    word-break: break-word;
+}
+
+.task-students-list-item__image {
+    width: 34px;
+    height: 34px;
+    border-radius: 9999px;
+}

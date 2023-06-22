@@ -2,7 +2,7 @@ import {Link} from 'react-router-dom';
 
 import {Grid, GridItem, HStack, Icon, Progress, SkeletonText, Text} from '@chakra-ui/react';
 import {BorderShadowBox} from "./BorderShadowBox";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {IconType} from 'react-icons';
 import SolutionService from "../services/SolutionService";
 import {useParams} from "react-router";

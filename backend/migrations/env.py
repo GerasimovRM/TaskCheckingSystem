@@ -33,11 +33,11 @@ target_metadata = metadata
 
 def get_url():
     return "postgresql+asyncpg://%s:%s@%s:%s/%s" % (
-        os.getenv("DB_USERNAME"),
-        os.getenv("DB_PASSWORD"),
-        os.getenv("DB_HOST"),
-        os.getenv("DB_PORT"),
-        os.getenv("DB_DATABASE")
+        os.getenv("DATABASE_USER"),
+        os.getenv("DATABASE_PASSWORD"),
+        os.getenv("DATABASE_HOST"),
+        os.getenv("DATABASE_PORT"),
+        os.getenv("DATABASE_NAME")
     )
 
 

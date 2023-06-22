@@ -3,11 +3,13 @@ import {Heading, SimpleGrid, useMediaQuery} from "@chakra-ui/react";
 import {BaseSpinner} from "../components/BaseSpinner";
 import {CoursePreview} from "../components/CoursePreview";
 import {ICoursePreview} from "../models/ICoursePreview";
-import {useTypedSelector} from "../hooks/useTypedSelector";
 import GroupService from "../services/GroupService";
 import CourseService from "../services/CourseService";
 
-const ProfilePage: FunctionComponent = () => {
+import './ProfilePage.css';
+import { observer } from 'mobx-react-lite';
+
+const ProfilePage = observer(() => {
     const [coursePreviews, setCoursePreviews] = useState<ICoursePreview[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(true)
 
@@ -18,7 +20,7 @@ const ProfilePage: FunctionComponent = () => {
             (course_data, index) => course_data.courses.map(
                 (course): ICoursePreview => {
                     return {
-                        linkTo: `group/${course.id}/course/${group_response.groups[index].id}`,
+                        linkTo: `group/${group_response.groups[index].id}/course/${course.id}`,
                         courseId: course.id,
                         courseName: course.name,
                         groupName: group_response.groups[index].name,
@@ -44,20 +46,20 @@ const ProfilePage: FunctionComponent = () => {
                 />
             ));
             return (
-                <div>
+                <main className={'profile-page'}>
                     <Heading mb={5}>Курсы</Heading>
-                    <SimpleGrid columns={4} spacing={10}>
+                    <SimpleGrid columns={4} spacing={10} >
                         {previews}
                     </SimpleGrid>
-                </div>
+                </main>
             )
         }
         return (
-            <div>
+            <main>
                 <Heading>Нет доступных курсов</Heading>
-            </div>
+            </main>
         );
     }
-}
+})
 
 export default ProfilePage;

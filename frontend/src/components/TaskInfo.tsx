@@ -1,4 +1,4 @@
-import React, {PropsWithChildren, useEffect} from 'react';
+import React, {PropsWithChildren, useContext, useEffect} from 'react';
 
 import {
     Box,
@@ -27,12 +27,12 @@ import {
 import {ISolutionStatus} from "../models/ITask";
 import {EditIcon} from "@chakra-ui/icons";
 import Editor from "@monaco-editor/react";
-import {useTypedSelector} from "../hooks/useTypedSelector";
 import {IGroupRole} from "../models/IGroupRole";
-import {useActions} from "../hooks/useActions";
 import {Field, FieldInputProps, Form, Formik, FormikProps} from "formik";
 import SolutionService from "../services/SolutionService";
 import {get_format_date, sleep} from "../api/Common";
+import { observer } from 'mobx-react-lite';
+import { RootStoreContext } from '../context';
 
 
 export interface ITaskInfo {
@@ -54,9 +54,9 @@ interface TextInputProps extends PropsWithChildren<any> {
 }
 
 // @ts-ignore
-const FormExample = ({ score, maxScore, onCancel, onClose }) => {
-    const {current_solution} = useTypedSelector(state => state.solution)
-    const {setSolution} = useActions()
+const FormExample = observer(({ score, maxScore, onCancel, onClose }) => {
+    const RS = useContext(RootStoreContext);
+    const {current_solution} = RS.solutionStore;
     return (
         <Formik enableReinitialize={true}
                 initialValues={{score: score}}
@@ -68,7 +68,7 @@ const FormExample = ({ score, maxScore, onCancel, onClose }) => {
                     else if (values.score < 0)
                         sendScore = 0
                     const updateSolution = await SolutionService.postSolutionChangeScore(current_solution!.id, false, sendScore)
-                    setSolution(updateSolution)
+                    RS.solutionStore.setSolution(updateSolution);
                     actions.setSubmitting(false)
 
                 }}
@@ -112,7 +112,7 @@ const FormExample = ({ score, maxScore, onCancel, onClose }) => {
                         isLoading={props.isSubmitting}
                         onClick={async () => {
                             const updateSolution = await SolutionService.postSolutionChangeScore(current_solution!.id, true)
-                            setSolution(updateSolution)
+                            RS.solutionStore.setSolution(updateSolution);
                             onClose()
                         }}
                         type='reset'
@@ -123,12 +123,11 @@ const FormExample = ({ score, maxScore, onCancel, onClose }) => {
             )}
         </Formik>
     )
-}
+})
 
 // @ts-ignore
 const PopoverForm = ({points, maxPoints, editable}) => {
     const { onOpen, onClose, isOpen } = useDisclosure()
-
     return (
         <>
             <Box display='inline-block' mr={3}>
@@ -149,6 +148,7 @@ const PopoverForm = ({points, maxPoints, editable}) => {
                                     aria-label="Search database" background={"inherit"}/>
                     </PopoverTrigger>
                     <PopoverContent p={5}>
+                        {/* @ts-ignore */}
                         <FormExample score={points}
                               maxScore={maxPoints}
                               onCancel={() => {
@@ -165,7 +165,7 @@ const PopoverForm = ({points, maxPoints, editable}) => {
 
 
 
-export const TaskInfo: (props: ITaskInfo) => JSX.Element = (props: ITaskInfo) => {
+export const TaskInfo: (props: ITaskInfo) => JSX.Element = observer((props: ITaskInfo) => {
     const theme = {
         bg: 'gray.500, gray.500',
         text: 'Не отправлялось',
@@ -187,8 +187,8 @@ export const TaskInfo: (props: ITaskInfo) => JSX.Element = (props: ITaskInfo) =>
         theme.text = 'Зачтено'
     }
     const {colorMode} = useColorMode()
-    const {current_solution, isChanged} = useTypedSelector(state => state.solution)
-    const {setCodeSolution, setIsChangedSolution} = useActions()
+    const RS = useContext(RootStoreContext);
+    const {current_solution, isChanged} = RS.solutionStore;
     const format_date = get_format_date(props.date)
 
     useEffect(() => {
@@ -232,9 +232,9 @@ export const TaskInfo: (props: ITaskInfo) => JSX.Element = (props: ITaskInfo) =>
                 value={current_solution?.code}
                 onChange={value => {
                     if (value) {
-                        setCodeSolution(value)
+                        RS.solutionStore.setSolutionCode(value)
                         if (!isChanged)
-                            setIsChangedSolution(true)
+                            RS.solutionStore.setSolutionIsChanged(true)
                     }
                 }}
                 options={{readOnly: props.groupRole !== IGroupRole.STUDENT}}
@@ -242,4 +242,4 @@ export const TaskInfo: (props: ITaskInfo) => JSX.Element = (props: ITaskInfo) =>
             </Flex>
         </Flex>
     )
-}
+})

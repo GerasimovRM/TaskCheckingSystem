@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import {BorderShadowBox} from "./BorderShadowBox";
 import {ITaskPreviewStudent} from '../models/ITaskPreviewStudent';
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {ISolution} from '../models/ISolution';
 import SolutionService from "../services/SolutionService";
 import {useParams} from "react-router";

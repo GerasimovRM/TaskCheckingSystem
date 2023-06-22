@@ -8,3 +8,4 @@ from .solution import router as solution_router
 from .admin import router as admin_router
 from .chat_message import router as chat_message_router
 from .stat import router as stat_router
+from .test import router as test_router

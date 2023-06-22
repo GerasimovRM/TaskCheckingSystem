@@ -1,4 +1,4 @@
-import React, {FunctionComponent, useEffect, useState} from 'react';
+import React, {FunctionComponent, useContext, useEffect, useState} from 'react';
 import {useParams} from 'react-router';
 
 import {
@@ -20,18 +20,20 @@ import {ICourse} from "../models/ICourse";
 import CourseService from "../services/CourseService";
 import {IGroupRole} from "../models/IGroupRole";
 import GroupService from "../services/GroupService";
-import {useTypedSelector} from "../hooks/useTypedSelector";
 import {Layout} from "../components/layouts/Layout";
 import {LessonPreviewForTeacher} from "../components/LessonPreviewForTeacher";
+import { observer } from 'mobx-react-lite';
+import { RootStoreContext } from '../context';
 
 
-const CoursePage: FunctionComponent = () => {
+const CoursePage: FunctionComponent = observer(() => {
+    const RS = useContext(RootStoreContext);
     const {courseId, groupId} = useParams();
     const [lessonsResponse, setLessonsResponse] = useState<ILessonsResponse>()
     const [course, setCourse] = useState<ICourse>()
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [groupRole, setGroupRole] = useState<IGroupRole>()
-    const {isAuth} = useTypedSelector(state => state.auth)
+    const {isAuth} = RS.authStore;
 
     useEffect(() => {
         async function fetchLessons() {
@@ -72,7 +74,6 @@ const CoursePage: FunctionComponent = () => {
             }
             mainChildren={
                 <>
-
                     {lessonsResponse && (groupRole === IGroupRole.STUDENT ?
                         lessonsResponse.lessons.map((v) => (
                             <LessonPreviewForStudent
@@ -86,7 +87,7 @@ const CoursePage: FunctionComponent = () => {
                         ))
                         :
                         lessonsResponse.lessons.map((v) => (
-                            <LessonPreviewForTeacher
+                            <LessonPreviewForTeacher    
                                 groupId={groupId!}
                                 lessonId={v.id}
                                 name={v.name}
@@ -100,6 +101,6 @@ const CoursePage: FunctionComponent = () => {
             }
         />
     );
-}
+})
 
 export default CoursePage

@@ -12,7 +12,7 @@ from models.site.lesson import LessonsResponse, LessonResponse, LessonPostReques
 from models.site.stat import CourseStatForStudent, TaskStat, LessonStat, UserStat, \
     CourseStatForTeacher, \
     TableDataForTeacher, LessonDataForTeacher, TaskLessonDataForTeacher, TaskStudentDataForTeacher, \
-    StudentTaskDataForTeacher
+    StudentTaskDataForTeacher, RatingGroupForTeacher, RatingStudentForTeacher
 from services.auth_service import get_current_active_user, get_teacher_or_admin, get_teacher
 from database import User, Group, get_session, GroupsCourses, Course, CoursesLessons, Lesson, \
     Solution
@@ -80,10 +80,12 @@ async def get_table_for_teacher(group_id: int,
                                                                            session) for task in
                               tasks]
             tasks_dto += [
-                TaskStudentDataForTeacher(**{"task_id": task.id} | ({"best_score": solution.score,
-                                                                     "status": solution.status} if solution else
-                                                                    {"best_score": 0,
-                                                                     "status": SolutionStatus.NOT_SENT}))
+                TaskStudentDataForTeacher(**{"task_id": task.id,
+                                             "task_name": task.name} | (
+                                                {"best_score": solution.score,
+                                                 "status": solution.status} if solution else
+                                                {"best_score": 0,
+                                                 "status": SolutionStatus.NOT_SENT}))
                 for task, solution in zip(tasks, best_solutions)]
         students_dto.append(StudentTaskDataForTeacher(student=UserDto.from_orm(student),
                                                       tasks=tasks_dto))
@@ -179,3 +181,53 @@ async def get_lessons_stat_for_student(group_id: int,
 
     lesson_dto = LessonStat(**lesson.to_dict() | {"tasks": tasks_dto})
     return lesson_dto
+
+
+@router.get("/get_rating_for_teacher", response_model=RatingGroupForTeacher)
+async def get_rating_for_teacher(group_id: int,
+                                 course_id: int,
+                                 current_user: User = Depends(get_current_active_user),
+                                 session=Depends(get_session)):
+    user_group = await UsersGroupsService.get_user_group(current_user.id,
+                                                         group_id,
+                                                         session)
+    if user_group.role == UserGroupRole.STUDENT or not user_group:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Bad access to group")
+
+    group_course = await GroupsCoursesService.get_group_course(group_id,
+                                                               course_id,
+                                                               session)
+    if not group_course:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Bad access to course")
+
+    lessons = await LessonService.get_lessons_by_course_id(course_id, session)
+    users = await UserService.get_students_by_group_id(group_id, session)
+    rating_group_for_teacher: List[RatingStudentForTeacher] = [
+        RatingStudentForTeacher(user_id=user.id,
+                                user_first_name=user.first_name,
+                                user_last_name=user.last_name) for user in users]
+    max_score_of_course = 0
+    for lesson in lessons:
+        tasks = await TaskService.get_tasks_by_lesson_id(lesson.id, session)
+        lesson_score = sum(map(lambda task: task.max_score, tasks))
+        max_score_of_course += lesson_score
+
+        for rating in rating_group_for_teacher:
+            for task in tasks:
+                user_solution = await SolutionService.get_best_user_solution(group_id,
+                                                                             course_id,
+                                                                             task.id,
+                                                                             rating.user_id,
+                                                                             session)
+                if user_solution:
+                    rating.current_score += user_solution.score
+
+    for rating in rating_group_for_teacher:
+        rating.max_score = max_score_of_course
+        rating.current_score_procent = rating.current_score / rating.max_score * 100
+
+    return RatingGroupForTeacher(ratings=rating_group_for_teacher)

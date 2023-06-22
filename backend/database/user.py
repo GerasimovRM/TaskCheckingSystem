@@ -21,6 +21,7 @@ class User(BaseSQLAlchemyModel):
     last_name = Column(String(30))
     middle_name = Column(String(30), nullable=True)
     password = Column(String(1000), nullable=True)
+    login = Column(String(40), nullable=True, unique=True)
     vk_id = Column(String(20), nullable=True)
     status = Column(Enum(UserStatus), default=UserStatus.ACTIVE)
     vk_access_token = Column(String(400), nullable=True)

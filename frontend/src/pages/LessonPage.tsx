@@ -41,7 +41,6 @@ const LessonPage: FunctionComponent = () => {
             setTasksResponse(tasksResponse)
             setLesson(lessonResponse)
             setGroupRole(groupRole)
-            console.log(tasksResponse)
         }
 
         fetchTasks()
@@ -84,7 +83,7 @@ const LessonPage: FunctionComponent = () => {
                                         return task.task_type === elem[1]
                                     }).length ?
                                     <>
-                                        < Heading size={"md"} paddingBottom={2}>
+                                        <Heading size={"md"} paddingBottom={4}>
                                             {elem[0]}
                                         </Heading>
                                         {
@@ -109,7 +108,6 @@ const LessonPage: FunctionComponent = () => {
                                     <></>
                                 }
                             </>
-
                         })
                         }
                     </>

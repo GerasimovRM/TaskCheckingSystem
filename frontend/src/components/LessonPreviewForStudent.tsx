@@ -11,11 +11,16 @@ import {ITaskCountForStudentResponse} from "../models/ITaskCountForStudentRespon
 import TaskService from "../services/TaskService";
 import {IGroupRole} from "../models/IGroupRole";
 
-export const LessonPreviewForStudent: (props: ILessonPreview) => JSX.Element = (props: ILessonPreview) => {
-    const [statusTaskColor, setStatusTaskColor] = useState<IStatusTaskColor>()
-    const [openTasksInfo, setOpenTasksInfo] = useState<boolean>(false)
-    const [taskCountForStudent, setTaskCountForStudent] = useState<ITaskCountForStudentResponse>()
-    const [userRole, setUserRole] = useState<IGroupRole>()
+import "./LessonPreview.css";
+
+export const LessonPreviewForStudent: (props: ILessonPreview) => JSX.Element = (
+  props: ILessonPreview
+) => {
+  const [statusTaskColor, setStatusTaskColor] = useState<IStatusTaskColor>();
+  const [openTasksInfo, setOpenTasksInfo] = useState<boolean>(false);
+  const [taskCountForStudent, setTaskCountForStudent] =
+    useState<ITaskCountForStudentResponse>();
+  const [userRole, setUserRole] = useState<IGroupRole>();
 
     useEffect(() => {
         TaskService.getCountForStudent(props.groupId, props.courseId, props.lessonId).then((taskCount) => {
@@ -29,11 +34,7 @@ export const LessonPreviewForStudent: (props: ILessonPreview) => JSX.Element = (
                 <HStack>
                     <HStack as={Link} to={`lesson/${props.lessonId}`} style={{width: "100%"}}>
                         <Text
-                            ml="2"
-                            fontSize="2xl"
-                            style={{
-                                textTransform: 'capitalize',
-                            }}
+                            className={"lesson-preview__text"}
                         >
                             {props.name}
                         </Text>

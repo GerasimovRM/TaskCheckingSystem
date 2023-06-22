@@ -17,3 +17,5 @@ from .lessons_tasks import LessonsTasks
 from .image import Image
 from .chat_message import ChatMessage
 from .task_test import TaskTest
+from .docker_run_images import DockerRunImage
+from .solutions_docker_run_images import SolutionsDockerRunImages

@@ -13,6 +13,8 @@ import {IGroupRole} from "../models/IGroupRole";
 import {ITaskCountForTeacherResponse} from "../models/ITaskCountForTeacherResponse";
 import CourseService from "../services/CourseService";
 
+import "./LessonPreview.css";
+
 export const LessonPreviewForTeacher: (props: ILessonPreview) => JSX.Element = (props: ILessonPreview) => {
     const [statusTaskColor, setStatusTaskColor] = useState<IStatusTaskColor>()
     const [openTasksInfo, setOpenTasksInfo] = useState<boolean>(false)
@@ -34,11 +36,7 @@ export const LessonPreviewForTeacher: (props: ILessonPreview) => JSX.Element = (
                 <HStack>
                     <HStack as={Link} to={`lesson/${props.lessonId}`} style={{width: "100%"}}>
                         <Text
-                            ml="2"
-                            fontSize="2xl"
-                            style={{
-                                textTransform: 'capitalize',
-                            }}
+                            className={"lesson-preview__text"}
                         >
                             {props.name}
                         </Text>

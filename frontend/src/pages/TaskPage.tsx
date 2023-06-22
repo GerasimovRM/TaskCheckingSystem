@@ -1,9 +1,7 @@
 import {useParams} from "react-router";
-import React, {useEffect, useState} from "react";
+import React, {Suspense, useContext, useEffect, useState} from "react";
 import {ISolutionStatus, ITask} from "../models/ITask";
 import {IGroupRole} from "../models/IGroupRole";
-import {useActions} from "../hooks/useActions";
-import {useTypedSelector} from "../hooks/useTypedSelector";
 import {
     Box,
     Button,
@@ -37,20 +35,25 @@ import {BiSend, GoFileCode} from "react-icons/all";
 import {BorderShadowBox} from "../components/BorderShadowBox";
 import {SolutionInfo} from "../components/SolutionInfo";
 import {TaskStudentsList} from "../components/TaskStudentsList";
-import Chat from "../components/Chat";
 import {BaseSpinner} from "../components/BaseSpinner";
 import Dropzone from "react-dropzone";
 import { useNavigate } from 'react-router-dom';
 
+import { RootStoreContext } from "../context";
+import { observer } from "mobx-react-lite";
 
-export default function TaskPage() {
+// @ts-ignore
+//const Chat = React.lazy(() => import('chat/App'));
+
+const TaskPage = observer(() => {
+    const RS = useContext(RootStoreContext);
     const {groupId, courseId, lessonId, taskId} = useParams();
     const [task, setTask] = useState<ITask>()
     const [groupRole, setGroupRole] = useState<IGroupRole>()
-    const {setSolution, setSelectedUser, clearSolution, clearSelectedUser} = useActions()
-    const {current_solution, isChanged: solutionIsChanged} = useTypedSelector(state => state.solution)
-    const {user} = useTypedSelector(state => state.auth)
-    const {selectedUser} = useTypedSelector(state => state.selectedUser)
+    const {current_solution, isChanged: solutionIsChanged} = RS.solutionStore;
+    const {user} = RS.authStore;
+    const {selectedUser} = RS.selectedUserStore;
+    
 
     const {isOpen, onOpen, onClose} = useDisclosure()
     const [solutions, setSolutions] = useState<ISolution[]>([])
@@ -67,7 +70,7 @@ export default function TaskPage() {
 
     const sendFile = (file: File) => {
         SolutionService.postSolution(groupId!, courseId!, lessonId!, taskId!, file)
-            .then((solution) => setSolution(solution))
+            .then((solution) => RS.solutionStore.setSolution(solution))
     }
     useEffect(() => {
         GroupService.getGroupRole(groupId!).then((role) => setGroupRole(role))
@@ -82,12 +85,12 @@ export default function TaskPage() {
 
     useEffect(() => {
         if (groupRole === IGroupRole.STUDENT) {
-            setSelectedUser(user!)
+            RS.selectedUserStore.setSelectedUser(user!)
             SolutionService.getBestSolution(groupId!, courseId!, taskId!).then((solution) => {
                 if (solution)
-                    setSolution(solution)
+                    RS.solutionStore.setSolution(solution)
                 else
-                    setSolution({
+                    RS.solutionStore.setSolution({
                         id: -1,
                         score: 0,
                         status: ISolutionStatus.UNDEFINED,
@@ -111,8 +114,8 @@ export default function TaskPage() {
     }, [selectedUser])
     useEffect(() => {
         return () => {
-            clearSolution()
-            clearSelectedUser()
+            RS.solutionStore.clearSolution()
+            RS.selectedUserStore.clearSelectedUser()
         }
     }, [])
     if (isLoading) {
@@ -264,7 +267,9 @@ export default function TaskPage() {
                                                         </Flex>
                                                     </TabPanel>
                                                     <TabPanel>
-                                                        <Chat/>
+                                                        <Suspense>
+                                                            {/*<Chat selectedUser={selectedUser} authUser={user}/>*/}
+                                                        </Suspense>
                                                     </TabPanel>
                                                 </TabPanels>
                                             </Tabs>
@@ -281,4 +286,6 @@ export default function TaskPage() {
             )}
         </Dropzone>
     )
-}
+})
+
+export default TaskPage;

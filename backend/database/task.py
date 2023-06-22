@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship
 
 from database import Base
 from database.base_meta import BaseSQLAlchemyModel
-from database.solution import SolutionStatus
+from database.solution import SolutionStatus, TestType
 
 
 class Task(BaseSQLAlchemyModel):
@@ -17,6 +17,7 @@ class Task(BaseSQLAlchemyModel):
     description = Column(String(4000), nullable=True)
     max_score = Column(Float)
     attachments = Column(JSON)
+    test_type = Column(Enum(TestType), nullable=True)
 
     lessons = relationship("LessonsTasks", back_populates="task")
     solutions = relationship("Solution", back_populates="task")

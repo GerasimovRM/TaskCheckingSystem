@@ -2,15 +2,15 @@ import os
 
 from celery import Celery
 
-from config import RABBITMQ_USER, RABBITMQ_PASSWORD, REDIS_PASSWORD
+from config import RABBITMQ_USER, RABBITMQ_PASSWORD, REDIS_PASSWORD, RABBITMQ_PORT, REDIS_PORT
 
 celery_app = None
 
 if not os.getenv("DOCKER"):
     celery_app = Celery(
         "worker",
-        broker=f"amqp://{RABBITMQ_USER}:{RABBITMQ_PASSWORD}@localhost:5672//",
-        backend=f"redis://:{REDIS_PASSWORD}@localhost:6379/0"
+        broker=f"amqp://{RABBITMQ_USER}:{RABBITMQ_PASSWORD}@localhost:{RABBITMQ_PORT}//",
+        backend=f"redis://:{REDIS_PASSWORD}@localhost:{REDIS_PORT}/0"
     )
 else:
     celery_app = Celery(

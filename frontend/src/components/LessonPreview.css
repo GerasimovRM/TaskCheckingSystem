@@ -1,0 +1,13 @@
+.lesson-preview {
+
+}
+
+.lesson-preview__text {
+    margin-left: 0.5rem;
+    font-size: 1.5rem;
+    text-transform: capitalize;
+}
+
+.lesson-preview__teacher {
+    width: 100%;
+}

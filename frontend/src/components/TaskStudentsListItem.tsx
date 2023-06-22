@@ -1,30 +1,32 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {useParams} from "react-router";
 import UserService from "../services/UserService";
 import {Box, Text, HStack, Image, Button, SkeletonCircle, SkeletonText, useColorMode} from "@chakra-ui/react";
 import {BaseSpinner} from "./BaseSpinner";
 import {IUser} from "../models/IUser";
-import {useActions} from "../hooks/useActions";
-import {useTypedSelector} from "../hooks/useTypedSelector";
 import SolutionService from "../services/SolutionService";
 import { getTaskStatusColorScheme } from "../common/colors";
 import {IStatusTaskColor} from "../models/IStatusTaskColor";
+
+import './TaskStudentsListItem.css';
+import { observer } from "mobx-react-lite";
+import { RootStoreContext } from "../context";
 
 interface ITaskStudentsList {
     studentId: number;
     index: number;
 }
 
-export const TaskStudentsListItem: (props: ITaskStudentsList) => JSX.Element = (props: ITaskStudentsList) => {
+export const TaskStudentsListItem: (props: ITaskStudentsList) => JSX.Element = observer((props: ITaskStudentsList) => {
+    const RS = useContext(RootStoreContext);
     const [user, setUser] = useState<IUser>()
     const [statusTaskColor, setStatusTaskColor] = useState<IStatusTaskColor>()
     const {courseId, groupId, lessonId, taskId} = useParams()
     const [isLoading, setIsLoading] = useState<boolean>(true)
-    const {setSelectedUser, fetchBestSolution, fetchUserData} = useActions()
-    const {selectedUser} = useTypedSelector(state => state.selectedUser)
+    const {selectedUser} = RS.selectedUserStore;
     const {colorMode} = useColorMode()
-    const {current_solution} = useTypedSelector(state => state.solution)
-    const {users} = useTypedSelector(state => state.usersData)
+    const {current_solution} = RS.solutionStore;
+    const {users} = RS.usersDataStore;
 
     function getUserBestSolution() {
         SolutionService.getBestSolution(groupId!, courseId!, taskId!, props.studentId)
@@ -34,8 +36,8 @@ export const TaskStudentsListItem: (props: ITaskStudentsList) => JSX.Element = (
     }
 
     function onClick() {
-        setSelectedUser(user!)
-        fetchBestSolution(groupId!, courseId!, taskId!, props.studentId)
+        RS.selectedUserStore.setSelectedUser(user!);
+        RS.solutionStore.fetchBestSolution(groupId!, courseId!, taskId!, props.studentId)
     }
     useEffect(() => {
         if (!user) {
@@ -85,17 +87,16 @@ export const TaskStudentsListItem: (props: ITaskStudentsList) => JSX.Element = (
             <HStack>
                 <SkeletonCircle boxSize="34px" isLoaded={!isLoading}>
                     <Image
-                        borderRadius="full"
-                        boxSize="34px"
+                        className={'task-students-list-item__image'}
                         src={user?.avatar_url}
                     />
                 </SkeletonCircle>
                 <SkeletonText isLoaded={!isLoading}>
-                    <Text wordBreak={"break-word"}>
+                    <Text className={'task-students-list-item__text'}>
                         {`${user?.last_name} ${user?.first_name}`}
                     </Text>
                 </SkeletonText>
             </HStack>
         </Button>
     );
-}
+})

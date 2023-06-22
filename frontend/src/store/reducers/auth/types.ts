@@ -1,5 +1,4 @@
 import {IUser} from "../../../models/IUser";
-import exp from "constants";
 import {IAuthLogin} from "../../../models/IAuthLogin";
 
 export interface AuthState {
@@ -14,7 +13,12 @@ export enum AuthActionEnum {
     SET_AUTH_ERROR = "SET_AUTH_ERROR",
     SET_AUTH_IS_LOADING = "SET_AUTH_IS_LOADING",
     SET_LOGIN = "SET_LOGIN",
-    SET_AUTH_USER = "SET_AUTH_USER"
+    SET_AUTH_USER = "SET_AUTH_USER",
+    SET_RESET_STATE = "SET_RESET_STATE"
+}
+
+export interface ResetState {
+    type: AuthActionEnum.SET_RESET_STATE
 }
 
 export interface SetUserAuthAction {
@@ -45,4 +49,5 @@ export type AuthAction =
     SetErrorAuthAction |
     SetIsLoadingAuthAction |
     SetLoginAuthAction |
-    SetUserAuthAction
+    SetUserAuthAction |
+    ResetState

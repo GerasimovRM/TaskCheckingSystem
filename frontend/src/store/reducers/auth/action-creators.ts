@@ -1,7 +1,10 @@
 import {
     AuthActionEnum,
+    ResetState,
+    SetAuthAction,
+    SetErrorAuthAction,
+    SetIsLoadingAuthAction,
     SetLoginAuthAction,
-    SetAuthAction, SetErrorAuthAction, SetIsLoadingAuthAction,
     SetUserAuthAction
 } from "./types";
 import {AppDispatch} from "../../index";
@@ -12,6 +15,7 @@ import UserService from "../../../services/UserService";
 import {IAuthLogin} from "../../../models/IAuthLogin";
 
 export const AuthActionCreators = {
+    resetState: (): ResetState => ({type: AuthActionEnum.SET_RESET_STATE}),
     setIsAuth: (auth: boolean): SetAuthAction => ({type: AuthActionEnum.SET_AUTH, payload: auth}),
     setIsLoadingAuth: (payload: boolean): SetIsLoadingAuthAction => ({type: AuthActionEnum.SET_AUTH_IS_LOADING, payload}),
     setErrorAuth: (payload: string): SetErrorAuthAction => ({type: AuthActionEnum.SET_AUTH_ERROR, payload}),
@@ -36,7 +40,7 @@ export const AuthActionCreators = {
     logout: () => async (dispatch: AppDispatch) => {
         await LoginService.logoutRequest()
         localStorage.removeItem("access_token")
-        dispatch(AuthActionCreators.setIsAuth(false))
-        // return {type: AuthActionEnum.SET_AUTH, payload: false}
+        // dispatch(AuthActionCreators.setIsAuth(false))
+        dispatch(AuthActionCreators.resetState())
     }
 }
