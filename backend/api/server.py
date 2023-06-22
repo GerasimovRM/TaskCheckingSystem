@@ -12,13 +12,14 @@ from database.base_meta import initialize_database, get_session
 from models.site.token import Token
 from services.auth_service import create_access_token_user, create_refresh_token_user, \
     authenticate_user, get_password_hash, get_admin
-from api.endpoints import user_router, auth_router, group_router, admin_router,\
-    course_router, lesson_router, solution_router, task_router, chat_message_router, stat_router
+from api.endpoints import user_router, auth_router, group_router, admin_router, \
+    course_router, lesson_router, solution_router, task_router, chat_message_router, stat_router, \
+    test_router
 from services.solution_service import SolutionService
 from services.user_service import UserService
 
-
 import logging
+
 logging.basicConfig(level=logging.INFO)
 
 app = FastAPI(docs_url="/", openapi_url="/api_v1/openapi.json")
@@ -32,7 +33,7 @@ app.include_router(solution_router)
 app.include_router(task_router)
 app.include_router(chat_message_router)
 app.include_router(stat_router)
-
+app.include_router(test_router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -42,6 +43,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
 
 # app.state.database = database
 

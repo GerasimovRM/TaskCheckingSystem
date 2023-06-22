@@ -41,16 +41,64 @@ services:
       - D:/Volumes/TCS/redis:/data
     networks:
       - redis-go-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    # Windows bug with WSL 2: https://github.com/microsoft/WSL/issues/4739#issue-534049240
+    # ==========
+    environment:
+      - WATCHPACK_POLLING=true
+    # ==========
+    env_file:
+      - .env
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - backend-frontend
+      - frontend-services
+    tty: true
+    stdin_open: true
+
   auth:
     build:
       context: ./auth-frontend
+      dockerfile: Dockerfile.dev
+    # Windows bug with WSL 2: https://github.com/microsoft/WSL/issues/4739#issue-534049240
+    # ==========
+    environment:
+      - WATCHPACK_POLLING=true
+    # ==========
     ports:
       - 3340:3340
-    stdin_open: true
+    volumes:
+      - ./auth-frontend:/app
+      - /app/node_modules
     networks:
       - frontend-services
+    stdin_open: true
 
-
+  chat:
+    build:
+      context: ./chat-frontend
+      dockerfile: Dockerfile.dev
+    # Windows bug with WSL 2: https://github.com/microsoft/WSL/issues/4739#issue-534049240
+    # ==========
+    environment:
+      - WATCHPACK_POLLING=true
+    # ==========
+    ports:
+      - 3341:3341
+    volumes:
+      - ./chat-frontend:/app
+      - /app/node_modules
+    networks:
+      - frontend-services
+    stdin_open: true
 
   celery-worker:
     build: ./backend
@@ -60,7 +108,7 @@ services:
       - rabbitmq
       - redis
     volumes:
-      - ./backend:/code
+      - ./backend:/codes
     command: "celery -A celery_worker.worker worker -l info -Q check-solution-queue -c 1"
     networks:
       - rabbitmq-go-net
@@ -85,4 +133,4 @@ networks:
   backend-frontend:
   rabbitmq-go-net:
   redis-go-net:
-
+  frontend-services:

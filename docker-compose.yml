@@ -10,7 +10,6 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_DATABASE}
       - POSTGRES_HOST=${DB_HOST}
-      - P
     volumes:  
       - ~/Volumes/postgresql:/var/lib/postgresql/data
     networks:
@@ -137,9 +136,6 @@ services:
     networks:
       - rabbitmq-go-net
       - redis-go-net
-
-
-
 
 networks:
   db-backend:

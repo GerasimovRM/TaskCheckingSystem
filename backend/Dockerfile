@@ -8,3 +8,4 @@ WORKDIR /code
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 COPY ./ /code/backend
+#

@@ -61,7 +61,6 @@ export const request = async (requestConfig: IRequestConfig): Promise<any> => {
             axiosRequestConfig.headers = {...axiosRequestConfig.headers, Authorization: `Bearer ${token}`}
         }
     }
-    console.log(axiosRequestConfig);
     return await axios(axiosRequestConfig)
         .then(response => response.data);
 }
@@ -69,3 +68,5 @@ export const request = async (requestConfig: IRequestConfig): Promise<any> => {
 export const baseApi = process.env.NODE_ENV === "production" ? process.env.REACT_APP_PROD_API_URL : process.env.REACT_APP_DEV_API_URL
 export const baseSiteURL = process.env.NODE_ENV === "production" ? process.env.REACT_APP_PROD_SITE_URL : process.env.REACT_APP_DEV_SITE_URL
 export const vkClientId = process.env.NODE_ENV === "production" ? process.env.REACT_APP_PROD_VK_CLIENT_ID : process.env.REACT_APP_DEV_VK_CLIENT_ID
+
+// console.log(process.env.REACT_APP_DEV_SITE_URL)

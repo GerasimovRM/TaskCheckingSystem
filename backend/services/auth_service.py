@@ -33,7 +33,7 @@ async def create_access_token_user(user: User, session: AsyncSession) -> str:
                                   .options(joinedload(User.admin))
                                   .options(joinedload(User.teacher)))
     user = query.scalars().first()
-    jwt_data = {"vk_id": user.vk_id, "is_admin": bool(user.admin), "is_teacher": bool(user.teacher)}
+    jwt_data = {"user_id": user.id, "is_admin": bool(user.admin), "is_teacher": bool(user.teacher)}
     jwt_token = create_jwt_token(data=jwt_data, expires_delta=jwt_token_expires)
     return jwt_token
 
@@ -42,7 +42,7 @@ async def create_access_token_user(user: User, session: AsyncSession) -> str:
 async def create_refresh_token_user(user: User,
                                     session: AsyncSession,
                                     refresh_token: Optional[str] = None) -> str:
-    jwt_token = create_jwt_token(data={"vk_id": user.vk_id}, verify_exp=False)
+    jwt_token = create_jwt_token(data={"user_id": user.id}, verify_exp=False)
     new_refresh_token = RefreshToken(token=jwt_token, user=user)
     if refresh_token:
         query = await session.execute(select(RefreshToken).where(RefreshToken.token == refresh_token,
@@ -65,8 +65,8 @@ def get_password_hash(password):
 
 
 # TODO: async context
-async def get_user(vk_id: str, session: AsyncSession) -> Optional[User]:
-    query = await session.execute(select(User).where(User.vk_id == vk_id))
+async def get_user(user_id: int, session: AsyncSession) -> Optional[User]:
+    query = await session.execute(select(User).where(User.id == int(user_id)))
     user = query.scalars().first()
     return user
 
@@ -106,7 +106,7 @@ def create_jwt_token(data: dict,
 
 async def get_current_user(token: str = Depends(oauth2_scheme),
                            session: AsyncSession = Depends(get_session)) -> User:
-    logging.debug(session)
+    logging.info(session)
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -114,13 +114,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme),
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[JWT_ALGORITHM])
-        vk_id: str = payload.get("vk_id")
-        if vk_id is None:
+        user_id: str = payload.get("user_id")
+        if user_id is None:
             raise credentials_exception
-        token_data = TokenData(vk_id=vk_id)
+        token_data = TokenData(user_id=user_id)
     except JWTError:
         raise credentials_exception
-    user = await get_user(token_data.vk_id, session)
+    user = await get_user(token_data.user_id, session)
     if user is None:
         raise credentials_exception
     return user
@@ -157,3 +157,6 @@ async def get_teacher_or_admin(current_user: User = Depends(get_current_active_u
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not teacher or admin")
 
 
+if __name__ == "__main__":
+    password = input()
+    print(get_password_hash(password))

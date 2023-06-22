@@ -74,7 +74,6 @@ const CoursePage: FunctionComponent = observer(() => {
             }
             mainChildren={
                 <>
-
                     {lessonsResponse && (groupRole === IGroupRole.STUDENT ?
                         lessonsResponse.lessons.map((v) => (
                             <LessonPreviewForStudent
@@ -88,7 +87,7 @@ const CoursePage: FunctionComponent = observer(() => {
                         ))
                         :
                         lessonsResponse.lessons.map((v) => (
-                            <LessonPreviewForTeacher
+                            <LessonPreviewForTeacher    
                                 groupId={groupId!}
                                 lessonId={v.id}
                                 name={v.name}

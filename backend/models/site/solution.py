@@ -7,6 +7,10 @@ class SolutionResponse(SolutionDto):
     pass
 
 
+class SolutionCheckerResponse(SolutionDto):
+    max_score: int
+
+
 class SolutionsCountResponse(BaseModel):
     solutions_count: int
     solutions_complete_count: int

@@ -12,14 +12,16 @@ from services.task_service import TaskService
 class TaskTestService:
     @staticmethod
     async def get_by_task_id(task_id: int,
-                                        session: AsyncSession) -> List[TaskTest]:
-        task = await TaskService.get_task_by_id(task_id,
-                                                session)
-        return task.task_test
+                             session: AsyncSession) -> List[TaskTest]:
+        query = await session.execute(select(TaskTest)
+                                      .where(TaskTest.task_id == task_id)
+                                      .order_by(TaskTest.queue))
+        task_tests = query.scalars().all()
+        return task_tests
 
     @staticmethod
     async def get_by_id(task_test_id: int,
-                                  session: AsyncSession) -> TaskTest:
+                        session: AsyncSession) -> TaskTest:
         query = await session.execute(select(TaskTest)
                                       .where(TaskTest.id == task_test_id)
                                       .options(joinedload(TaskTest.task)))
