@@ -82,7 +82,7 @@ async def authenticate_user(login: str, password: str, session: AsyncSession) ->
         )
     if not verify_password(password, user.password):
         raise HTTPException(
-            status_code=status.HTTP_403_NOT_FOUND,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Wrong password"
         )
     return user
@@ -160,3 +160,5 @@ async def get_teacher_or_admin(current_user: User = Depends(get_current_active_u
 if __name__ == "__main__":
     password = input()
     print(get_password_hash(password))
+    "DCLHX)FGc5fujgIkb&v^29yh*zm@dtTsRP+xBEMSnw7eZq#VrJNpA(8U3!K4Q"
+    "DCLHX)FGc5fujgIkb&v^29yh*zm@dtTsRP+xBEMSnw7eZq#VrJNpA(8U3!K4Q"

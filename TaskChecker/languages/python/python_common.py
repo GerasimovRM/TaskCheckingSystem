@@ -18,8 +18,8 @@ from services import SolutionService
 class PythonCommon(Multilanguage, ABC):
     def __init__(self,
                  solution: SolutionDto,
-                 files: Optional[List[EpicboxFile]],
-                 limits: Optional[EpicboxLimits],
+                 files: Optional[List[EpicboxFile]] = None,
+                 limits: Optional[EpicboxLimits] = None,
                  check_pep8: bool = True):
         super().__init__(solution, files, limits)
         self.check_pep8 = check_pep8

@@ -10,7 +10,7 @@ services:
     ports:
       - ${ZOOKEPER_PORT}:${ZOOKEPER_PORT}
     networks:
-      zookeper-kafka:
+      zookeeper-kafka:
 
   # https://vinybrasil.github.io/portfolio/kafkafastapiasync/
   kafka:
@@ -27,7 +27,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     networks:
-      zookeper-kafka:
+      zookeeper-kafka:
 
   postgres-db:
     image: postgres
@@ -72,10 +72,11 @@ services:
     networks:
       - db-backend
       - backend-frontend
-      - zookeper-kafka
+      - zookeeper-kafka
 
   task-checker:
     build: ./TaskChecker
+    command: python3 main.py
     volumes:
       - ./TaskChecker:/code
     env_file:
@@ -85,7 +86,6 @@ services:
     networks:
       - db-backend
       - zookeper-kafka
-
 
   frontend:
     build: 
@@ -127,4 +127,4 @@ networks:
   db-backend:
   backend-frontend:
   frontend-services:
-  zookeper-kafka:
+  zookeeper-kafka:

@@ -1,20 +1,33 @@
 version: '3.8'
 
 services:
-  postgres-db:
-    image: postgres
-    ports:
-      - "${DB_EXTERNAL_PORT}:5432"
+  # https://vinybrasil.github.io/portfolio/kafkafastapiasync/
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
     environment:
-      - POSTGRES_USER=${DB_USERNAME}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_DATABASE}
-      - POSTGRES_HOST=${DB_HOST}
-    volumes:  
-      - ~/Volumes/postgresql:/var/lib/postgresql/data
+      ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_CLIENT_PORT}
+      ZOOKEEPER_TICK_TIME: ${ZOOKEEPER_TICK_TIME}
+    ports:
+      - ${ZOOKEEPER_CLIENT_PORT}:${ZOOKEEPER_CLIENT_PORT}
     networks:
-      - db-backend
-      - backend-frontend
+      - zookeeper-kafka
+
+  # https://vinybrasil.github.io/portfolio/kafkafastapiasync/
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - ${KAFKA_PORT}:29092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:${ZOOKEEPER_CLIENT_PORT}
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - zookeeper-kafka
 
   backend:
     build: ./backend
@@ -23,18 +36,14 @@ services:
       - ./backend:/code
     env_file:
       - .env
-    environment:
-      - DEBUG=1
     ports:
       - "${BACKEND_PORT}:8000"
     restart: on-failure
     depends_on:
-      - postgres-db
+      - kafka
     networks:
-      - db-backend
-      - redis-go-net
-      - rabbitmq-go-net
       - backend-frontend
+      - zookeeper-kafka
 
   frontend:
     build: 
@@ -56,71 +65,66 @@ services:
     volumes:
       - ./frontend:/usr/src/app
       - /usr/src/app/node_modules
-    command: npm start
     networks:
       - backend-frontend
     tty: true
     stdin_open: true
+    depends_on:
+      - backend
 
-  rabbitmq:
-    image: rabbitmq:3.11-alpine
+  auth:
+    build:
+      context: ./auth-frontend
+      dockerfile: Dockerfile.dev
+    # Windows bug with WSL 2: https://github.com/microsoft/WSL/issues/4739#issue-534049240
+    # ==========
     environment:
-      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+      - WATCHPACK_POLLING=true
+    # ==========
     ports:
-      - 5672:5672
-      - 15672:15672
+      - 3340:3340
     volumes:
-      - ~/Volumes/rabbitmq/data:/var/lib/rabbitmq/mnesia
-      - ~/Volumes/rabbitmq/log:/var/log/rabbitmq
+      - ./auth-frontend:/app
+      - /app/node_modules
     networks:
-      - rabbitmq-go-net
+      - frontend-services
+    stdin_open: true
 
-  redis:
-    image: redis:7.0.4-alpine
-    command: --requirepass ${REDIS_PASSWORD}
-    ports:
-      - 6379:6379
+  task-checker:
+    build: ./TaskChecker
+    command: python3 main.py
     volumes:
-      - ~/Volumes/redis:/data
-    networks:
-      - redis-go-net
-
-  celery-worker:
-    build: ./backend
+      - ./TaskChecker:/code
+      - /var/run/docker.sock:/var/run/docker.sock
     env_file:
       - .env
+    privileged: true
     depends_on:
-      - rabbitmq
-      - redis
-      - postgres-db
-    volumes:
-      - ./backend:/code
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: "celery -A celery_worker.worker worker -l info -Q check-solution-queue -c 1"
+      - kafka
     networks:
-      - rabbitmq-go-net
-      - redis-go-net
-      - db-backend
+      - zookeeper-kafka
+    stdin_open: true
 
-  celery-flower:
-    image: mher/flower:0.9.7
-    command: ["flower", "--broker=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672//", "--port=5555"]
+  chat:
+    build:
+      context: ./chat-frontend
+      dockerfile: Dockerfile.dev
+    # Windows bug with WSL 2: https://github.com/microsoft/WSL/issues/4739#issue-534049240
+    # ==========
+    environment:
+      - WATCHPACK_POLLING=true
+    # ==========
     ports:
-      - "5555:5555"
-    depends_on:
-      - rabbitmq
-      - redis
+      - 3341:3341
+    volumes:
+      - ./chat-frontend:/app
+      - /app/node_modules
     networks:
-      - rabbitmq-go-net
-      - redis-go-net
-
-
-
+      - frontend-services
+    stdin_open: true
 
 networks:
-  db-backend:
   backend-frontend:
-  rabbitmq-go-net:
-  redis-go-net:
+  zookeeper-kafka:
+  frontend-services:
 

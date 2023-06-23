@@ -1,8 +1,13 @@
-from enum import IntEnum
+from enum import IntEnum, Enum
 from typing import Optional
 
-from pydantic import BaseModel, StrictStr
+from pydantic import BaseModel, StrictStr, StrictInt
 from datetime import datetime
+
+
+class TestType(str, Enum):
+    PYTHON_IO = "PYTHON_IO"
+    PYTHON_UT = "PYTHON_UT"
 
 
 class SolutionDto(BaseModel):
@@ -13,16 +18,16 @@ class SolutionDto(BaseModel):
     group_id: int
     score: int
     code: StrictStr
-    status: StrictStr
-    time_start: datetime
+    status: StrictInt
+    # time_start: datetime
     time_finish: Optional[datetime]
     check_system_answer: Optional[StrictStr]
-    test_type: Optional[StrictStr]
+    test_type: TestType
     input_data: Optional[StrictStr]
     except_answer: Optional[StrictStr]
     user_answer: Optional[StrictStr]
     unit_test_code: Optional[StrictStr]
-    max_score: int
+    max_score: StrictInt
 
 
 class SolutionStatus(IntEnum):

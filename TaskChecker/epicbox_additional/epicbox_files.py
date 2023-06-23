@@ -9,7 +9,7 @@ class EpicboxFiles(FromClassToDict):
         self.files = files
 
     def get_files(self):
-        return self()
+        return list(map(EpicboxFile.get_file, self.files))
 
 
 if __name__ == "__main__":

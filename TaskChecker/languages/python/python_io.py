@@ -10,12 +10,18 @@ from services import TaskTestService, SolutionService
 
 
 class PythonIO(PythonCommon):
-
     def run_tests(self, *args, **kwargs):
         tests = TaskTestService.get_by_task_id(self.solution.task_id)
+        epicbox.configure(
+            profiles=[
+                epicbox.Profile('python', 'python:3.10.5-alpine')
+            ]
+        )
         if tests:
             for i, test in enumerate(tests, 1):
                 input_data = test.input_data.replace("\r", "") if test.input_data else "\n"
+                # print(self.limits.get_limtis())
+                # print(self.files.get_files())
                 test_result = epicbox.run('python', 'python3 main.py',
                                           files=self.files.get_files(),
                                           limits=self.limits.get_limtis(),
@@ -37,6 +43,8 @@ class PythonIO(PythonCommon):
                     logging.info([ord(c) for c in test_answer])
                     logging.info([ord(c) for c in accept_answer])
                     logging.info(test_answer == accept_answer)
+                    # TODO: answer
+                    self.solution.check_system_answer = ""
                     if test_answer != accept_answer:
                         self.solution.input_data = input_data
                         self.solution.except_answer = accept_answer
