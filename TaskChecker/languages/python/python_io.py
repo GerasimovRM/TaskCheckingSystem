@@ -1,16 +1,32 @@
 import logging
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 import epicbox
 
+from epicbox_additional import EpicboxLimits, EpicboxFile
+from epicbox_additional.epicbox_files import EpicboxFiles
 from languages.python.python_common import PythonCommon
-from models.solution import SolutionStatus
+from models.solution import SolutionStatus, SolutionDto
 from services import TaskTestService, SolutionService
 
 
 class PythonIO(PythonCommon):
+    def __init__(self,
+                 solution: SolutionDto,
+                 files: Optional[EpicboxFiles] = None,
+                 limits: Optional[EpicboxLimits] = None):
+        if not files:
+            files = EpicboxFiles([EpicboxFile("main.py", solution.code)])
+        else:
+            files = files
+        super().__init__(solution, files, limits)
+
     def run_tests(self, *args, **kwargs):
+        if self.check_pep8 and self.is_pep_8():
+            pass
+        else:
+            return False
         tests = TaskTestService.get_by_task_id(self.solution.task_id)
         self.solution.check_system_answer = ""
         if tests:
@@ -62,7 +78,6 @@ class PythonIO(PythonCommon):
             self.solution.status = SolutionStatus.COMPLETE
             self.solution.time_finish = datetime.now()
             self.solution.check_system_answer += "All test are accepted!"
-
         else:
             self.solution.check_system_answer += "This task dont have tests!"
         SolutionService.update(self.solution)

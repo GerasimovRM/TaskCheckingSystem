@@ -7,6 +7,7 @@ from typing import List, Optional
 import pycodestyle
 
 from epicbox_additional import EpicboxFile, EpicboxLimits
+from epicbox_additional.epicbox_files import EpicboxFiles
 from languages.multilanguage.multilanguage import Multilanguage
 from models import SolutionDto
 from contextlib import redirect_stdout
@@ -18,7 +19,7 @@ from services import SolutionService
 class PythonCommon(Multilanguage, ABC):
     def __init__(self,
                  solution: SolutionDto,
-                 files: Optional[List[EpicboxFile]] = None,
+                 files: EpicboxFiles,
                  limits: Optional[EpicboxLimits] = None,
                  check_pep8: bool = True):
         super().__init__(solution, files, limits)
@@ -42,7 +43,7 @@ class PythonCommon(Multilanguage, ABC):
             filter(lambda t: t.split(": ")[-1].startswith("E"), pep8_checker_out))
         pep8_checker_out_others = list(
             filter(lambda t: t not in pep8_checker_out_errors, pep8_checker_out))
-
+        self.solution.check_system_answer = ""
         if pep8_checker_out_errors:
             self.solution.check_system_answer += f"PEP8 Errors:\n" + '\n'.join(
                 pep8_checker_out_errors) + "\n"
