@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.processes import TaskCheckerProducer
 from database import Task, Solution, User
 from database.base_meta import initialize_database, get_session
 from models.site.token import Token
@@ -43,7 +44,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
-
 
 # app.state.database = database
 
@@ -101,6 +101,8 @@ async def test(current_user: User = Depends(get_admin),
 @app.on_event("startup")
 async def startup() -> None:
     await initialize_database()
+    producer = TaskCheckerProducer()
+    await producer.start()
     # TODO: rerun review solutions
     # session = get_session()
     # solutions_on_review = await SolutionService.get_user_solution_on_review()
@@ -110,8 +112,9 @@ async def startup() -> None:
 @app.on_event("shutdown")
 async def shutdown() -> None:
     # TODO: close connection
-    pass
+    producer = TaskCheckerProducer()
+    await producer.stop()
 
 
 if __name__ == "__main__":
-    uvicorn.run("server:app", host="127.0.0.1", port=5000, log_level="info")
+    uvicorn.run("server:app", host="0.0.0.0", port=5000, log_level="info")

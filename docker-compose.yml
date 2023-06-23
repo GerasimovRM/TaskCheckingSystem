@@ -1,6 +1,34 @@
 version: '3.8'
 
 services:
+  # https://vinybrasil.github.io/portfolio/kafkafastapiasync/
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: ${ZOOKEPER_PORT}
+      ZOOKEEPER_TICK_TIME: ${ZOOKEEPER_TICK_TIME}
+    ports:
+      - ${ZOOKEPER_PORT}:${ZOOKEPER_PORT}
+    networks:
+      zookeeper-kafka:
+
+  # https://vinybrasil.github.io/portfolio/kafkafastapiasync/
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - ${KAFKA_PORT}:29092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:${ZOOKEPER_PORT}
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      zookeeper-kafka:
+
   postgres-db:
     image: postgres
     ports:
@@ -35,18 +63,29 @@ services:
       - ./backend:/code
     env_file:
       - .env
-    environment:
-      - DEBUG=1
     ports:
       - "${BACKEND_PORT}:8000"
     restart: on-failure
     depends_on:
       - postgres-db
+      - kafka
     networks:
       - db-backend
-      - redis-go-net
-      - rabbitmq-go-net
       - backend-frontend
+      - zookeeper-kafka
+
+  task-checker:
+    build: ./TaskChecker
+    command: python3 main.py
+    volumes:
+      - ./TaskChecker:/code
+    env_file:
+      - .env
+    depends_on:
+      - kafka
+    networks:
+      - db-backend
+      - zookeper-kafka
 
   frontend:
     build: 
@@ -84,63 +123,8 @@ services:
     networks:
       - frontend-services
 
-  rabbitmq:
-    image: rabbitmq:3.5
-    environment:
-      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
-    ports:
-      - ${RABBITMQ_PORT}:5672
-      - ${RABBITMQ_PORT_ADD}:15672
-    volumes:
-      - ~/Volumes/rabbitmq/data:/var/lib/rabbitmq/mnesia
-      - ~/Volumes/rabbitmq/log:/var/log/rabbitmq
-    networks:
-      - rabbitmq-go-net
-
-  redis:
-    image: redis:7.0.4-alpine
-    command: --requirepass ${REDIS_PASSWORD}
-    ports:
-      - ${REDIS_PORT}:6379
-    volumes:
-      - ~/Volumes/redis:/data
-    networks:
-      - redis-go-net
-
-  celery-worker:
-    build: ./backend
-    env_file:
-      - .env
-    depends_on:
-      - rabbitmq
-      - redis
-      - postgres-db
-    volumes:
-      - ./backend:/code
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: "celery -A celery_worker.worker worker -l info -Q check-solution-queue -c 1"
-    networks:
-      - rabbitmq-go-net
-      - redis-go-net
-      - db-backend
-
-  celery-flower:
-    image: mher/flower:0.9.7
-    command: ["flower", "--broker=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:${RABBITMQ_PORT}//", "--port=${CELERY_FLOWER_PORT}"]
-    ports:
-      - "${CELERY_FLOWER_PORT}:${CELERY_FLOWER_PORT}"
-    depends_on:
-      - rabbitmq
-      - redis
-    networks:
-      - rabbitmq-go-net
-      - redis-go-net
-
 networks:
   db-backend:
   backend-frontend:
-  rabbitmq-go-net:
-  redis-go-net:
   frontend-services:
-
+  zookeeper-kafka:

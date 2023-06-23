@@ -1,10 +1,14 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, StrictInt
 
 from models.pydantic_sqlalchemy_core import SolutionDto
 
 
 class SolutionResponse(SolutionDto):
     pass
+
+
+class SolutionForTaskChecker(SolutionDto):
+    max_score: int
 
 
 class SolutionCheckerResponse(SolutionDto):

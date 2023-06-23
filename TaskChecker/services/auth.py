@@ -22,6 +22,8 @@ class AuthRequest(metaclass=MetaSingleton):
         req = requests.post(f"{self.base_url}/token",
                             data={"username": config.TASK_CHECKER_USERNAME,
                                   "password": config.TASK_CHECKER_PASSWORD})
+        print(req)
+        j = req.json()
         self.access_token = req.json().get("access_token")
         self.cookies = req.cookies
         self.token_type = req.json().get("token_type")

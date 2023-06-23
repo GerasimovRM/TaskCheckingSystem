@@ -82,7 +82,7 @@ async def authenticate_user(login: str, password: str, session: AsyncSession) ->
         )
     if not verify_password(password, user.password):
         raise HTTPException(
-            status_code=status.HTTP_403_NOT_FOUND,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Wrong password"
         )
     return user
@@ -114,13 +114,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme),
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[JWT_ALGORITHM])
-        user_id: str = payload.get("user_id")
+        user_id = int(payload.get("user_id"))
         if user_id is None:
             raise credentials_exception
-        token_data = TokenData(user_id=user_id)
     except JWTError:
         raise credentials_exception
-    user = await get_user(token_data.user_id, session)
+
+    user = await get_user(user_id, session)
     if user is None:
         raise credentials_exception
     return user
@@ -160,3 +160,5 @@ async def get_teacher_or_admin(current_user: User = Depends(get_current_active_u
 if __name__ == "__main__":
     password = input()
     print(get_password_hash(password))
+    "DCLHX)FGc5fujgIkb&v^29yh*zm@dtTsRP+xBEMSnw7eZq#VrJNpA(8U3!K4Q"
+    "DCLHX)FGc5fujgIkb&v^29yh*zm@dtTsRP+xBEMSnw7eZq#VrJNpA(8U3!K4Q"

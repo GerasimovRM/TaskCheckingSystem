@@ -1,3 +1,5 @@
+import logging
+
 import requests
 
 from models import SolutionDto
@@ -13,7 +15,7 @@ class SolutionService:
     def update(changed_solution: SolutionDto):
         request = AuthRequest()
         req = request("put", "/solution", data=changed_solution.json())
-        print(req.json())
+        logging.info(f"Send: {req.json()}")
         if req.status_code == 200:
             return req.json()
         else:

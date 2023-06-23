@@ -5,7 +5,10 @@ const webpack = require('webpack');
 
 const deps = require("./package.json").dependencies;
 module.exports = {
-
+    watch: true,
+    watchOptions: {
+        poll: 1000, // Check for changes every second
+    },
     mode: "development",
     output: {
         publicPath: "http://localhost:3000/",
@@ -83,10 +86,9 @@ module.exports = {
         new HtmlWebPackPlugin({
             template: "./public/index.html",
         }),
-        new Dotenv({path: "../.env"}),
-        /*
+        // new Dotenv({path: "../.env"}),
         new webpack.DefinePlugin({
             'process.env': JSON.stringify(process.env)
-        }),*/
+        }),
     ],
 };

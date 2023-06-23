@@ -8,14 +8,10 @@ from models import SolutionDto
 
 class Multilanguage(ABC):
     def __init__(self, solution: SolutionDto,
-                 files: Optional[EpicboxFiles],
-                 limits: Optional[EpicboxLimits]):
+                 files: EpicboxFiles,
+                 limits: Optional[EpicboxLimits] = None):
         self.solution: SolutionDto = solution.copy()
-
-        if not files:
-            self.files = EpicboxFiles([EpicboxFile("main.py", solution.code)])
-        else:
-            self.files = files
+        self.files = files
 
         self.limits = limits if limits else EpicboxLimits()
 

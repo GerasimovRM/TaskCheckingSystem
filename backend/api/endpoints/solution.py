@@ -5,13 +5,13 @@ from sqlalchemy import select, or_, func, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from celery_worker.worker import check_solution
+from api.processes import TaskCheckerProducer
 from database.solution import SolutionStatus, Solution
 from database.users_groups import UserGroupRole
 
 from database import User, UsersGroups, CoursesLessons, get_session, GroupsCourses, LessonsTasks
 from models.pydantic_sqlalchemy_core import SolutionDto
-from models.site.solution import SolutionsCountResponse, SolutionResponse
+from models.site.solution import SolutionsCountResponse, SolutionResponse, SolutionForTaskChecker
 from services.auth_service import get_current_active_user, get_admin, get_teacher_or_admin
 from services.courses_lessons_service import CoursesLessonsService
 from services.groups_courses_serivce import GroupsCoursesService
@@ -230,7 +230,7 @@ async def post_solution(group_id: int,
                         test_type=task.test_type)
     session.add(solution)
     await session.commit()
-    result = check_solution.delay(solution.id)
+    await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
     return SolutionResponse.from_orm(solution)
 
 
@@ -287,7 +287,8 @@ async def post_solution(group_id: int,
                         test_type=task.test_type)
     session.add(solution)
     await session.commit()
-    result = check_solution.delay(solution.id)
+    print(task.max_score)
+    await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
     return SolutionResponse.from_orm(solution)
 
 
@@ -305,7 +306,8 @@ async def rerun_solution_on_review(current_user: User = Depends(get_teacher_or_a
                                    session: AsyncSession = Depends(get_session)):
     solutions = await SolutionService.get_solutions_on_review(session)
     for solution in solutions:
-        result = check_solution.delay(solution.id)
+        task = await TaskService.get_task_by_id(solution.task_id, session)
+        await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
     return {"detail": "ok"}
 
 
@@ -319,7 +321,8 @@ async def rerun_solutions_by_task_id(task_id: int,
         solution.status = SolutionStatus.ON_REVIEW
         solution.score = 0
         await session.commit()
-        check_solution.delay(solution.id)
+        task = await TaskService.get_task_by_id(solution.task_id, session)
+        await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
 
 
 @router.post("/rerun_solutions_by_lesson_id")
@@ -335,7 +338,8 @@ async def rerun_solutions_by_task_id(lesson_id: int,
             solution.status = SolutionStatus.ON_REVIEW
             solution.score = 0
             await session.commit()
-            check_solution.delay(solution.id)
+            task = await TaskService.get_task_by_id(solution.task_id, session)
+            await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
 
 
 @router.post("/rerun_solution_by_id")
@@ -346,4 +350,5 @@ async def rerun_solutions_by_task_id(solution_id: int,
     solution.status = SolutionStatus.ON_REVIEW
     solution.score = 0
     await session.commit()
-    check_solution.delay(solution.id)
+    task = await TaskService.get_task_by_id(solution.task_id, session)
+    await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))

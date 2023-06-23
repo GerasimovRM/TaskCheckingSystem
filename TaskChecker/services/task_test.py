@@ -9,7 +9,10 @@ class TaskTestService:
     def get_by_task_id(task_id: int) -> List[TaskTestDto]:
         request = AuthRequest()
         req = request("get", "/task/tests", params={"task_id": task_id})
-        return list(map(lambda task_test_json: TaskTestDto(**task_test_json), req.json()))
+        # print(req)
+        j = req.json()
+        # print(j)
+        return list(map(lambda task_test_json: TaskTestDto(**task_test_json), j))
 
 
 if __name__ == "__main__":
