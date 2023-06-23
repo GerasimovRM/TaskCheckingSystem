@@ -22,7 +22,7 @@ class SolutionDto(BaseModel):
     # time_start: datetime
     time_finish: Optional[datetime]
     check_system_answer: Optional[StrictStr]
-    test_type: TestType
+    test_type: str
     input_data: Optional[StrictStr]
     except_answer: Optional[StrictStr]
     user_answer: Optional[StrictStr]

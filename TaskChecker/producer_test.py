@@ -4,6 +4,7 @@ import json
 
 import aiokafka
 
+from common.enum_encoder import EnumEncoder
 from config_loader import ConfigLoader
 from models import SolutionDto
 
@@ -12,7 +13,7 @@ async def produce():
     config = ConfigLoader()
     producer = aiokafka.AIOKafkaProducer(
         bootstrap_servers=config.KAFKA_URL,
-        value_serializer=lambda solution: json.dumps(solution.dict()).encode()
+        value_serializer=lambda solution: json.dumps(solution.dict(), cls=EnumEncoder).encode()
     )
     solution = SolutionDto(
         id=841,
@@ -27,8 +28,6 @@ async def produce():
         test_type="PYTHON_IO",
         max_score=1
     )
-
-    await producer.start()
     await producer.send(config.TASK_CHECKER_TOPIC_NAME, solution)
     await producer.stop()
 

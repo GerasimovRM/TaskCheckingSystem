@@ -31,6 +31,7 @@ class KafkaConsumer(AIOKafkaConsumer):
         while True:
             msg = await self.getone()
             solution: SolutionDto = msg.value
+            print(solution.test_type, type(solution.test_type))
             cls_test = get_class_by_test_type(solution.test_type)
             task_checker: Multilanguage = cls_test(solution)
             task_checker.run_tests()
