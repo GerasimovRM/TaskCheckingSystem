@@ -8,6 +8,7 @@ from sqlalchemy.orm import relationship
 from database.base_meta import BaseSQLAlchemyModel
 
 
+# !!! WARNING: class redirect to TaskChecker project !!!
 class SolutionStatus(IntEnum):
     NOT_SENT: int = -2
     ERROR: int = -1

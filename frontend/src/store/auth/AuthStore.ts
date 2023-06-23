@@ -7,10 +7,10 @@ import UserService from "../../services/UserService";
 import { AuthState } from "./types";
 
 export default class AuthStore implements AuthState {
-    user?: IUser;
+    user?: IUser = undefined;
     isAuth = false;
     isLoading = false;
-    error?: string;
+    error?: string = undefined;
 
     constructor() {
         makeAutoObservable(this, {}, {autoBind: true});

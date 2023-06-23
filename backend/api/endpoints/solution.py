@@ -5,13 +5,13 @@ from sqlalchemy import select, or_, func, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from celery_worker.worker import check_solution
+from api.processes import TaskCheckerProducer
 from database.solution import SolutionStatus, Solution
 from database.users_groups import UserGroupRole
 
 from database import User, UsersGroups, CoursesLessons, get_session, GroupsCourses, LessonsTasks
 from models.pydantic_sqlalchemy_core import SolutionDto
-from models.site.solution import SolutionsCountResponse, SolutionResponse
+from models.site.solution import SolutionsCountResponse, SolutionResponse, SolutionForTaskChecker
 from services.auth_service import get_current_active_user, get_admin, get_teacher_or_admin
 from services.courses_lessons_service import CoursesLessonsService
 from services.groups_courses_serivce import GroupsCoursesService
@@ -167,6 +167,16 @@ async def change_solution_score(solution_id: int,
     return SolutionResponse.from_orm(solution)
 
 
+@router.put("/", response_model=SolutionDto)
+async def put_solution(solution: SolutionDto,
+                       current_user: User = Depends(get_current_active_user),
+                       session: AsyncSession = Depends(get_session)):
+    solution_orm = await SolutionService.get_solution_by_id(solution.id, session)
+    solution_orm.update_by_pydantic(solution)
+    await session.commit()
+    return SolutionDto.from_orm(solution_orm)
+
+
 @router.post("/post_file", response_model=SolutionResponse)
 async def post_solution(group_id: int,
                         course_id: int,
@@ -208,18 +218,19 @@ async def post_solution(group_id: int,
                                                                                 task_id,
                                                                                 current_user.id,
                                                                                 session)
-    # TODO: update running tests in background tasks
     if last_solution_on_review:
         last_solution_on_review.status = SolutionStatus.ERROR
     code = await file.read()
+    task = await TaskService.get_task_by_id(task_id, session)
     solution = Solution(user_id=current_user.id,
                         group_id=group_id,
                         course_id=course_id,
                         task_id=task_id,
-                        code=code.decode("utf-8"))
+                        code=code.decode("utf-8"),
+                        test_type=task.test_type)
     session.add(solution)
     await session.commit()
-    result = check_solution.delay(solution.id)
+    await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
     return SolutionResponse.from_orm(solution)
 
 
@@ -260,7 +271,6 @@ async def post_solution(group_id: int,
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Bad access to task")
 
-
     last_solution_on_review = await SolutionService.get_user_solution_on_review(group_id,
                                                                                 course_id,
                                                                                 task_id,
@@ -277,7 +287,8 @@ async def post_solution(group_id: int,
                         test_type=task.test_type)
     session.add(solution)
     await session.commit()
-    result = check_solution.delay(solution.id)
+    print(task.max_score)
+    await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
     return SolutionResponse.from_orm(solution)
 
 
@@ -295,7 +306,8 @@ async def rerun_solution_on_review(current_user: User = Depends(get_teacher_or_a
                                    session: AsyncSession = Depends(get_session)):
     solutions = await SolutionService.get_solutions_on_review(session)
     for solution in solutions:
-        result = check_solution.delay(solution.id)
+        task = await TaskService.get_task_by_id(solution.task_id, session)
+        await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
     return {"detail": "ok"}
 
 
@@ -309,7 +321,8 @@ async def rerun_solutions_by_task_id(task_id: int,
         solution.status = SolutionStatus.ON_REVIEW
         solution.score = 0
         await session.commit()
-        check_solution.delay(solution.id)
+        task = await TaskService.get_task_by_id(solution.task_id, session)
+        await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
 
 
 @router.post("/rerun_solutions_by_lesson_id")
@@ -325,7 +338,8 @@ async def rerun_solutions_by_task_id(lesson_id: int,
             solution.status = SolutionStatus.ON_REVIEW
             solution.score = 0
             await session.commit()
-            check_solution.delay(solution.id)
+            task = await TaskService.get_task_by_id(solution.task_id, session)
+            await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
 
 
 @router.post("/rerun_solution_by_id")
@@ -336,4 +350,5 @@ async def rerun_solutions_by_task_id(solution_id: int,
     solution.status = SolutionStatus.ON_REVIEW
     solution.score = 0
     await session.commit()
-    check_solution.delay(solution.id)
+    task = await TaskService.get_task_by_id(solution.task_id, session)
+    await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))

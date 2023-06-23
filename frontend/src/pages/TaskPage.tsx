@@ -43,7 +43,7 @@ import { RootStoreContext } from "../context";
 import { observer } from "mobx-react-lite";
 
 // @ts-ignore
-// const Chat = React.lazy(() => import('chat/App'));
+//const Chat = React.lazy(() => import('chat/App'));
 
 const TaskPage = observer(() => {
     const RS = useContext(RootStoreContext);
@@ -52,7 +52,7 @@ const TaskPage = observer(() => {
     const [groupRole, setGroupRole] = useState<IGroupRole>()
     const {current_solution, isChanged: solutionIsChanged} = RS.solutionStore;
     const {user} = RS.authStore;
-    const {selectedUser} = RS.selectedUserStore;
+    const {selectedUser, setSelectedUser} = RS.selectedUserStore;
     
 
     const {isOpen, onOpen, onClose} = useDisclosure()
@@ -109,7 +109,7 @@ const TaskPage = observer(() => {
     useEffect(() => {
         if (selectedUser)
             SolutionService.getAllTaskSolutionsByUserId(groupId!, courseId!, taskId!, selectedUser.id).then((solutions) => {
-                setSolutions(solutions)
+                setSolutions(solutions.reverse())
             })
     }, [selectedUser])
     useEffect(() => {
@@ -268,7 +268,7 @@ const TaskPage = observer(() => {
                                                     </TabPanel>
                                                     <TabPanel>
                                                         <Suspense>
-
+                                                            {/*<Chat selectedUser={selectedUser} authUser={user}/>*/}
                                                         </Suspense>
                                                     </TabPanel>
                                                 </TabPanels>

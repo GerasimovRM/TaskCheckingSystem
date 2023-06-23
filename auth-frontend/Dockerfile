@@ -1,8 +1,8 @@
 FROM node:lts-alpine3.17 as build
 WORKDIR /build
-COPY . .
 ENV NODE_ENV=production
 RUN yarn
+COPY . .
 RUN yarn build
 RUN mv /build/dist /app
 

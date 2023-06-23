@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import Depends, APIRouter, HTTPException, status, Cookie
 from typing import Optional, List, Any
 
@@ -83,6 +85,7 @@ async def change_password(new_password: str,
                           current_password: Optional[str] = None,
                           current_user: User = Depends(get_current_user),
                           session: AsyncSession = Depends(get_session)):
+    logging.info(current_user.password)
     if not current_user.password and not current_password:
         current_user.password = get_password_hash(new_password)
     elif verify_password(current_password, current_user.password):

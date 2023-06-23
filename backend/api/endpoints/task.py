@@ -9,17 +9,19 @@ from starlette.responses import StreamingResponse
 
 from database.solution import SolutionStatus
 from database.users_groups import UserGroupRole, UsersGroups
-from models.pydantic_sqlalchemy_core import TaskDto
+from models.pydantic_sqlalchemy_core import TaskDto, TaskTestDto
 from models.site.group import GroupsResponse
-from models.site.task import TasksResponse, TaskCountForStudentResponse, TaskCountForTeacherResponse, TasksPostRequest
+from models.site.task import TasksResponse, TaskCountForStudentResponse, \
+    TaskCountForTeacherResponse, TasksPostRequest
 from services.auth_service import get_current_active_user, get_admin, get_teacher_or_admin
 from database import User, Group, get_session, GroupsCourses, CoursesLessons, Lesson, LessonsTasks, \
-    Solution, Image, ChatMessage
+    Solution, Image, ChatMessage, TaskTest
 from services.courses_lessons_service import CoursesLessonsService
 from services.groups_courses_serivce import GroupsCoursesService
 from services.lessons_tasks_service import LessonsTasksService
 from services.solution_service import SolutionService
 from services.task_service import TaskService
+from services.test_solution_service import TaskTestService
 from services.users_groups_service import UsersGroupsService
 
 router = APIRouter(
@@ -57,7 +59,8 @@ async def get_tasks(group_id: int,
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Bad access to lesson")
     lesson_tasks = await LessonsTasksService.get_lesson_tasks(lesson_id, session)
-    tasks_dto = list(map(lambda t: TaskDto(**t.task.to_dict(), task_type=t.task_type), lesson_tasks))
+    tasks_dto = list(
+        map(lambda t: TaskDto(**t.task.to_dict(), task_type=t.task_type), lesson_tasks))
     return TasksResponse(tasks=tasks_dto)
 
 
@@ -100,11 +103,20 @@ async def get_task(group_id: int,
     return task_dto
 
 
+@router.get("/tests", response_model=List[TaskTestDto])
+async def get_task_tests(task_id: int,
+                         current_user: User = Depends(get_current_active_user),
+                         session: AsyncSession = Depends(get_session)):
+    task_tests = await TaskTestService.get_by_task_id(task_id, session)
+    return list(map(lambda task_test: TaskTestDto.from_orm(task_test), task_tests))
+
+
 @router.put("/")
 async def put_tasks(tasks_json: TasksPostRequest,
                     current_user: User = Depends(get_admin),
-                    session: AsyncSession = Depends(get_session),):
+                    session: AsyncSession = Depends(get_session)):
     await TaskService.create_tasks_by_json(tasks_json.tasks, session)
+
 
 @router.post("/upload_image")
 async def upload_image(file: UploadFile = File(...),
@@ -220,4 +232,3 @@ async def get_task_count_for_teacher(group_id: int,
 
     return TaskCountForTeacherResponse(students_count=students_count,
                                        students_with_all_completed_tasks=students_with_all_completed_tasks)
-

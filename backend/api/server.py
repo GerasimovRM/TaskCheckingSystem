@@ -7,18 +7,20 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.processes import TaskCheckerProducer
 from database import Task, Solution, User
 from database.base_meta import initialize_database, get_session
 from models.site.token import Token
 from services.auth_service import create_access_token_user, create_refresh_token_user, \
     authenticate_user, get_password_hash, get_admin
-from api.endpoints import user_router, auth_router, group_router, admin_router,\
-    course_router, lesson_router, solution_router, task_router, chat_message_router, stat_router
+from api.endpoints import user_router, auth_router, group_router, admin_router, \
+    course_router, lesson_router, solution_router, task_router, chat_message_router, stat_router, \
+    test_router
 from services.solution_service import SolutionService
 from services.user_service import UserService
 
-
 import logging
+
 logging.basicConfig(level=logging.INFO)
 
 app = FastAPI(docs_url="/", openapi_url="/api_v1/openapi.json")
@@ -32,7 +34,7 @@ app.include_router(solution_router)
 app.include_router(task_router)
 app.include_router(chat_message_router)
 app.include_router(stat_router)
-
+app.include_router(test_router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -99,6 +101,8 @@ async def test(current_user: User = Depends(get_admin),
 @app.on_event("startup")
 async def startup() -> None:
     await initialize_database()
+    producer = TaskCheckerProducer()
+    await producer.start()
     # TODO: rerun review solutions
     # session = get_session()
     # solutions_on_review = await SolutionService.get_user_solution_on_review()
@@ -108,8 +112,9 @@ async def startup() -> None:
 @app.on_event("shutdown")
 async def shutdown() -> None:
     # TODO: close connection
-    pass
+    producer = TaskCheckerProducer()
+    await producer.stop()
 
 
 if __name__ == "__main__":
-    uvicorn.run("server:app", host="127.0.0.1", port=5000, log_level="info")
+    uvicorn.run("server:app", host="0.0.0.0", port=5000, log_level="info")

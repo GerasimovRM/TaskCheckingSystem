@@ -4,11 +4,11 @@ import {SelectedUserState} from "./types";
 
 export default class SelectedUserStore implements SelectedUserState {
     isLoading: boolean = false;
-    selectedUser?: IUser;
-    error?: string;
+    selectedUser?: IUser = undefined;
+    error?: string = undefined;
 
     constructor() {
-        makeAutoObservable(this);
+        makeAutoObservable(this, {}, {autoBind: true});
     }
 
     clearSelectedUser() {
@@ -17,6 +17,7 @@ export default class SelectedUserStore implements SelectedUserState {
         this.error = undefined;
     }
     setSelectedUser(user: IUser) {
+        console.log(user)
         this.selectedUser = user;
     }
     setSelectedError(error: string) {
