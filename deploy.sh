@@ -1,2 +1,2 @@
 git pull
-docker-compose up -d --build --scale celery-worker=4 --remove-orphans
+docker-compose up -d --build --scale task-checker=5 --remove-orphans

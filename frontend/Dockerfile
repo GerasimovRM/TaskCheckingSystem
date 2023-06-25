@@ -1,4 +1,4 @@
-FROM node:lts-alpine3.17 as build-stage
+FROM node:20.2-buster-slim as build-stage
 WORKDIR /usr/src/app
 COPY package.json ./
 RUN yarn

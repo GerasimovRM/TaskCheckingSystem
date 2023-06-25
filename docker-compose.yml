@@ -5,10 +5,10 @@ services:
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     environment:
-      ZOOKEEPER_CLIENT_PORT: ${ZOOKEPER_PORT}
+      ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_CLIENT_PORT}
       ZOOKEEPER_TICK_TIME: ${ZOOKEEPER_TICK_TIME}
     ports:
-      - ${ZOOKEPER_PORT}:${ZOOKEPER_PORT}
+      - ${ZOOKEEPER_CLIENT_PORT}:${ZOOKEEPER_CLIENT_PORT}
     networks:
       zookeeper-kafka:
 
@@ -21,7 +21,7 @@ services:
       - ${KAFKA_PORT}:29092
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:${ZOOKEPER_PORT}
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:${ZOOKEEPER_CLIENT_PORT}
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
@@ -79,13 +79,12 @@ services:
     command: python3 main.py
     volumes:
       - ./TaskChecker:/code
+      - /var/run/docker.sock:/var/run/docker.sock
     env_file:
       - .env
-    depends_on:
-      - kafka
     networks:
       - db-backend
-      - zookeper-kafka
+      - zookeeper-kafka
 
   frontend:
     build: 

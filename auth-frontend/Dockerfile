@@ -1,12 +1,15 @@
-FROM node:lts-alpine3.17 as build
+FROM node:20.2-buster-slim as build
 WORKDIR /build
 ENV NODE_ENV=production
-RUN yarn
+COPY package.json ./
+COPY yarn.lock ./
+RUN yarn install
+
 COPY . .
 RUN yarn build
 RUN mv /build/dist /app
 
-FROM node:lts-alpine3.17
+FROM node:20.2-buster-slim
 WORKDIR /app
 COPY --from=build /app .
 RUN npm install -g serve
