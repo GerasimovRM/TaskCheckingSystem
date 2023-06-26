@@ -86,9 +86,9 @@ module.exports = {
         new HtmlWebPackPlugin({
             template: "./public/index.html",
         }),
-        // new Dotenv({path: "../.env"}),
-        new webpack.DefinePlugin({
-            'process.env': JSON.stringify(process.env)
-        }),
+        new Dotenv({path: "../.env"}),
+        // new webpack.DefinePlugin({
+        //     'process.env': JSON.stringify(process.env)
+        // }),
     ],
 };

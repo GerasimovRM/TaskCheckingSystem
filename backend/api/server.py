@@ -1,4 +1,5 @@
 import os
+from random import random
 from typing import Optional
 
 from fastapi import FastAPI, Depends, HTTPException, status, Response, Cookie
@@ -19,6 +20,8 @@ from api.endpoints import user_router, auth_router, group_router, admin_router, 
 from services.solution_service import SolutionService
 from services.user_service import UserService
 
+from .test_w import router as chat_router
+
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -35,6 +38,8 @@ app.include_router(task_router)
 app.include_router(chat_message_router)
 app.include_router(stat_router)
 app.include_router(test_router)
+app.include_router(chat_router)
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -101,7 +106,7 @@ async def test(current_user: User = Depends(get_admin),
 @app.on_event("startup")
 async def startup() -> None:
     await initialize_database()
-    producer = TaskCheckerProducer()
+    producer = TaskCheckerProducer()  # Singleton instance
     await producer.start()
     # TODO: rerun review solutions
     # session = get_session()

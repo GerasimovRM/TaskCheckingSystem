@@ -38,7 +38,6 @@ async def create_access_token_user(user: User, session: AsyncSession) -> str:
     return jwt_token
 
 
-# TODO: async session context
 async def create_refresh_token_user(user: User,
                                     session: AsyncSession,
                                     refresh_token: Optional[str] = None) -> str:
@@ -64,7 +63,6 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-# TODO: async context
 async def get_user(user_id: int, session: AsyncSession) -> Optional[User]:
     query = await session.execute(select(User).where(User.id == int(user_id)))
     user = query.scalars().first()
@@ -156,9 +154,3 @@ async def get_teacher_or_admin(current_user: User = Depends(get_current_active_u
     else:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not teacher or admin")
 
-
-if __name__ == "__main__":
-    password = input()
-    print(get_password_hash(password))
-    "DCLHX)FGc5fujgIkb&v^29yh*zm@dtTsRP+xBEMSnw7eZq#VrJNpA(8U3!K4Q"
-    "DCLHX)FGc5fujgIkb&v^29yh*zm@dtTsRP+xBEMSnw7eZq#VrJNpA(8U3!K4Q"
