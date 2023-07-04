@@ -7,6 +7,7 @@ const deps = require("./package.json").dependencies;
 module.exports = {
     watch: true,
     watchOptions: {
+        aggregateTimeout: 300,
         poll: 1000, // Check for changes every second
     },
     mode: "development",

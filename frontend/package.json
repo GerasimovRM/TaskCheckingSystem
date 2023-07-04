@@ -6,7 +6,7 @@
     "build": "webpack --config webpack.config.prod.js --mode production",
     "build:dev": "webpack --mode development",
     "build:start": "cd dist && PORT=3000 npx serve",
-    "start:dev": "webpack-dev-server --host 0.0.0.0 --hot",
+    "start": "webpack-dev-server --config webpack.config.js --host 0.0.0.0 --hot",
     "start:live": "webpack serve --open --mode development --live-reload --hot"
   },
   "dependencies": {

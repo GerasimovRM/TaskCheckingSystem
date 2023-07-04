@@ -1,4 +1,5 @@
 import os
+from asyncio import sleep
 from random import random
 from typing import Optional
 
@@ -6,6 +7,7 @@ from fastapi import FastAPI, Depends, HTTPException, status, Response, Cookie
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+from kafka.errors import KafkaConnectionError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.processes import TaskCheckerProducer
@@ -25,8 +27,8 @@ from .test_w import router as chat_router
 import logging
 
 logging.basicConfig(level=logging.INFO)
-
 app = FastAPI(docs_url="/", openapi_url="/api_v1/openapi.json")
+
 app.include_router(admin_router)
 app.include_router(auth_router)
 app.include_router(user_router)
@@ -107,7 +109,13 @@ async def test(current_user: User = Depends(get_admin),
 async def startup() -> None:
     await initialize_database()
     producer = TaskCheckerProducer()  # Singleton instance
-    await producer.start()
+    # убрать сельхоз технику
+    while True:
+        try:
+            await producer.start()
+            break
+        except KafkaConnectionError:
+            await sleep(3)
     # TODO: rerun review solutions
     # session = get_session()
     # solutions_on_review = await SolutionService.get_user_solution_on_review()

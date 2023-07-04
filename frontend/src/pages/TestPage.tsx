@@ -16,13 +16,13 @@ export const TestPage = () => {
     const [messages, setMessages] = useState<string[]>([]);
     const [wsNeedClose, setWsNeedClose] = useState<boolean>(false)
     useEffect(()=> {
-        ws.current = new WebSocket("ws://localhost:5500/chat/ws/1")
+        ws.current = new WebSocket("ws://localhost:5500/chat/ws")
     }, [])
     useEffect(() => {
         if (ws.current) {
             ws.current.onmessage = function (event) {
                 setMessages(msg => [...msg, event.data.toString()])
-                // sendMessage(event)
+                sendMessage(event)
             }
             ws.current.onopen = function (event) {
                 sendMessage(event)
@@ -33,7 +33,7 @@ export const TestPage = () => {
         }
         return () => {
             console.log(ws.current, 'im closing!')
-            ws.current.close()
+            ws.current?.close()
         }
     }, [ws])
     // @ts-ignore
@@ -50,7 +50,7 @@ export const TestPage = () => {
             <h1>WebSocket Chat</h1>
             <form action="">
                 <input type="text" id="messageText" autoComplete="off"/>
-                <button>Send</button>
+                <button onClick={sendMessage}>Send</button>
             </form>
             {messages.map((message) => {
                 return <p>{message}</p>

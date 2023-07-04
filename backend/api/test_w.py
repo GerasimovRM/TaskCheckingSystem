@@ -84,27 +84,62 @@ notifier = Notifier()
 
 active_websockets = []
 
-queue = asyncio.queues.Queue()
 
-
-@router.websocket("/ws/{item_id}")
-async def websocket_endpoint(websocket: WebSocket, item_id: int):
-    print(websocket.session)
+@router.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    # await for connections
     await websocket.accept()
+    queue = asyncio.queues.Queue()
+    #
+    #     async def read_from_socket(websocket: WebSocket):
+    #         async for data in websocket.iter_text():
+    #             print(f"putting {data} in the queue")
+    #             queue.put_nowait(data)
+    #
+    #     async def get_data_and_send():
+    #         while True:
+    #             data = await queue.get()
+    #             print(f'data->{data}')
+    #             fetch_task = await websocket.send_text(data)
+    #             print(fetch_task)
+    #
+    #     await asyncio.gather(read_from_socket(websocket), get_data_and_send())
+    try:
+        # send "Connection established" message to client
+        await websocket.send_text("Connection established!")
 
-    async def read_from_socket(websocket: WebSocket):
-        async for data in websocket.iter_text():
-            print(f"putting {data} in the queue")
-            queue.put_nowait(data)
-
-    async def get_data_and_send():
+        # await for messages and send messages
         while True:
-            data = await queue.get()
-            print(f'data->{data}')
-            fetch_task = await websocket.send_text(data)
-            print(fetch_task)
+            msg = await websocket.receive_text()
+            if msg.lower() == "close":
+                await websocket.close()
+                break
+            else:
+                print(f'CLIENT says - {msg}')
+                await websocket.send_text(f"Your message was: {msg}")
 
-    await asyncio.gather(read_from_socket(websocket), get_data_and_send())
+    except WebSocketDisconnect:
+        print("Client disconnected")
+
+# @router.websocket("/ws")
+# async def websocket_endpoint(websocket: WebSocket):
+#     print(websocket.session)
+#     await websocket.accept()
+#     queue = asyncio.queues.Queue()
+#
+#     async def read_from_socket(websocket: WebSocket):
+#         async for data in websocket.iter_text():
+#             print(f"putting {data} in the queue")
+#             queue.put_nowait(data)
+#
+#     async def get_data_and_send():
+#         while True:
+#             data = await queue.get()
+#             print(f'data->{data}')
+#             fetch_task = await websocket.send_text(data)
+#             print(fetch_task)
+#
+#     await asyncio.gather(read_from_socket(websocket), get_data_and_send())
 
 # @router.websocket("/ws")
 # async def websocket_endpoint(websocket: WebSocket):
@@ -112,7 +147,6 @@ async def websocket_endpoint(websocket: WebSocket, item_id: int):
 #     print('ws open')
 #     try:
 #         while True:
-#             await we
 #             data = await websocket.receive_text()
 #             await websocket.send_text(f"Message text was: {data}")
 #     except WebSocketDisconnect:
@@ -127,7 +161,7 @@ async def push_to_connected_websockets(message: str):
 async def end_msg(message: str):
     await queue.put(message)
 
-@router.on_event("startup")
-async def startup():
-    # Prime the push notification generator
-    await notifier.generator.asend(None)
+# @router.on_event("startup")
+# async def startup():
+#     # Prime the push notification generator
+#     await notifier.generator.asend(None)
