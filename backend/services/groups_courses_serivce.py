@@ -26,3 +26,19 @@ class GroupsCoursesService:
                                       .options(joinedload(GroupsCourses.course)))
         group_course = query.scalars().first()
         return group_course
+
+    @staticmethod
+    async def get_relations_by_group(group_id: int,
+                                     session: AsyncSession) -> GroupsCourses:
+        query = await session.execute(select(GroupsCourses)
+                                      .where(GroupsCourses.group_id == group_id))
+        group_course = query.scalars().all()
+        return group_course
+
+    @staticmethod
+    async def get_relations_by_course(course_id: int,
+                                      session: AsyncSession) -> GroupsCourses:
+        query = await session.execute(select(GroupsCourses)
+                                      .where(GroupsCourses.course_id == course_id))
+        group_course = query.scalars().all()
+        return group_course

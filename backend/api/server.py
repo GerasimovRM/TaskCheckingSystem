@@ -15,7 +15,7 @@ from services.auth_service import create_access_token_user, create_refresh_token
     authenticate_user, get_password_hash, get_admin
 from api.endpoints import user_router, auth_router, group_router, admin_router, \
     course_router, lesson_router, solution_router, task_router, chat_message_router, stat_router, \
-    test_router
+    test_router, lessons_tasks_router, courses_lessons_router, groups_courses_router
 from services.solution_service import SolutionService
 from services.user_service import UserService
 
@@ -35,6 +35,9 @@ app.include_router(task_router)
 app.include_router(chat_message_router)
 app.include_router(stat_router)
 app.include_router(test_router)
+app.include_router(lessons_tasks_router)
+app.include_router(courses_lessons_router)
+app.include_router(groups_courses_router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -101,8 +104,8 @@ async def test(current_user: User = Depends(get_admin),
 @app.on_event("startup")
 async def startup() -> None:
     await initialize_database()
-    producer = TaskCheckerProducer()
-    await producer.start()
+    # producer = TaskCheckerProducer()
+    # await producer.start()
     # TODO: rerun review solutions
     # session = get_session()
     # solutions_on_review = await SolutionService.get_user_solution_on_review()
@@ -112,8 +115,9 @@ async def startup() -> None:
 @app.on_event("shutdown")
 async def shutdown() -> None:
     # TODO: close connection
-    producer = TaskCheckerProducer()
-    await producer.stop()
+    # producer = TaskCheckerProducer()
+    # await producer.stop()
+    pass
 
 
 if __name__ == "__main__":

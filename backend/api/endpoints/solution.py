@@ -230,7 +230,7 @@ async def post_solution(group_id: int,
                         test_type=task.test_type)
     session.add(solution)
     await session.commit()
-    await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
+    # await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
     return SolutionResponse.from_orm(solution)
 
 
@@ -288,7 +288,7 @@ async def post_solution(group_id: int,
     session.add(solution)
     await session.commit()
     print(task.max_score)
-    await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
+    # await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
     return SolutionResponse.from_orm(solution)
 
 
@@ -307,7 +307,7 @@ async def rerun_solution_on_review(current_user: User = Depends(get_teacher_or_a
     solutions = await SolutionService.get_solutions_on_review(session)
     for solution in solutions:
         task = await TaskService.get_task_by_id(solution.task_id, session)
-        await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
+        # await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
     return {"detail": "ok"}
 
 
@@ -322,7 +322,7 @@ async def rerun_solutions_by_task_id(task_id: int,
         solution.score = 0
         await session.commit()
         task = await TaskService.get_task_by_id(solution.task_id, session)
-        await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
+        # await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
 
 
 @router.post("/rerun_solutions_by_lesson_id")
@@ -339,7 +339,7 @@ async def rerun_solutions_by_task_id(lesson_id: int,
             solution.score = 0
             await session.commit()
             task = await TaskService.get_task_by_id(solution.task_id, session)
-            await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
+            # await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
 
 
 @router.post("/rerun_solution_by_id")
@@ -351,4 +351,4 @@ async def rerun_solutions_by_task_id(solution_id: int,
     solution.score = 0
     await session.commit()
     task = await TaskService.get_task_by_id(solution.task_id, session)
-    await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
+    # await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))

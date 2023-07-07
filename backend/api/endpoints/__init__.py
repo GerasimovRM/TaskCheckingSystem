@@ -9,3 +9,6 @@ from .admin import router as admin_router
 from .chat_message import router as chat_message_router
 from .stat import router as stat_router
 from .test import router as test_router
+from .lessons_tasks import router as lessons_tasks_router
+from .courses_lessons import router as courses_lessons_router
+from .groups_courses import router as groups_courses_router

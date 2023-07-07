@@ -2,7 +2,7 @@ from typing import Optional
 
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from database import User, Group, Course, Lesson, Task, Solution, ChatMessage, CoursesLessons, \
-    TaskTest
+    TaskTest, LessonsTasks, GroupsCourses
 
 CourseDto = sqlalchemy_to_pydantic(Course)
 LessonDto = sqlalchemy_to_pydantic(Lesson)
@@ -23,6 +23,8 @@ UserDto = sqlalchemy_to_pydantic(User)
 SolutionDto = sqlalchemy_to_pydantic(Solution)
 ChatMessageDto = sqlalchemy_to_pydantic(ChatMessage)
 TaskTestDto = sqlalchemy_to_pydantic(TaskTest)
+LessonsTasksDto = sqlalchemy_to_pydantic(LessonsTasks)
+GroupsCoursesDto = sqlalchemy_to_pydantic(GroupsCourses)
 
 UserDto.__fields__.pop("password")
 UserDto.__fields__.pop("vk_access_token")
