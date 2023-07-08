@@ -24,6 +24,7 @@ from services.task_service import TaskService
 from services.test_solution_service import TaskTestService
 from services.users_groups_service import UsersGroupsService
 
+
 router = APIRouter(
     prefix="/task",
     tags=["task"]
@@ -41,23 +42,15 @@ async def get_tasks(group_id: int,
     user_group = await UsersGroupsService.get_user_group(current_user.id,
                                                          group_id,
                                                          session)
-    if not user_group:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to group")
     # check group access
-    group_course = await GroupsCoursesService.get_group_course(group_id, course_id, session)
-    if not group_course:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to course")
+    group_course = await GroupsCoursesService.get_group_course(group_id,
+                                                               course_id,
+                                                               session)
+    # check lesson access
     course_lesson = await CoursesLessonsService.get_course_lesson(course_id,
                                                                   lesson_id,
                                                                   session)
-    if not course_lesson:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to lesson")
+
     lesson_tasks = await LessonsTasksService.get_lesson_tasks(lesson_id, session)
     tasks_dto = list(
         map(lambda t: TaskDto(**t.task.to_dict(), task_type=t.task_type), lesson_tasks))
@@ -75,29 +68,19 @@ async def get_task(group_id: int,
     user_group = await UsersGroupsService.get_user_group(current_user.id,
                                                          group_id,
                                                          session)
-    if not user_group:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to group")
+    # check course access
     group_course = await GroupsCoursesService.get_group_course(group_id,
                                                                course_id,
                                                                session)
-    if not group_course:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to course")
+    # check lesson access
     course_lesson = await CoursesLessonsService.get_course_lesson(course_id,
                                                                   lesson_id,
                                                                   session)
-    if not course_lesson:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to lesson")
-    lesson_task = await LessonsTasksService.get_lesson_task(lesson_id, task_id, session)
-    if not lesson_task:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to task")
+    # check task access
+    lesson_task = await LessonsTasksService.get_lesson_task(lesson_id,
+                                                            task_id,
+                                                            session)
+    
     task = await TaskService.get_task_by_id(lesson_task.task_id, session)
     task_dto = TaskDto.from_orm(task)
     return task_dto

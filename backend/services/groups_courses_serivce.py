@@ -1,3 +1,5 @@
+from fastapi import HTTPException, status
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
@@ -14,6 +16,11 @@ class GroupsCoursesService:
                                       .where(GroupsCourses.group_id == group_id)
                                       .where(GroupsCourses.course_id == course_id))
         group_course = query.scalars().first()
+        
+        if not group_course:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                detail="Bad access to course")
+        
         return group_course
 
     @staticmethod

@@ -17,6 +17,7 @@ from services.groups_courses_serivce import GroupsCoursesService
 from services.lesson_service import LessonService
 from services.users_groups_service import UsersGroupsService
 
+
 router = APIRouter(
     prefix="/lesson",
     tags=["lesson"]
@@ -32,20 +33,14 @@ async def get_lessons(group_id: int,
     user_group = await UsersGroupsService.get_user_group(current_user.id,
                                                          group_id,
                                                          session)
-    if not user_group:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to group")
-
+    # check course access
     group_course = await GroupsCoursesService.get_group_course(group_id,
                                                                course_id,
                                                                session)
-    if not group_course:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to course")
+
     course = await CourseService.get_course(course_id, session)
     course_lessons = await CoursesLessonsService.get_course_lessons(course_id, session)
+
     if user_group.role == UserGroupRole.STUDENT:
         lessons_dto = list(map(lambda t: LessonDto.from_orm(t.lesson),
                                filter(lambda c_l: not c_l.is_hidden, course_lessons)))
@@ -53,6 +48,7 @@ async def get_lessons(group_id: int,
         lessons_dto = list(map(lambda t: LessonDtoWithHiddenFlag(**t.lesson.to_dict(),
                                                                  is_hidden=t.is_hidden),
                                course_lessons))
+        
     return LessonsResponse(lessons=lessons_dto,
                            course_name=course.name,
                            course_description=course.description)
@@ -64,21 +60,14 @@ async def get_lesson(group_id: int,
                      lesson_id: int,
                      current_user: User = Depends(get_current_active_user),
                      session: AsyncSession = Depends(get_session)) -> LessonResponse:
+    # check group access
     user_group = await UsersGroupsService.get_user_group(current_user.id,
                                                          group_id,
                                                          session)
-    if not user_group:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to group")
-
+    # check course access
     group_course = await GroupsCoursesService.get_group_course(group_id,
                                                                course_id,
                                                                session)
-    if not group_course:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to course")
 
     course_lesson = await CoursesLessonsService.get_course_lesson_with_lesson(course_id,
                                                                               lesson_id,
@@ -91,6 +80,7 @@ async def post_lesson(lesson_request: LessonPostRequest,
                       current_user: User = Depends(get_teacher_or_admin),
                       session: AsyncSession = Depends(get_session)) -> LessonResponse:
     lesson = Lesson(**lesson_request.dict())
+    
     session.add(lesson)
     await session.commit()
     return LessonResponse.from_orm(lesson)
@@ -102,6 +92,7 @@ async def put_lesson(lesson_request: LessonRequest,
                      session: AsyncSession = Depends(get_session)) -> LessonResponse:
     lesson = await LessonService.get_lesson(lesson_request.id, session)
     lesson.update_by_pydantic(lesson_request)
+
     await session.commit()
     return LessonResponse.from_orm(lesson)
 
@@ -111,5 +102,6 @@ async def delete_lesson(lesson_id: int,
                         current_user: User = Depends(get_current_active_user),
                         session: AsyncSession = Depends(get_session)):
     lesson = await LessonService.get_lesson(lesson_id, session)
+    
     await session.delete(lesson)
     return {"detail": "ok"}  # TODO: common classes

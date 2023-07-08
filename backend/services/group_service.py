@@ -1,4 +1,5 @@
 from typing import List
+from fastapi import HTTPException, status
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,6 +16,11 @@ class GroupService:
         query = await session.execute(select(Group)
                                       .where(Group.id == group_id))
         group = query.scalars().first()
+
+        if not group:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"Group with id {group_id} not found")
+
         return group
 
     @staticmethod

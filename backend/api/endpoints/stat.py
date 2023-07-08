@@ -25,6 +25,7 @@ from services.task_service import TaskService
 from services.user_service import UserService
 from services.users_groups_service import UsersGroupsService
 
+
 router = APIRouter(
     prefix="/stat",
     tags=["stat"]
@@ -37,21 +38,18 @@ async def get_table_for_teacher(group_id: int,
                                 current_user: User = Depends(get_teacher),
                                 session: AsyncSession = Depends(
                                     get_session)) -> TableDataForTeacher:
+    # check group access
     user_group = await UsersGroupsService.get_user_group(current_user.id,
                                                          group_id,
                                                          session)
-    if user_group.role == UserGroupRole.STUDENT or not user_group:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to group")
+    if user_group.role == UserGroupRole.STUDENT:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail="Not enough rights")
 
+    # check course access
     group_course = await GroupsCoursesService.get_group_course(group_id,
                                                                course_id,
                                                                session)
-    if not group_course:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to course")
 
     lessons = await LessonService.get_lessons_by_course_id(course_id, session)
     lessons_dto: List[LessonDataForTeacher] = []
@@ -102,18 +100,11 @@ async def get_course_stat_for_student(group_id: int,
     user_group = await UsersGroupsService.get_user_group(current_user.id,
                                                          group_id,
                                                          session)
-    if not user_group:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to group")
-
+    # check course access
     group_course = await GroupsCoursesService.get_group_course(group_id,
                                                                course_id,
                                                                session)
-    if not group_course:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to course")
+
     course = await CourseService.get_course(course_id, session)
     course_lessons = await CoursesLessonsService.get_course_lessons(course_id, session)
     lessons = list(map(lambda c_l: c_l.lesson, course_lessons))
@@ -148,24 +139,17 @@ async def get_lessons_stat_for_student(group_id: int,
     user_group = await UsersGroupsService.get_user_group(current_user.id,
                                                          group_id,
                                                          session)
-    if not user_group or user_group.role != UserGroupRole.STUDENT:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to group")
+    if user_group.role != UserGroupRole.STUDENT:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail="Wrong role")
 
+    # check course access
     group_course = await GroupsCoursesService.get_group_course(group_id,
                                                                course_id,
                                                                session)
-    if not group_course:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to course")
-
+    # check lesson access
     course_lesson = await CoursesLessonsService.get_course_lesson(course_id, lesson_id, session)
-    if not course_lesson:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to lesson")
+
     lesson = await LessonService.get_lesson(lesson_id, session)
     tasks = await TaskService.get_tasks_by_lesson_id(lesson.id, session)
     best_solutions = [await SolutionService.get_best_user_solution(group_id,
@@ -188,21 +172,18 @@ async def get_rating_for_teacher(group_id: int,
                                  course_id: int,
                                  current_user: User = Depends(get_current_active_user),
                                  session=Depends(get_session)):
+    # check group access
     user_group = await UsersGroupsService.get_user_group(current_user.id,
                                                          group_id,
                                                          session)
-    if user_group.role == UserGroupRole.STUDENT or not user_group:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to group")
+    if user_group.role == UserGroupRole.STUDENT:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail="Not enough rights")
 
+    # check course access
     group_course = await GroupsCoursesService.get_group_course(group_id,
                                                                course_id,
                                                                session)
-    if not group_course:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to course")
 
     lessons = await LessonService.get_lessons_by_course_id(course_id, session)
     users = await UserService.get_students_by_group_id(group_id, session)

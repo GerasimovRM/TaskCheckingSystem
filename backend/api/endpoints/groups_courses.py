@@ -25,21 +25,13 @@ async def post_groups_courses(req: GroupsCoursesDto,
     return GroupsCoursesDto.from_orm(db_item)
 
 
-# TODO: what to do with GET though? the only info stored is IDs
-
-
 @router.put('/', response_model=GroupsCoursesDto)
 async def put_groups_courses(req: GroupsCoursesDto,
                              current_user: User = Depends(get_current_active_user),
                              session: AsyncSession = Depends(get_session)):
-    db_item = await GroupsCoursesService.get_group_course(req.group_id, req.course_id, session)
-
-    if not db_item:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f'Can\'t find group-course relation \
-                                     by id {req.group_id}-{req.course_id}')
-    
+    db_item = await GroupsCoursesService.get_group_course(req.group_id, req.course_id, session)    
     db_item.update_by_pydantic(req)
+
     await session.commit()
     return GroupsCoursesDto.from_orm(db_item)
 
@@ -50,10 +42,6 @@ async def delete_groups_courses(group_id: int,
                                 current_user: User = Depends(get_current_active_user),
                                 session: AsyncSession = Depends(get_session)):
     db_item = await GroupsCoursesService.get_group_course(group_id, course_id, session)
-
-    if not db_item:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f'Can\'t find group-course relation by id {group_id}-{course_id}')
     
     await session.delete(db_item)
     return {'detail': 'ok'}

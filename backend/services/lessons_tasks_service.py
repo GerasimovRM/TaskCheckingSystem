@@ -1,4 +1,5 @@
 from typing import List
+from fastapi import HTTPException, status
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,6 +17,11 @@ class LessonsTasksService:
                                       .where(LessonsTasks.lesson_id == lesson_id,
                                              LessonsTasks.task_id == task_id))
         lesson_task = query.scalars().first()
+
+        if not lesson_task:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                detail="Bad access to task")
+
         return lesson_task
 
     @staticmethod

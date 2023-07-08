@@ -21,6 +21,7 @@ from services.task_service import TaskService
 from services.user_service import UserService
 from services.users_groups_service import UsersGroupsService
 
+
 router = APIRouter(
     prefix="/solution",
     tags=["solution"]
@@ -145,15 +146,14 @@ async def change_solution_score(solution_id: int,
                                 current_user: User = Depends(get_current_active_user),
                                 session: AsyncSession = Depends(get_session)):
     solution = await SolutionService.get_solution_by_id(solution_id, session)
-    is_admin = UserService.is_admin(current_user.id,
-                                    session)
     user_group = await UsersGroupsService.get_user_group(solution.user_id,
                                                          solution.group_id,
                                                          session)
-    if not user_group and not is_admin and user_group.role == UserGroupRole.STUDENT:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to solution")
+    
+    if user_group.role == UserGroupRole.STUDENT:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail="Not enough rights")
+    
     if is_rework or new_score == 0:
         solution.score = 0
         solution.status = SolutionStatus.ERROR
@@ -163,6 +163,7 @@ async def change_solution_score(solution_id: int,
             solution.status = SolutionStatus.COMPLETE
         else:
             solution.status = SolutionStatus.COMPLETE_NOT_MAX
+
     await session.commit()
     return SolutionResponse.from_orm(solution)
 
@@ -173,6 +174,7 @@ async def put_solution(solution: SolutionDto,
                        session: AsyncSession = Depends(get_session)):
     solution_orm = await SolutionService.get_solution_by_id(solution.id, session)
     solution_orm.update_by_pydantic(solution)
+
     await session.commit()
     return SolutionDto.from_orm(solution_orm)
 
@@ -189,30 +191,19 @@ async def post_solution(group_id: int,
     user_group = await UsersGroupsService.get_user_group(current_user.id,
                                                          group_id,
                                                          session)
-    if not user_group:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to group")
+    # check course access
     group_course = await GroupsCoursesService.get_group_course(group_id,
                                                                course_id,
                                                                session)
-    if not group_course:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to course")
+    # check lesson access
     course_lesson = await CoursesLessonsService.get_course_lesson(course_id,
                                                                   lesson_id,
                                                                   session)
-    if not course_lesson:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to lesson")
-    lesson_task = await LessonsTasksService.get_lesson_task(lesson_id, task_id, session)
-    if not lesson_task:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to task")
-
+    # check task access
+    lesson_task = await LessonsTasksService.get_lesson_task(lesson_id,
+                                                            task_id,
+                                                            session)
+    
     last_solution_on_review = await SolutionService.get_user_solution_on_review(group_id,
                                                                                 course_id,
                                                                                 task_id,
@@ -246,30 +237,18 @@ async def post_solution(group_id: int,
     user_group = await UsersGroupsService.get_user_group(current_user.id,
                                                          group_id,
                                                          session)
-    if not user_group:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to group")
+    # check course access
     group_course = await GroupsCoursesService.get_group_course(group_id,
                                                                course_id,
                                                                session)
-
-    if not group_course:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to course")
+    # check lesson access
     course_lesson = await CoursesLessonsService.get_course_lesson(course_id,
                                                                   lesson_id,
                                                                   session)
-    if not course_lesson:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to lesson")
-    lesson_task = await LessonsTasksService.get_lesson_task(lesson_id, task_id, session)
-    if not lesson_task:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to task")
+    # check task access
+    lesson_task = await LessonsTasksService.get_lesson_task(lesson_id,
+                                                            task_id,
+                                                            session)
 
     last_solution_on_review = await SolutionService.get_user_solution_on_review(group_id,
                                                                                 course_id,
@@ -297,6 +276,7 @@ async def delete_solution(solution_id: int,
                           current_user: User = Depends(get_admin),
                           session: AsyncSession = Depends(get_session)):
     solution = await SolutionService.get_solution_by_id(solution_id, session)
+    
     await session.delete(solution)
     return {"detail": "ok"}
 

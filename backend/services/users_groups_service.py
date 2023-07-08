@@ -1,4 +1,5 @@
 from typing import List
+from fastapi import HTTPException, status
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,7 +7,7 @@ from sqlalchemy.orm import joinedload
 
 from database import UsersGroups, User
 from database.users_groups import UserGroupRole
-
+from services.user_service import UserService
 
 class UsersGroupsService:
     @staticmethod
@@ -17,6 +18,11 @@ class UsersGroupsService:
                                       .where(UsersGroups.user_id == user_id,
                                              UsersGroups.group_id == group_id))
         user_group = query.scalars().first()
+
+        if not user_group and not UserService.is_admin(user_id, session):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                detail="Bad access to group")
+
         return user_group
 
     @staticmethod
@@ -37,6 +43,11 @@ class UsersGroupsService:
                                              UsersGroups.group_id == group_id,
                                              UsersGroups.role != UserGroupRole.STUDENT))
         user_group = query.scalars().first()
+
+        if not user_group:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                detail="Bad access to group")
+
         return user_group
 
     @staticmethod

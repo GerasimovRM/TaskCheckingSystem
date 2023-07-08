@@ -24,6 +24,7 @@ from services.refresh_token_service import RefreshTokenService
 from services.user_service import UserService
 from services.vk_service import get_vk_user_with_photo
 
+
 router = APIRouter(
     prefix="/auth",
     tags=["auth"]

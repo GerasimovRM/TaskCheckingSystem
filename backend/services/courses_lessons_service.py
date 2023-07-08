@@ -1,4 +1,5 @@
 from typing import List
+from fastapi import HTTPException, status
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,6 +17,11 @@ class CoursesLessonsService:
                                       .where(CoursesLessons.course_id == course_id,
                                              CoursesLessons.lesson_id == lesson_id))
         course_lesson = query.scalars().first()
+
+        if not course_lesson:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                detail="Bad access to lesson")
+
         return course_lesson
 
     @staticmethod
@@ -35,8 +41,6 @@ class CoursesLessonsService:
         query = await session.execute(select(CoursesLessons)
                                       .where(CoursesLessons.course_id == course_id,
                                              CoursesLessons.lesson_id == lesson_id)
-                                      .options(
-            joinedload(CoursesLessons.lesson)
-        ))
+                                      .options(joinedload(CoursesLessons.lesson)))
         course_lesson = query.scalars().first()
         return course_lesson

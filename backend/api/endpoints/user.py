@@ -19,6 +19,7 @@ from services.solution_service import SolutionService
 from services.user_service import UserService
 from services.users_groups_service import UsersGroupsService
 
+
 router = APIRouter(
     prefix="/user",
     tags=["user"]
@@ -30,10 +31,6 @@ async def get_user_by_id(user_id: int,
                          current_user: User = Depends(get_current_active_user),
                          session: AsyncSession = Depends(get_session)) -> UserDto:
     user = await UserService.get_user_by_id(user_id, session)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with id {user_id} not found")
     return UserDto.from_orm(user)
 
 
@@ -46,10 +43,6 @@ async def get_students_solution(group_id: int,
     group_user = await UsersGroupsService.get_user_group_teacher_or_admin(user_id=current_user.id,
                                                                           group_id=group_id,
                                                                           session=session)
-    if not group_user:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to group")
 
     solutions = await SolutionService.get_best_solutions(group_id,
                                                          course_id,
@@ -70,10 +63,6 @@ async def get_students_group(group_id: int,
     group_user = await UsersGroupsService.get_user_group_teacher_or_admin(user_id=current_user.id,
                                                                           group_id=group_id,
                                                                           session=session)
-    if not group_user:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to group")
 
     group_users = await UsersGroupsService.get_group_students(group_id=group_id,
                                                               session=session)
@@ -91,9 +80,8 @@ async def change_password(new_password: str,
     elif verify_password(current_password, current_user.password):
         current_user.password = get_password_hash(new_password)
     else:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Wrong current password")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Wrong current password")
     await session.commit()
     return {"status": "Ok"}
 

@@ -30,12 +30,7 @@ async def get_lessons_tasks_by_id(lesson_id: int,
                                   task_id: int,
                                   current_user: User = Depends(get_current_active_user),
                                   session: AsyncSession = Depends(get_session)):
-    db_item = await LessonsTasksService.get_lesson_task(lesson_id, task_id, session)
-
-    if not db_item:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f'Can\'t find lessons-tasks relation by id {lesson_id}-{task_id}')
-    
+    db_item = await LessonsTasksService.get_lesson_task(lesson_id, task_id, session)    
     return LessonsTasksDto.from_orm(db_item)
 
 
@@ -44,13 +39,8 @@ async def put_lessons_tasks(req: LessonsTasksDto,
                             current_user: User = Depends(get_current_active_user),
                             session: AsyncSession = Depends(get_session)):
     db_item = await LessonsTasksService.get_lesson_task(req.lesson_id, req.task_id, session)
-    
-    if not db_item:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f'Can\'t find lessons-tasks relation \
-                                     by id {req.lesson_id}-{req.task_id}')
-
     db_item.update_by_pydantic(req)
+
     await session.commit()
     return LessonsTasksDto.from_orm(db_item)
 
@@ -61,10 +51,6 @@ async def delete_lessons_tasks(lesson_id: int,
                                current_user: User = Depends(get_current_active_user),
                                session: AsyncSession = Depends(get_session)):
     db_item = await LessonsTasksService.get_lesson_task(lesson_id, task_id, session)
-
-    if not db_item:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f'Can\'t find lessons-tasks relation by id {lesson_id}-{task_id}')
 
     await session.delete(db_item)
     return {'detail': 'ok'}

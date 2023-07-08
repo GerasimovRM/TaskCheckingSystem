@@ -1,10 +1,10 @@
 from typing import List
+from fastapi import HTTPException, status
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import User, Admin, Teacher
-from services.users_groups_service import UsersGroupsService
 
 
 class UserService:
@@ -14,6 +14,11 @@ class UserService:
         query = await session.execute(select(User)
                                       .where(User.id == user_id))
         user = query.scalars().first()
+
+        if not user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"User with id {user_id} not found")
+
         return user
 
     @staticmethod
@@ -45,10 +50,11 @@ class UserService:
         admin_query = await session.execute(select(Admin)
                                             .where(Admin.user_id == user_id))
         admin = admin_query.scalars().first()
-        if admin:
-            return True
-        else:
-            return False
+        # if admin:
+        #     return True
+        # else:
+        #     return False
+        return bool(admin)
 
     @staticmethod
     async def is_teacher(user_id: int,
@@ -75,5 +81,7 @@ class UserService:
     @staticmethod
     async def get_students_by_group_id(group_id: int,
                                        session) -> List[User]:
+        from services.users_groups_service import UsersGroupsService
+
         group_students = await UsersGroupsService.get_group_students(group_id, session)
         return list(map(lambda g_s: g_s.user, group_students))
