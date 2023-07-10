@@ -14,28 +14,21 @@ import React, {useEffect, useRef, useState} from "react";
 export const TestPage = () => {
     const ws = useRef<WebSocket>()
     const [messages, setMessages] = useState<string[]>([]);
-    const [wsNeedClose, setWsNeedClose] = useState<boolean>(false)
     useEffect(()=> {
-        ws.current = new WebSocket("ws://localhost:5500/chat/ws")
-    }, [])
-    useEffect(() => {
-        if (ws.current) {
-            ws.current.onmessage = function (event) {
-                setMessages(msg => [...msg, event.data.toString()])
-                sendMessage(event)
-            }
-            ws.current.onopen = function (event) {
-                sendMessage(event)
-            }
-            ws.current.onclose = function (event) {
-                console.log('close!!!')
-            }
+        ws.current = new WebSocket("ws://localhost:5500/solution/15/2/2/2")
+        ws.current.onmessage = function (event) {
+            setMessages(msg => [...msg, event.data.toString()])
+            // sendMessage(event)
         }
+        ws.current.onclose = function (event) {
+
+        }
+        const wsCurrent = ws.current
+
         return () => {
-            console.log(ws.current, 'im closing!')
-            ws.current?.close()
+            wsCurrent.close()
         }
-    }, [ws])
+    }, [])
     // @ts-ignore
     function sendMessage(event) {
         var input = document.getElementById("messageText")

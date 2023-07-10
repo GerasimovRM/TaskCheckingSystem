@@ -20,6 +20,7 @@ from services.solution_service import SolutionService
 from services.task_service import TaskService
 from services.user_service import UserService
 from services.users_groups_service import UsersGroupsService
+from ws.routes.websocket_solution import WebSocketSolution
 
 router = APIRouter(
     prefix="/solution",
@@ -174,6 +175,11 @@ async def put_solution(solution: SolutionDto,
     solution_orm = await SolutionService.get_solution_by_id(solution.id, session)
     solution_orm.update_by_pydantic(solution)
     await session.commit()
+    await WebSocketSolution.broadcast_new_solution_to_websockets(solution,
+                                                                 solution_orm.task_id,
+                                                                 solution_orm.user_id,
+                                                                 solution_orm.course_id,
+                                                                 solution_orm.group_id)
     return SolutionDto.from_orm(solution_orm)
 
 

@@ -17,7 +17,7 @@ services:
 
   # https://vinybrasil.github.io/portfolio/kafkafastapiasync/
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka
     depends_on:
       - zookeeper
     ports:
@@ -46,33 +46,27 @@ services:
       - kafka
     networks:
         - zookeeper-kafka
-        - backend-frontend
     volumes:
       - ./backend:/code
 
-  frontend:
+  auth:
     build:
-      context: ./frontend
       dockerfile: Dockerfile.dev
-    # Windows bug with WSL 2: https://github.com/microsoft/WSL/issues/4739#issue-534049240
-    # ==========
-    environment:
-      - WATCHPACK_POLLING=true
-    # ==========
+      context: ./auth-frontend
+    ports:
+      - 3340:3340
+    stdin_open: true
+
+  task-checker:
+    build: ./TaskChecker
+    command: python3 main.py
+    volumes:
+      - ./TaskChecker:/code
+      - /var/run/docker.sock:/var/run/docker.sock
     env_file:
       - .env
-    ports:
-      - 3000:3000
-    volumes:
-      - ./frontend:/app
-      - /usr/src/app/node_modules
     networks:
-      - backend-frontend
-    tty: true
-    stdin_open: true
-    depends_on:
-      - backend
+      - zookeeper-kafka
 
 networks:
   zookeeper-kafka:
-  backend-frontend:
