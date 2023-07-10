@@ -1,5 +1,5 @@
 import {useParams} from "react-router";
-import React, {Suspense, useContext, useEffect, useState} from "react";
+import React, {Suspense, useContext, useEffect, useRef, useState} from "react";
 import {ISolutionStatus, ITask} from "../models/ITask";
 import {IGroupRole} from "../models/IGroupRole";
 import {
@@ -41,6 +41,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { RootStoreContext } from "../context";
 import { observer } from "mobx-react-lite";
+import {IUser} from "../models/IUser";
 
 // @ts-ignore
 //const Chat = React.lazy(() => import('chat/App'));
@@ -53,14 +54,21 @@ const TaskPage = observer(() => {
     const {current_solution, isChanged: solutionIsChanged} = RS.solutionStore;
     const {user} = RS.authStore;
     const {selectedUser, setSelectedUser} = RS.selectedUserStore;
-    
 
     const {isOpen, onOpen, onClose} = useDisclosure()
     const [solutions, setSolutions] = useState<ISolution[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const navigate = useNavigate()
-
     const [asideChildWidthStudentsList, setAsideChildWidthStudentsList] = useState<React.ReactNode>()
+    const ws = useRef<WebSocket>()
+
+    const updateSolutionsList = (user: IUser) => {
+        //console.log(selectedUser)
+        if (selectedUser)
+            SolutionService.getAllTaskSolutionsByUserId(groupId!, courseId!, taskId!, user.id).then((solutions) => {
+                setSolutions(solutions.reverse())
+            })
+    }
 
     const sendFileFromDialog = () => {
         fileDialog().then(async (files) => {
@@ -72,6 +80,7 @@ const TaskPage = observer(() => {
         SolutionService.postSolution(groupId!, courseId!, lessonId!, taskId!, file)
             .then((solution) => RS.solutionStore.setSolution(solution))
     }
+
     useEffect(() => {
         GroupService.getGroupRole(groupId!).then((role) => setGroupRole(role))
         TaskService.getTask(groupId!, courseId!, lessonId!, taskId!)
@@ -107,10 +116,7 @@ const TaskPage = observer(() => {
     }, [groupRole])
 
     useEffect(() => {
-        if (selectedUser)
-            SolutionService.getAllTaskSolutionsByUserId(groupId!, courseId!, taskId!, selectedUser.id).then((solutions) => {
-                setSolutions(solutions.reverse())
-            })
+        selectedUser && updateSolutionsList(selectedUser)
     }, [selectedUser])
     useEffect(() => {
         return () => {
@@ -118,6 +124,30 @@ const TaskPage = observer(() => {
             RS.selectedUserStore.clearSelectedUser()
         }
     }, [])
+    useEffect(()=> {
+        ws.current = new WebSocket(`ws://localhost:5500/solution/${taskId}/${user?.id}/${courseId}/${groupId}`)
+        //console.log(ws.current)
+        const wsCurrent = ws.current
+        return () => {
+            console.log(ws.current)
+            wsCurrent.close()
+        }
+    }, [])
+    useEffect(() => {
+        //console.log("state", selectedUser)
+        if (selectedUser && ws.current) {
+            ws.current.onmessage = function (event) {
+                // TODO: rework with store changes when onmessage ws
+                const t = JSON.parse(String(event.data)) as ISolution
+                //console.log(t, typeof t)
+
+                updateSolutionsList(selectedUser)
+
+                // RS.solutionStore.setSolution(JSON.parse(event.data) as ISolution)
+            }
+        }
+    }, [selectedUser, ws.current])
+
     if (isLoading) {
         return <BaseSpinner/>;
     }
@@ -200,7 +230,7 @@ const TaskPage = observer(() => {
                                             <div>
                                                 <Button onClick={async () => {
                                                     await SolutionService.postSolutionCode(groupId!, courseId!, lessonId!, taskId!, current_solution!.code)
-                                                    window.location.reload()
+                                                    // window.location.reload()
                                                 }}
                                                         mb={2}
                                                         width={"100%"}

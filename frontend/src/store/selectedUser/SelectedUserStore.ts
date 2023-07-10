@@ -17,7 +17,7 @@ export default class SelectedUserStore implements SelectedUserState {
         this.error = undefined;
     }
     setSelectedUser(user: IUser) {
-        console.log(user)
+        //console.log(user)
         this.selectedUser = user;
     }
     setSelectedError(error: string) {

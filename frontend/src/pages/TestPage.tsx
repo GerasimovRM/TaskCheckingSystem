@@ -8,58 +8,46 @@ import {
     NumberInputField,
     NumberInputStepper
 } from "@chakra-ui/react";
-import React, {useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 
 // @ts-ignore
-export const TestPage = ({}) => {
-    const score = 70
-    const maxScore = 100
-    //onCancel
-    //onClose
+export const TestPage = () => {
+    const ws = useRef<WebSocket>()
+    const [messages, setMessages] = useState<string[]>([]);
+    useEffect(()=> {
+        ws.current = new WebSocket("ws://localhost:5500/solution/15/2/2/2")
+        ws.current.onmessage = function (event) {
+            setMessages(msg => [...msg, event.data.toString()])
+            // sendMessage(event)
+        }
+        ws.current.onclose = function (event) {
+
+        }
+        const wsCurrent = ws.current
+
+        return () => {
+            wsCurrent.close()
+        }
+    }, [])
+    // @ts-ignore
+    function sendMessage(event) {
+        var input = document.getElementById("messageText")
+        // @ts-ignore
+        ws.current.send(input.value)
+        // @ts-ignore
+        input.value = ''
+        event.preventDefault()
+    }
     return (
-        <Formik enableReinitialize={true} initialValues={{score: score}} onSubmit={(values, actions) => {
-            if (values.score > maxScore)
-                alert(maxScore)
-            else if (values.score < 0)
-                alert(0)
-            else
-                alert(values.score)
-            actions.setSubmitting(false)
-        }}>
-            {(props) => (
-            <Form>
-                <Field name='score'>
-                    {({ field, form }: { field: FieldInputProps<string>, form: FormikProps<{ score: number}> })  => (
-                        <FormControl id={field.name}>
-                            <FormLabel htmlFor={field.name}>Оценка</FormLabel>
-                            <NumberInput
-                                id={field.name}
-                                {...field}
-                                onChange={(val) => {
-                                    form.setFieldValue(field.name, val)
-                                }}
-                                max={maxScore}
-                                min={0}
-                            >
-                                <NumberInputField />
-                                <NumberInputStepper>
-                                    <NumberIncrementStepper />
-                                    <NumberDecrementStepper />
-                                </NumberInputStepper>
-                            </NumberInput>
-                        </FormControl>
-                    )}
-                </Field>
-                <Button
-                    mt={4}
-                    colorScheme='teal'
-                    isLoading={props.isSubmitting}
-                    type='submit'
-                >
-                    Submit
-                </Button>
-            </Form>
-            )}
-        </Formik>
+        <div>
+            <h1>WebSocket Chat</h1>
+            <form action="">
+                <input type="text" id="messageText" autoComplete="off"/>
+                <button onClick={sendMessage}>Send</button>
+            </form>
+            {messages.map((message) => {
+                return <p>{message}</p>
+            })}
+        </div>
     )
 }

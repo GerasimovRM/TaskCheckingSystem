@@ -1,33 +1,72 @@
 version: '3.8'
 
 services:
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.dev
-    # Windows bug with WSL 2: https://github.com/microsoft/WSL/issues/4739#issue-534049240
-    # ==========
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
     environment:
-      - WATCHPACK_POLLING=true
-    # ==========
+      ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_CLIENT_PORT}
+      ZOOKEEPER_TICK_TIME: ${ZOOKEEPER_TICK_TIME}
+    ports:
+      - ${ZOOKEEPER_CLIENT_PORT}:${ZOOKEEPER_CLIENT_PORT}
+    networks:
+      - zookeeper-kafka
+    volumes:
+      - ~/Volumes/TCS/zookeeper/secrets:/etc/zookeeper/secrets
+      - ~/Volumes/TCS/zookeeper/data:/var/lib/zookeeper/data
+      - ~/Volumes/TCS/zookeeper/log:/var/lib/zookeeper/log
+
+  # https://vinybrasil.github.io/portfolio/kafkafastapiasync/
+  kafka:
+    image: confluentinc/cp-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - ${KAFKA_PORT}:29092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:${ZOOKEEPER_CLIENT_PORT}
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - zookeeper-kafka
+    volumes:
+      - ~/Volumes/TCS/kafka/secrets:/etc/kafka/secrets
+      - ~/Volumes/TCS/kafka/data:/var/lib/kafka/data
+
+  backend:
+    build: ./backend
+    command: uvicorn api.server:app --host 0.0.0.0 --reload
     env_file:
       - .env
     ports:
-      - 3000:3000
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - "${BACKEND_PORT}:8000"
+    depends_on:
+      - kafka
     networks:
-      - backend-frontend
-      - frontend-services
-    tty: true
+        - zookeeper-kafka
+    volumes:
+      - ./backend:/code
+
+  auth:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./auth-frontend
+    ports:
+      - 3340:3340
     stdin_open: true
 
-networks:
-  backend-frontend:
-  rabbitmq-go-net:
-  redis-go-net:
-  frontend-services:
+  task-checker:
+    build: ./TaskChecker
+    command: python3 main.py
+    volumes:
+      - ./TaskChecker:/code
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - .env
+    networks:
+      - zookeeper-kafka
 
-volumes:
-  frontend_node_modules:
+networks:
+  zookeeper-kafka:

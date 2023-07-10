@@ -1,29 +1,30 @@
-import os
+from asyncio import sleep
 from typing import Optional
 
 from fastapi import FastAPI, Depends, HTTPException, status, Response, Cookie
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+from kafka.errors import KafkaConnectionError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.processes import TaskCheckerProducer
-from database import Task, Solution, User
+from database import Task, User
 from database.base_meta import initialize_database, get_session
 from models.site.token import Token
 from services.auth_service import create_access_token_user, create_refresh_token_user, \
-    authenticate_user, get_password_hash, get_admin
+    authenticate_user, get_admin
 from api.endpoints import user_router, auth_router, group_router, admin_router, \
     course_router, lesson_router, solution_router, task_router, chat_message_router, stat_router, \
     test_router
-from services.solution_service import SolutionService
-from services.user_service import UserService
+
+from ws import ws_solution_router
 
 import logging
 
 logging.basicConfig(level=logging.INFO)
-
 app = FastAPI(docs_url="/", openapi_url="/api_v1/openapi.json")
+
 app.include_router(admin_router)
 app.include_router(auth_router)
 app.include_router(user_router)
@@ -35,6 +36,8 @@ app.include_router(task_router)
 app.include_router(chat_message_router)
 app.include_router(stat_router)
 app.include_router(test_router)
+app.include_router(ws_solution_router)
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -101,8 +104,14 @@ async def test(current_user: User = Depends(get_admin),
 @app.on_event("startup")
 async def startup() -> None:
     await initialize_database()
-    producer = TaskCheckerProducer()
-    await producer.start()
+    producer = TaskCheckerProducer()  # Singleton instance
+    # убрать сельхоз технику
+    while True:
+        try:
+            await producer.start()
+            break
+        except KafkaConnectionError:
+            await sleep(3)
     # TODO: rerun review solutions
     # session = get_session()
     # solutions_on_review = await SolutionService.get_user_solution_on_review()

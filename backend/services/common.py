@@ -83,7 +83,7 @@ if __name__ == "__main__":
     print(TestClass(id=3, score=4))
 
 
-    @make_fields_non_required(["score2"])
+    @make_fields_non_required(["score"])
     class TestClassWithNonRequiredFields(TestClassWithoutId):
         ...
 

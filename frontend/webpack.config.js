@@ -7,6 +7,7 @@ const deps = require("./package.json").dependencies;
 module.exports = {
     watch: true,
     watchOptions: {
+        aggregateTimeout: 300,
         poll: 1000, // Check for changes every second
     },
     mode: "development",
@@ -86,9 +87,9 @@ module.exports = {
         new HtmlWebPackPlugin({
             template: "./public/index.html",
         }),
-        // new Dotenv({path: "../.env"}),
-        new webpack.DefinePlugin({
-            'process.env': JSON.stringify(process.env)
-        }),
+        new Dotenv({path: "../.env"}),
+        // new webpack.DefinePlugin({
+        //     'process.env': JSON.stringify(process.env)
+        // }),
     ],
 };

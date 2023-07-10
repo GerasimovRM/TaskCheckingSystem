@@ -24,5 +24,5 @@ class TaskCheckerProducer(AIOKafkaProducer, metaclass=MetaSingleton):
     @staticmethod
     async def produce(solution: SolutionForTaskChecker):
         producer = TaskCheckerProducer()
-        s = TaskCheckerProducer.serializer(solution)
+        # s = TaskCheckerProducer.serializer(solution)
         await producer.send(TASK_CHECKER_TOPIC_NAME, solution)

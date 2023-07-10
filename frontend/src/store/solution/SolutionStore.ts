@@ -4,7 +4,7 @@ import SolutionService from "../../services/SolutionService";
 import {makeAutoObservable} from "mobx";
 
 export default class SolutionStore implements SolutionState {
-    current_solution?: ISolution | null = undefined;
+    current_solution?: ISolution = undefined;
     isLoading: boolean = false;
     error?: string = undefined;
     isChanged: boolean = false;
