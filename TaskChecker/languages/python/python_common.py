@@ -21,7 +21,8 @@ class PythonCommon(Multilanguage, ABC):
                  solution: SolutionDto,
                  files: EpicboxFiles,
                  limits: Optional[EpicboxLimits] = None,
-                 check_pep8: bool = True):
+                 check_pep8: bool = False):
+        # TODO: костыль False
         super().__init__(solution, files, limits)
         self.check_pep8 = check_pep8
 

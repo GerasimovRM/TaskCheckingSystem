@@ -23,10 +23,11 @@ class PythonIO(PythonCommon):
         super().__init__(solution, files, limits)
 
     def run_tests(self, *args, **kwargs):
-        if self.check_pep8 and self.is_pep_8():
-            pass
-        else:
-            return False
+        if self.check_pep8:
+            if self.is_pep_8():
+                pass
+            else:
+                return False
         tests = TaskTestService.get_by_task_id(self.solution.task_id)
         self.solution.check_system_answer = ""
         if tests:
