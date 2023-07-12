@@ -125,7 +125,7 @@ const TaskPage = observer(() => {
         }
     }, [])
     useEffect(()=> {
-        ws.current = new WebSocket(`ws://backend:8000/solution/${taskId}/${user?.id}/${courseId}/${groupId}`)
+        ws.current = new WebSocket(`ws://taskcheckingsystem.ru/api_v1//solution/${taskId}/${user?.id}/${courseId}/${groupId}`)
         //console.log(ws.current)
         const wsCurrent = ws.current
         return () => {
