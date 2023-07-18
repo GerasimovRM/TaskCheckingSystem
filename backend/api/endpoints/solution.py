@@ -1,25 +1,19 @@
-from fastapi import Depends, APIRouter, HTTPException, status, UploadFile, File
+from fastapi import Depends, APIRouter, UploadFile, File
 from typing import Optional, List
 
-from sqlalchemy import select, or_, func, desc
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 
-from api.processes import TaskCheckerProducer
 from database.solution import SolutionStatus, Solution
-from database.users_groups import UserGroupRole
-
-from database import User, UsersGroups, CoursesLessons, get_session, GroupsCourses, LessonsTasks
+from database import User, get_session, Task
 from models.pydantic_sqlalchemy_core import SolutionDto
-from models.site.solution import SolutionsCountResponse, SolutionResponse, SolutionForTaskChecker
+from models.site.solution import SolutionsCountResponse, SolutionResponse
 from services.auth_service import get_current_active_user, get_admin, get_teacher_or_admin
-from services.courses_lessons_service import CoursesLessonsService
-from services.groups_courses_serivce import GroupsCoursesService
-from services.lessons_tasks_service import LessonsTasksService
 from services.solution_service import SolutionService
 from services.task_service import TaskService
-from services.user_service import UserService
-from services.users_groups_service import UsersGroupsService
+from api.deps import get_all_solutions, get_solutions_by_user_id, get_group_students, get_best_solutions, \
+    get_best_user_solution, get_user_solution_on_review, get_solution, get_solution_by_id, get_user_group, \
+    get_group_course, get_course_lesson, get_lesson_task, get_solutions_on_review, \
+    get_solution_for_rerun_by_task_id, get_tasks_by_lesson_id
 
 router = APIRouter(
     prefix="/solution",
@@ -28,46 +22,21 @@ router = APIRouter(
 
 
 @router.get("/get_all_task_solutions", response_model=List[SolutionDto])
-async def get_all_task_solutions(group_id: int,
-                                 course_id: int,
-                                 task_id: int,
-                                 current_user: User = Depends(get_teacher_or_admin),
-                                 session: AsyncSession = Depends(get_session)) -> List[SolutionDto]:
-    solutions = await SolutionService.get_all_solutions(group_id,
-                                                        course_id,
-                                                        task_id,
-                                                        current_user.id,
-                                                        session)
+async def get_all_task_solutions(solutions: list[Solution] = Depends(get_all_solutions)) -> List[SolutionDto]:
     return list(map(SolutionDto.from_orm, solutions))
 
 
 @router.get("/get_all_task_solutions_by_user_id", response_model=List[SolutionDto])
-async def get_all_task_solutions_by_user_id(group_id: int,
-                                            course_id: int,
-                                            task_id: int,
-                                            user_id: int,
-                                            current_user: User = Depends(get_current_active_user),
-                                            session: AsyncSession = Depends(get_session)) -> List[
-    SolutionDto]:
-    solutions = await SolutionService.get_all_solutions(group_id,
-                                                        course_id,
-                                                        task_id,
-                                                        user_id,
-                                                        session)
+async def get_all_task_solutions_by_user_id(solutions: list[Solution] = Depends(get_solutions_by_user_id)) -> List[SolutionDto]:
     return list(map(SolutionDto.from_orm, solutions))
 
 
-@router.get("/get_count", response_model=Optional[SolutionsCountResponse])
-async def get_solution_count(group_id: int,
-                             course_id: int,
-                             task_id: int,
-                             current_user: User = Depends(get_teacher_or_admin),
-                             session: AsyncSession = Depends(get_session)) -> Optional[
-    SolutionsCountResponse]:
-    user_groups = await UsersGroupsService.get_group_students(group_id, session)
+@router.get("/get_count", response_model=Optional[SolutionsCountResponse], dependencies=[
+    Depends(get_teacher_or_admin)
+])
+async def get_solution_count(user_groups: list[User] = Depends(get_group_students),
+                             solutions: list[Solution] = Depends(get_best_solutions)) -> Optional[SolutionsCountResponse]:
     solutions_count = len(user_groups)
-
-    solutions = await SolutionService.get_best_solutions(group_id, course_id, task_id, session)
 
     solutions_complete_count = len(
         list(filter(lambda sol: sol.status == SolutionStatus.COMPLETE, solutions)))
@@ -77,6 +46,7 @@ async def get_solution_count(group_id: int,
         list(filter(lambda sol: sol.status == SolutionStatus.ERROR, solutions)))
     solutions_complete_on_review_count = len(
         list(filter(lambda sol: sol.status == SolutionStatus.ON_REVIEW, solutions)))
+    
     solutions_undefined_count = solutions_count \
                                 - solutions_complete_count \
                                 - solutions_complete_not_max_count \
@@ -92,68 +62,27 @@ async def get_solution_count(group_id: int,
 
 
 @router.get("/get_best", response_model=Optional[SolutionResponse])
-async def get_solution_best(group_id: int,
-                            course_id: int,
-                            task_id: int,
-                            user_id: Optional[int] = None,
-                            current_user: User = Depends(get_current_active_user),
-                            session: AsyncSession = Depends(get_session)) -> Optional[
-    SolutionResponse]:
-    solution = await SolutionService.get_best_user_solution(group_id,
-                                                            course_id,
-                                                            task_id,
-                                                            (
-                                                                user_id if user_id else current_user.id),
-                                                            session)
+async def get_solution_best(solution: Solution = Depends(get_best_user_solution),
+                            solution_on_review: Solution = Depends(get_user_solution_on_review)) -> Optional[SolutionResponse]:
     if solution:
         return SolutionResponse.from_orm(solution)
 
-    solution_on_review = await SolutionService.get_user_solution_on_review(group_id,
-                                                                           course_id,
-                                                                           task_id,
-                                                                           (
-                                                                               user_id if user_id else current_user.id),
-                                                                           session)
     if solution_on_review:
         return SolutionResponse.from_orm(solution_on_review)
 
 
 @router.get("/get_one", response_model=Optional[SolutionResponse])
-async def get_solution(group_id: int,
-                       course_id: int,
-                       task_id: int,
-                       solution_id: int,
-                       user_id: Optional[int] = None,
-                       current_user: User = Depends(get_current_active_user),
-                       session: AsyncSession = Depends(get_session)) -> Optional[SolutionResponse]:
-    solution = await SolutionService.get_solution(group_id,
-                                                  course_id,
-                                                  task_id,
-                                                  solution_id,
-                                                  (user_id if user_id else current_user.id),
-                                                  session)
-    if solution:
-        return SolutionResponse.from_orm(solution)
-    else:
-        return
+async def get_solution(solution: Solution = Depends(get_solution)) -> Optional[SolutionResponse]:
+    return SolutionResponse.from_orm(solution)
 
 
-@router.post("/change_score", response_model=SolutionResponse)
-async def change_solution_score(solution_id: int,
+@router.post("/change_score", response_model=SolutionResponse, dependencies=[
+    Depends(get_admin)
+])
+async def change_solution_score(solution: Solution = Depends(get_solution_by_id),
                                 new_score: Optional[int] = 0,
                                 is_rework: bool = False,
-                                current_user: User = Depends(get_current_active_user),
                                 session: AsyncSession = Depends(get_session)):
-    solution = await SolutionService.get_solution_by_id(solution_id, session)
-    is_admin = UserService.is_admin(current_user.id,
-                                    session)
-    user_group = await UsersGroupsService.get_user_group(solution.user_id,
-                                                         solution.group_id,
-                                                         session)
-    if not user_group and not is_admin and user_group.role == UserGroupRole.STUDENT:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to solution")
     if is_rework or new_score == 0:
         solution.score = 0
         solution.status = SolutionStatus.ERROR
@@ -167,59 +96,33 @@ async def change_solution_score(solution_id: int,
     return SolutionResponse.from_orm(solution)
 
 
-@router.put("/", response_model=SolutionDto)
+@router.put("/", response_model=SolutionDto, dependencies=[
+    Depends(get_current_active_user)
+])
 async def put_solution(solution: SolutionDto,
-                       current_user: User = Depends(get_current_active_user),
                        session: AsyncSession = Depends(get_session)):
-    solution_orm = await SolutionService.get_solution_by_id(solution.id, session)
+    solution_orm = await SolutionService.get_solution_by_id(solution.id, session)  # TODO: как засунуть это в depend D:
     solution_orm.update_by_pydantic(solution)
     await session.commit()
     return SolutionDto.from_orm(solution_orm)
 
 
-@router.post("/post_file", response_model=SolutionResponse)
+@router.post("/post_file", response_model=SolutionResponse, dependencies=[
+    Depends(get_user_group),
+    Depends(get_group_course),
+    Depends(get_course_lesson),
+    Depends(get_lesson_task)
+])
 async def post_solution(group_id: int,
                         course_id: int,
-                        lesson_id: int,
                         task_id: int,
                         file: UploadFile = File(...),
+                        last_solution: Solution = Depends(get_user_solution_on_review),
                         current_user: User = Depends(get_current_active_user),
                         session: AsyncSession = Depends(get_session)):
-    # check group access
-    user_group = await UsersGroupsService.get_user_group(current_user.id,
-                                                         group_id,
-                                                         session)
-    if not user_group:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to group")
-    group_course = await GroupsCoursesService.get_group_course(group_id,
-                                                               course_id,
-                                                               session)
-    if not group_course:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to course")
-    course_lesson = await CoursesLessonsService.get_course_lesson(course_id,
-                                                                  lesson_id,
-                                                                  session)
-    if not course_lesson:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to lesson")
-    lesson_task = await LessonsTasksService.get_lesson_task(lesson_id, task_id, session)
-    if not lesson_task:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to task")
+    if last_solution:
+        last_solution.status = SolutionStatus.ERROR
 
-    last_solution_on_review = await SolutionService.get_user_solution_on_review(group_id,
-                                                                                course_id,
-                                                                                task_id,
-                                                                                current_user.id,
-                                                                                session)
-    if last_solution_on_review:
-        last_solution_on_review.status = SolutionStatus.ERROR
     code = await file.read()
     task = await TaskService.get_task_by_id(task_id, session)
     solution = Solution(user_id=current_user.id,
@@ -234,50 +137,22 @@ async def post_solution(group_id: int,
     return SolutionResponse.from_orm(solution)
 
 
-@router.post("/post_code", response_model=SolutionResponse)
+@router.post("/post_code", response_model=SolutionResponse, dependencies=[
+    Depends(get_user_group),
+    Depends(get_group_course),
+    Depends(get_course_lesson),
+    Depends(get_lesson_task)
+])
 async def post_solution(group_id: int,
                         course_id: int,
-                        lesson_id: int,
                         task_id: int,
                         code: str,
+                        last_solution: Solution = Depends(get_user_solution_on_review),
                         current_user: User = Depends(get_current_active_user),
                         session: AsyncSession = Depends(get_session)):
-    # check group access
-    user_group = await UsersGroupsService.get_user_group(current_user.id,
-                                                         group_id,
-                                                         session)
-    if not user_group:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to group")
-    group_course = await GroupsCoursesService.get_group_course(group_id,
-                                                               course_id,
-                                                               session)
+    if last_solution:
+        last_solution.status = SolutionStatus.ERROR
 
-    if not group_course:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to course")
-    course_lesson = await CoursesLessonsService.get_course_lesson(course_id,
-                                                                  lesson_id,
-                                                                  session)
-    if not course_lesson:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to lesson")
-    lesson_task = await LessonsTasksService.get_lesson_task(lesson_id, task_id, session)
-    if not lesson_task:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to task")
-
-    last_solution_on_review = await SolutionService.get_user_solution_on_review(group_id,
-                                                                                course_id,
-                                                                                task_id,
-                                                                                current_user.id,
-                                                                                session)
-    if last_solution_on_review:
-        last_solution_on_review.status = SolutionStatus.ERROR
     task = await TaskService.get_task_by_id(task_id, session)
     solution = Solution(user_id=current_user.id,
                         group_id=group_id,
@@ -287,36 +162,35 @@ async def post_solution(group_id: int,
                         test_type=task.test_type)
     session.add(solution)
     await session.commit()
-    print(task.max_score)
     # await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
     return SolutionResponse.from_orm(solution)
 
 
-@router.delete("/")
-async def delete_solution(solution_id: int,
-                          current_user: User = Depends(get_admin),
+@router.delete("/", dependencies=[
+    Depends(get_admin)
+])
+async def delete_solution(solution: Solution = Depends(get_solution_by_id),
                           session: AsyncSession = Depends(get_session)):
-    solution = await SolutionService.get_solution_by_id(solution_id, session)
     await session.delete(solution)
     return {"detail": "ok"}
 
 
-@router.post("/rerun_solution_on_review")
-async def rerun_solution_on_review(current_user: User = Depends(get_teacher_or_admin),
+@router.post("/rerun_solution_on_review", dependencies=[
+    Depends(get_teacher_or_admin)
+])
+async def rerun_solution_on_review(solutions: list[Solution] = Depends(get_solutions_on_review),
                                    session: AsyncSession = Depends(get_session)):
-    solutions = await SolutionService.get_solutions_on_review(session)
     for solution in solutions:
         task = await TaskService.get_task_by_id(solution.task_id, session)
         # await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
     return {"detail": "ok"}
 
 
-@router.post("/rerun_solutions_by_task_id")
-async def rerun_solutions_by_task_id(task_id: int,
-                                     current_user: User = Depends(get_teacher_or_admin),
+@router.post("/rerun_solutions_by_task_id", dependencies=[
+    Depends(get_teacher_or_admin)
+])
+async def rerun_solutions_by_task_id(solutions: list[Solution] = Depends(get_solution_for_rerun_by_task_id),
                                      session: AsyncSession = Depends(get_session)):
-    solutions = await SolutionService.get_solution_for_rerun_by_task_id(task_id,
-                                                                        session)
     for solution in solutions:
         solution.status = SolutionStatus.ON_REVIEW
         solution.score = 0
@@ -325,15 +199,13 @@ async def rerun_solutions_by_task_id(task_id: int,
         # await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
 
 
-@router.post("/rerun_solutions_by_lesson_id")
-async def rerun_solutions_by_task_id(lesson_id: int,
-                                     current_user: User = Depends(get_teacher_or_admin),
+@router.post("/rerun_solutions_by_lesson_id", dependencies=[
+    Depends(get_teacher_or_admin)
+])
+async def rerun_solutions_by_task_id(tasks: list[Task] = Depends(get_tasks_by_lesson_id),
                                      session: AsyncSession = Depends(get_session)):
-    tasks = await TaskService.get_tasks_by_lesson_id(lesson_id,
-                                                     session)
     for task in tasks:
-        solutions = await SolutionService.get_solution_for_rerun_by_task_id(task.id,
-                                                                            session)
+        solutions = await SolutionService.get_solution_for_rerun_by_task_id(task.id, session)
         for solution in solutions:
             solution.status = SolutionStatus.ON_REVIEW
             solution.score = 0
@@ -342,11 +214,11 @@ async def rerun_solutions_by_task_id(lesson_id: int,
             # await TaskCheckerProducer.produce(SolutionForTaskChecker(**solution.to_dict(), max_score=task.max_score))
 
 
-@router.post("/rerun_solution_by_id")
-async def rerun_solutions_by_task_id(solution_id: int,
-                                     current_user: User = Depends(get_teacher_or_admin),
+@router.post("/rerun_solution_by_id", dependencies=[
+    Depends(get_teacher_or_admin)
+])
+async def rerun_solutions_by_task_id(solution: Solution=Depends(get_solution_by_id),
                                      session: AsyncSession = Depends(get_session)):
-    solution = await SolutionService.get_solution_by_id(solution_id, session)
     solution.status = SolutionStatus.ON_REVIEW
     solution.score = 0
     await session.commit()

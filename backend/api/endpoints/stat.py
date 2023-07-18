@@ -1,29 +1,19 @@
-from typing import Optional, List
+from typing import List
 
-from fastapi import APIRouter, status, HTTPException, Depends
-from sqlalchemy import select
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 
 from database.solution import SolutionStatus
-from database.users_groups import UserGroupRole, UsersGroups
-from models.pydantic_sqlalchemy_core import LessonDto, UserDto
-from models.site.lesson import LessonsResponse, LessonResponse, LessonPostRequest, LessonRequest
-from models.site.stat import CourseStatForStudent, TaskStat, LessonStat, UserStat, \
-    CourseStatForTeacher, \
+from models.pydantic_sqlalchemy_core import UserDto
+from models.site.stat import CourseStatForStudent, TaskStat, LessonStat, \
     TableDataForTeacher, LessonDataForTeacher, TaskLessonDataForTeacher, TaskStudentDataForTeacher, \
     StudentTaskDataForTeacher, RatingGroupForTeacher, RatingStudentForTeacher
-from services.auth_service import get_current_active_user, get_teacher_or_admin, get_teacher
-from database import User, Group, get_session, GroupsCourses, Course, CoursesLessons, Lesson, \
-    Solution
-from services.course_service import CourseService
-from services.courses_lessons_service import CoursesLessonsService
-from services.groups_courses_serivce import GroupsCoursesService
-from services.lesson_service import LessonService
+from services.auth_service import get_current_active_user, get_teacher
+from database import User, get_session, Course, CoursesLessons, Lesson
 from services.solution_service import SolutionService
 from services.task_service import TaskService
-from services.user_service import UserService
-from services.users_groups_service import UsersGroupsService
+from api.deps import get_user_group, get_group_course, get_lessons_by_course_id, get_course, \
+    get_course_lessons, get_course_lesson, get_lesson, get_students_by_group_id
 
 router = APIRouter(
     prefix="/stat",
@@ -31,29 +21,16 @@ router = APIRouter(
 )
 
 
-@router.get("/get_table_for_teacher", response_model=TableDataForTeacher)
+@router.get("/get_table_for_teacher", response_model=TableDataForTeacher, dependencies=[
+    Depends(get_teacher),
+    Depends(get_user_group),
+    Depends(get_group_course)
+])
 async def get_table_for_teacher(group_id: int,
                                 course_id: int,
-                                current_user: User = Depends(get_teacher),
-                                session: AsyncSession = Depends(
-                                    get_session)) -> TableDataForTeacher:
-    user_group = await UsersGroupsService.get_user_group(current_user.id,
-                                                         group_id,
-                                                         session)
-    if user_group.role == UserGroupRole.STUDENT or not user_group:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to group")
-
-    group_course = await GroupsCoursesService.get_group_course(group_id,
-                                                               course_id,
-                                                               session)
-    if not group_course:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to course")
-
-    lessons = await LessonService.get_lessons_by_course_id(course_id, session)
+                                lessons: list[Lesson] = Depends(get_lessons_by_course_id),
+                                students: list[User] = Depends(get_students_by_group_id),
+                                session: AsyncSession = Depends(get_session)) -> TableDataForTeacher:
     lessons_dto: List[LessonDataForTeacher] = []
     for lesson in lessons:
         tasks = await TaskService.get_tasks_by_lesson_id(lesson.id, session)
@@ -66,9 +43,8 @@ async def get_table_for_teacher(group_id: int,
                                           tasks=tasks_dto)
         lessons_dto.append(lesson_dto)
 
-    students = await UserService.get_students_by_group_id(group_id, session)
     students_dto: List[StudentTaskDataForTeacher] = []
-    # need to optimize
+    # TODO: need to optimize
     for student in students:
         tasks_dto = []
         for lesson in lessons:
@@ -89,33 +65,20 @@ async def get_table_for_teacher(group_id: int,
                 for task, solution in zip(tasks, best_solutions)]
         students_dto.append(StudentTaskDataForTeacher(student=UserDto.from_orm(student),
                                                       tasks=tasks_dto))
+        
     return TableDataForTeacher(lessons=lessons_dto, students=students_dto)
 
 
-@router.get("/get_course_stat_for_student", response_model=CourseStatForStudent)
+@router.get("/get_course_stat_for_student", response_model=CourseStatForStudent, dependencies=[
+    Depends(get_user_group),
+    Depends(get_group_course)
+])
 async def get_course_stat_for_student(group_id: int,
                                       course_id: int,
+                                      course: Course = Depends(get_course),
+                                      course_lessons: CoursesLessons = Depends(get_course_lessons),
                                       current_user: User = Depends(get_current_active_user),
-                                      session: AsyncSession = Depends(
-                                          get_session)) -> CourseStatForStudent:
-    # check group access
-    user_group = await UsersGroupsService.get_user_group(current_user.id,
-                                                         group_id,
-                                                         session)
-    if not user_group:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to group")
-
-    group_course = await GroupsCoursesService.get_group_course(group_id,
-                                                               course_id,
-                                                               session)
-    if not group_course:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to course")
-    course = await CourseService.get_course(course_id, session)
-    course_lessons = await CoursesLessonsService.get_course_lessons(course_id, session)
+                                      session: AsyncSession = Depends(get_session)) -> CourseStatForStudent:
     lessons = list(map(lambda c_l: c_l.lesson, course_lessons))
     lessons_dto = []
     for lesson in lessons:
@@ -133,42 +96,23 @@ async def get_course_stat_for_student(group_id: int,
 
         lesson_dto = LessonStat(**lesson.to_dict() | {"tasks": tasks_dto})
         lessons_dto.append(lesson_dto)
-    course_dto = CourseStatForStudent.parse_obj(course.to_dict() | {"lessons": lessons_dto})
 
+    course_dto = CourseStatForStudent.parse_obj(course.to_dict() | {"lessons": lessons_dto})
     return course_dto
 
 
-@router.get("/get_lesson_stat_for_student", response_model=LessonStat)
+@router.get("/get_lesson_stat_for_student", response_model=LessonStat, dependencies=[
+    Depends(get_user_group),
+    Depends(get_group_course),
+    Depends(get_course_lesson)
+])
 async def get_lessons_stat_for_student(group_id: int,
                                        course_id: int,
-                                       lesson_id: int,
+                                       lesson: Lesson = Depends(get_lesson),
                                        current_user: User = Depends(get_current_active_user),
-                                       session=Depends(get_session)) -> LessonStat:
-    # check group access
-    user_group = await UsersGroupsService.get_user_group(current_user.id,
-                                                         group_id,
-                                                         session)
-    if not user_group or user_group.role != UserGroupRole.STUDENT:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to group")
-
-    group_course = await GroupsCoursesService.get_group_course(group_id,
-                                                               course_id,
-                                                               session)
-    if not group_course:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to course")
-
-    course_lesson = await CoursesLessonsService.get_course_lesson(course_id, lesson_id, session)
-    if not course_lesson:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to lesson")
-    lesson = await LessonService.get_lesson(lesson_id, session)
-    tasks = await TaskService.get_tasks_by_lesson_id(lesson.id, session)
-    best_solutions = [await SolutionService.get_best_user_solution(group_id,
+                                       session: AsyncSession = Depends(get_session)) -> LessonStat:
+    tasks = await TaskService.get_tasks_by_lesson_id(lesson.id, session)  # TODO: куда его такого
+    best_solutions = [await SolutionService.get_best_user_solution(group_id,  # а этого
                                                                    course_id,
                                                                    task.id,
                                                                    current_user.id,
@@ -183,34 +127,22 @@ async def get_lessons_stat_for_student(group_id: int,
     return lesson_dto
 
 
-@router.get("/get_rating_for_teacher", response_model=RatingGroupForTeacher)
+@router.get("/get_rating_for_teacher", response_model=RatingGroupForTeacher, dependencies=[
+    Depends(get_user_group),
+    Depends(get_group_course)
+])
 async def get_rating_for_teacher(group_id: int,
                                  course_id: int,
-                                 current_user: User = Depends(get_current_active_user),
-                                 session=Depends(get_session)):
-    user_group = await UsersGroupsService.get_user_group(current_user.id,
-                                                         group_id,
-                                                         session)
-    if user_group.role == UserGroupRole.STUDENT or not user_group:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to group")
-
-    group_course = await GroupsCoursesService.get_group_course(group_id,
-                                                               course_id,
-                                                               session)
-    if not group_course:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to course")
-
-    lessons = await LessonService.get_lessons_by_course_id(course_id, session)
-    users = await UserService.get_students_by_group_id(group_id, session)
+                                 lessons: list[Lesson] = Depends(get_lessons_by_course_id),
+                                 users: list[User] = Depends(get_students_by_group_id),
+                                 session: AsyncSession = Depends(get_session)):
     rating_group_for_teacher: List[RatingStudentForTeacher] = [
         RatingStudentForTeacher(user_id=user.id,
                                 user_first_name=user.first_name,
-                                user_last_name=user.last_name) for user in users]
+                                user_last_name=user.last_name) for user in users
+    ]
     max_score_of_course = 0
+    
     for lesson in lessons:
         tasks = await TaskService.get_tasks_by_lesson_id(lesson.id, session)
         lesson_score = sum(map(lambda task: task.max_score, tasks))

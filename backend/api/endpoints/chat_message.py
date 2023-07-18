@@ -1,19 +1,11 @@
-from io import BytesIO
-from typing import Optional, List, Union
+from typing import Optional, List
 
-from fastapi import APIRouter, status, HTTPException, Depends, UploadFile, File
-from sqlalchemy import select
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
-from starlette.responses import StreamingResponse
 
-from database.users_groups import UserGroupRole, UsersGroups
 from models.pydantic_sqlalchemy_core import ChatMessageDto
-from models.site.group import GroupsResponse
-from models.site.task import TasksResponse
 from services.auth_service import get_current_active_user
-from database import User, Group, get_session, GroupsCourses, CoursesLessons, Lesson, LessonsTasks, \
-    Solution, Image, ChatMessage
+from database import get_session, ChatMessage
 from services.chat_message_service import ChatMessageService
 
 router = APIRouter(

@@ -40,3 +40,6 @@ class TaskPostRequest(TaskDto):
 
 class TasksPostRequest(BaseModel):
     tasks: List[TaskPostRequest]
+
+    class Config:
+        orm_mode = True
