@@ -9,6 +9,7 @@ from starlette.responses import StreamingResponse
 
 from database.solution import SolutionStatus
 from database.users_groups import UserGroupRole, UsersGroups
+from database import Task
 from models.pydantic_sqlalchemy_core import TaskDto, TaskTestDto
 from models.site.group import GroupsResponse
 from models.site.task import TasksResponse, TaskCountForStudentResponse, \
@@ -23,6 +24,7 @@ from services.solution_service import SolutionService
 from services.task_service import TaskService
 from services.test_solution_service import TaskTestService
 from services.users_groups_service import UsersGroupsService
+from api.deps import get_user_group, get_group_course, get_course_lesson, get_lesson_tasks, get_lesson_task, get_task_by_id
 
 router = APIRouter(
     prefix="/task",
@@ -31,76 +33,26 @@ router = APIRouter(
 
 
 @router.get("/get_all",
-            response_model=TasksResponse)
-async def get_tasks(group_id: int,
-                    course_id: int,
-                    lesson_id: int,
-                    current_user: User = Depends(get_current_active_user),
-                    session: AsyncSession = Depends(get_session)) -> TasksResponse:
-    # check group access
-    user_group = await UsersGroupsService.get_user_group(current_user.id,
-                                                         group_id,
-                                                         session)
-    if not user_group:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to group")
-    # check group access
-    group_course = await GroupsCoursesService.get_group_course(group_id, course_id, session)
-    if not group_course:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to course")
-    course_lesson = await CoursesLessonsService.get_course_lesson(course_id,
-                                                                  lesson_id,
-                                                                  session)
-    if not course_lesson:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to lesson")
-    lesson_tasks = await LessonsTasksService.get_lesson_tasks(lesson_id, session)
+            response_model=TasksResponse,
+            dependencies=[Depends(get_user_group), Depends(get_group_course), Depends(get_course_lesson)])
+async def get_tasks(lesson_tasks: List[LessonsTasks] = Depends(get_lesson_tasks)) -> TasksResponse:
     tasks_dto = list(
         map(lambda t: TaskDto(**t.task.to_dict(), task_type=t.task_type), lesson_tasks))
     return TasksResponse(tasks=tasks_dto)
 
 
-@router.get("/get_one", response_model=TaskDto)
-async def get_task(group_id: int,
-                   course_id: int,
-                   lesson_id: int,
-                   task_id: int,
-                   current_user: User = Depends(get_current_active_user),
-                   session: AsyncSession = Depends(get_session)) -> TaskDto:
-    # check group access
-    user_group = await UsersGroupsService.get_user_group(current_user.id,
-                                                         group_id,
-                                                         session)
-    if not user_group:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to group")
-    group_course = await GroupsCoursesService.get_group_course(group_id,
-                                                               course_id,
-                                                               session)
-    if not group_course:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to course")
-    course_lesson = await CoursesLessonsService.get_course_lesson(course_id,
-                                                                  lesson_id,
-                                                                  session)
-    if not course_lesson:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to lesson")
-    lesson_task = await LessonsTasksService.get_lesson_task(lesson_id, task_id, session)
-    if not lesson_task:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bad access to task")
-    task = await TaskService.get_task_by_id(lesson_task.task_id, session)
-    task_dto = TaskDto.from_orm(task)
-    return task_dto
+@router.get("/get_one", response_model=TaskDto, dependencies=[
+    Depends(get_user_group),
+    Depends(get_group_course),
+    Depends(get_course_lesson),
+])
+async def get_task(
+    lesson_task: LessonsTasks = Depends(get_lesson_task),
+    task: Task = Depends(get_task_by_id)
+) -> TaskDto:
+    dto = TaskDto.from_orm(task)
+    dto.task_type = lesson_task.task_type
+    return dto
 
 
 @router.get("/tests", response_model=List[TaskTestDto])
