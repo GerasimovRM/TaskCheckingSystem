@@ -1,12 +1,10 @@
-from fastapi import APIRouter, status, HTTPException, Depends
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import get_session, CoursesLessons, User
-from services.courses_lessons_service import CoursesLessonsService
+from database import get_session, CoursesLessons
 from services.auth_service import get_current_active_user
-
 from models.pydantic_sqlalchemy_core import CoursesLessonsDto
-
+from api.deps import get_course_lesson
 
 router = APIRouter(
     prefix='/courses_lessons',
@@ -14,9 +12,10 @@ router = APIRouter(
 )
 
 
-@router.post('/', response_model=CoursesLessonsDto)
+@router.post('/', response_model=CoursesLessonsDto, dependencies=[
+    Depends(get_current_active_user)
+])
 async def post_courses_lessons(req: CoursesLessonsDto,
-                               current_user: User = Depends(get_current_active_user),
                                session: AsyncSession = Depends(get_session)):
     db_item = CoursesLessons(**req.dict())
 
@@ -25,32 +24,28 @@ async def post_courses_lessons(req: CoursesLessonsDto,
     return CoursesLessonsDto.from_orm(db_item)
 
 
-@router.get('/get_one', response_model=CoursesLessonsDto)
-async def get_courses_lessons_by_id(course_id: int,
-                                    lesson_id: int,
-                                    current_user: User = Depends(get_current_active_user),
-                                    session: AsyncSession = Depends(get_session)):
-    db_item = await CoursesLessonsService.get_course_lesson(course_id, lesson_id, session)
-    return CoursesLessonsDto.from_orm(db_item)
+@router.get('/get_one', response_model=CoursesLessonsDto, dependencies=[
+    Depends(get_current_active_user)
+])
+async def get_courses_lessons_by_id(courses_lessons: CoursesLessons = Depends(get_course_lesson)):
+    return CoursesLessonsDto.from_orm(courses_lessons)
 
 
-@router.put('/', response_model=CoursesLessonsDto)
-async def put_courses_lessons(req: CoursesLessonsDto,
-                              current_user: User = Depends(get_current_active_user),
+@router.put('/', response_model=CoursesLessonsDto, dependencies=[
+    Depends(get_current_active_user)
+])
+async def put_courses_lessons(req: CoursesLessonsDto,  # что делать с depends и req? 
+                              courses_lessons: CoursesLessons = Depends(get_course_lesson),
                               session: AsyncSession = Depends(get_session)):
-    db_item = await CoursesLessonsService.get_course_lesson(req.course_id, req.lesson_id, session)
-    db_item.update_by_pydantic(req)
-
+    courses_lessons.update_by_pydantic(req)
     await session.commit()
-    return CoursesLessonsDto.from_orm(db_item)
+    return CoursesLessonsDto.from_orm(courses_lessons)
 
 
-@router.delete('/')
-async def delete_courses_lessons(course_id: int,
-                                 lesson_id: int,
-                                 current_user: User = Depends(get_current_active_user),
-                                 session: AsyncSession = Depends(get_session)):
-    db_item = await CoursesLessonsService.get_course_lesson(course_id, lesson_id, session)
-    
-    await session.delete(db_item)
+@router.delete('/', dependencies=[
+    Depends(get_current_active_user)
+])
+async def delete_courses_lessons(courses_lessons: CoursesLessons = Depends(get_course_lesson),
+                                 session: AsyncSession = Depends(get_session)):    
+    await session.delete(courses_lessons)
     return {'detail': 'ok'}

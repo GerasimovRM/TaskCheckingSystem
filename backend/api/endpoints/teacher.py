@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import APIRouter, status, HTTPException, Depends
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.site.course import CourseResponse
@@ -29,10 +29,11 @@ async def create_group(group_name: str,
     return GroupResponse(**group.dict())
 
 
-@router.post("/create_course", response_model=CourseResponse)
+@router.post("/create_course", response_model=CourseResponse, dependencies=[
+    Depends(get_admin)
+])
 async def create_course(course_name: str,
                         description: Optional[str],
-                        current_user: User = Depends(get_admin),
                         session: AsyncSession = Depends(get_session)) -> CourseResponse:
     course = Course(name=course_name)
     if description:

@@ -1,28 +1,21 @@
 from io import BytesIO
-from typing import Optional, List, Union
+from typing import Union
 
-from fastapi import APIRouter, status, HTTPException, Depends, UploadFile, File
+from fastapi import APIRouter, Depends, UploadFile, File
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 from starlette.responses import StreamingResponse
 
 from database.solution import SolutionStatus
-from database.users_groups import UserGroupRole, UsersGroups
+from database import Task
 from models.pydantic_sqlalchemy_core import TaskDto, TaskTestDto
-from models.site.group import GroupsResponse
 from models.site.task import TasksResponse, TaskCountForStudentResponse, \
     TaskCountForTeacherResponse, TasksPostRequest
-from services.auth_service import get_current_active_user, get_admin, get_teacher_or_admin
-from database import User, Group, get_session, GroupsCourses, CoursesLessons, Lesson, LessonsTasks, \
-    Solution, Image, ChatMessage, TaskTest
-from services.courses_lessons_service import CoursesLessonsService
-from services.groups_courses_serivce import GroupsCoursesService
-from services.lessons_tasks_service import LessonsTasksService
-from services.solution_service import SolutionService
-from services.task_service import TaskService
-from services.test_solution_service import TaskTestService
-from services.users_groups_service import UsersGroupsService
+from services.auth_service import get_current_active_user, get_admin
+from database import get_session, User, LessonsTasks, Solution, Image
+from api.deps import get_user_group, get_group_course, get_course_lesson, get_lesson_tasks, \
+    get_lesson_task, get_by_task_id, get_task_by_lesson_task_id, create_tasks_by_json, \
+    get_tasks_by_lesson_id, get_best_user_solutions, get_group_students, get_users_best_solutions
 
 
 router = APIRouter(
@@ -31,76 +24,43 @@ router = APIRouter(
 )
 
 
-@router.get("/get_all",
-            response_model=TasksResponse)
-async def get_tasks(group_id: int,
-                    course_id: int,
-                    lesson_id: int,
-                    current_user: User = Depends(get_current_active_user),
-                    session: AsyncSession = Depends(get_session)) -> TasksResponse:
-    # check group access
-    user_group = await UsersGroupsService.get_user_group(current_user.id,
-                                                         group_id,
-                                                         session)
-    # check group access
-    group_course = await GroupsCoursesService.get_group_course(group_id,
-                                                               course_id,
-                                                               session)
-    # check lesson access
-    course_lesson = await CoursesLessonsService.get_course_lesson(course_id,
-                                                                  lesson_id,
-                                                                  session)
-
-    lesson_tasks = await LessonsTasksService.get_lesson_tasks(lesson_id, session)
-    tasks_dto = list(
-        map(lambda t: TaskDto(**t.task.to_dict(), task_type=t.task_type), lesson_tasks))
+@router.get("/get_all", response_model=TasksResponse, dependencies=[
+    Depends(get_user_group),
+    Depends(get_group_course),
+    Depends(get_course_lesson)
+])
+async def get_tasks(lesson_tasks: list[LessonsTasks] = Depends(get_lesson_tasks)) -> TasksResponse:
+    tasks_dto = list(map(lambda t: TaskDto(**t.task.to_dict(), task_type=t.task_type), lesson_tasks))
     return TasksResponse(tasks=tasks_dto)
 
 
-@router.get("/get_one", response_model=TaskDto)
-async def get_task(group_id: int,
-                   course_id: int,
-                   lesson_id: int,
-                   task_id: int,
-                   current_user: User = Depends(get_current_active_user),
-                   session: AsyncSession = Depends(get_session)) -> TaskDto:
-    # check group access
-    user_group = await UsersGroupsService.get_user_group(current_user.id,
-                                                         group_id,
-                                                         session)
-    # check course access
-    group_course = await GroupsCoursesService.get_group_course(group_id,
-                                                               course_id,
-                                                               session)
-    # check lesson access
-    course_lesson = await CoursesLessonsService.get_course_lesson(course_id,
-                                                                  lesson_id,
-                                                                  session)
-    # check task access
-    lesson_task = await LessonsTasksService.get_lesson_task(lesson_id,
-                                                            task_id,
-                                                            session)
-    
-    task = await TaskService.get_task_by_id(lesson_task.task_id, session)
-    task_dto = TaskDto.from_orm(task)
-    return task_dto
+@router.get("/get_one", response_model=TaskDto, dependencies=[
+    Depends(get_user_group),
+    Depends(get_group_course),
+    Depends(get_course_lesson),
+])
+async def get_task(lesson_task: LessonsTasks = Depends(get_lesson_task),
+                   task: Task = Depends(get_task_by_lesson_task_id)) -> TaskDto:
+    dto = TaskDto.from_orm(task)
+    dto.task_type = lesson_task.task_type
+    return dto
 
 
-@router.get("/tests", response_model=List[TaskTestDto])
-async def get_task_tests(task_id: int,
-                         current_user: User = Depends(get_current_active_user),
-                         session: AsyncSession = Depends(get_session)):
-    task_tests = await TaskTestService.get_by_task_id(task_id, session)
+@router.get("/tests", response_model=list[TaskTestDto], dependencies=[
+    Depends(get_current_active_user)
+])
+async def get_task_tests(task_tests: Task = Depends(get_by_task_id)) -> list[TaskTestDto]:
     return list(map(lambda task_test: TaskTestDto.from_orm(task_test), task_tests))
 
 
-@router.put("/")
-async def put_tasks(tasks_json: TasksPostRequest,
-                    current_user: User = Depends(get_admin),
-                    session: AsyncSession = Depends(get_session)):
-    await TaskService.create_tasks_by_json(tasks_json.tasks, session)
+@router.put("/", dependencies=[
+    Depends(get_admin)
+])
+async def put_tasks(tasks_json: TasksPostRequest = Depends(create_tasks_by_json)):
+    return TasksPostRequest.from_orm(tasks_json)
 
 
+# TODO: надо что-то с image придумать
 @router.post("/upload_image")
 async def upload_image(file: UploadFile = File(...),
                        session: AsyncSession = Depends(get_session)):
@@ -123,32 +83,19 @@ async def load_image(image_id: Union[str, int],
     return StreamingResponse(image_bytes, media_type="image/png")
 
 
-@router.get("/get_count_for_student", response_model=TaskCountForStudentResponse)
-async def get_task_count(group_id: int,
-                         course_id: int,
-                         lesson_id: int,
-                         current_user: User = Depends(get_current_active_user),
-                         session: AsyncSession = Depends(get_session)):
-    user_group = await UsersGroupsService.get_user_group(current_user.id,
-                                                         group_id,
-                                                         session)
-    # TODO check access
-    course_group = await GroupsCoursesService.get_group_course(group_id, course_id, session)
-    # ..
-    course_lesson = await CoursesLessonsService.get_course_lesson(course_id, lesson_id, session)
-
-    tasks = await TaskService.get_tasks_by_lesson_id(lesson_id, session)
+@router.get("/get_count_for_student", response_model=TaskCountForStudentResponse, dependencies=[
+    Depends(get_user_group),
+    Depends(get_group_course),
+    Depends(get_course_lesson)
+])
+async def get_task_count(solutions: list[Solution] = Depends(get_best_user_solutions)):
     tasks_complete_count = 0
     tasks_complete_not_max_count = 0
     tasks_complete_error_count = 0
     tasks_complete_on_review_count = 0
     tasks_undefined_count = 0
-    for task in tasks:
-        solution = await SolutionService.get_best_user_solution(group_id,
-                                                                course_id,
-                                                                task.id,
-                                                                current_user.id,
-                                                                session)
+
+    for solution in solutions:
         if not solution:
             tasks_undefined_count += 1
         elif solution.status == SolutionStatus.ERROR:
@@ -162,7 +109,7 @@ async def get_task_count(group_id: int,
         else:
             raise AttributeError("Task not detect!")
 
-    return TaskCountForStudentResponse(tasks_count=len(tasks),
+    return TaskCountForStudentResponse(tasks_count=len(solutions),
                                        tasks_complete_count=tasks_complete_count,
                                        tasks_complete_not_max_count=tasks_complete_not_max_count,
                                        tasks_complete_error_count=tasks_complete_error_count,
@@ -171,47 +118,38 @@ async def get_task_count(group_id: int,
                                        )
 
 
-@router.get("/get_count_for_teacher", response_model=TaskCountForTeacherResponse)
-async def get_task_count_for_teacher(group_id: int,
-                                     course_id: int,
-                                     lesson_id: int,
-                                     current_user: User = Depends(get_teacher_or_admin),
-                                     session: AsyncSession = Depends(get_session)):
-    user_group = await UsersGroupsService.get_user_group(current_user.id,
-                                                         group_id,
-                                                         session)
-    # TODO check access
-    course_group = await GroupsCoursesService.get_group_course(group_id, course_id, session)
-    # ..
-    course_lesson = await CoursesLessonsService.get_course_lesson(course_id, lesson_id, session)
-
-    tasks = await TaskService.get_tasks_by_lesson_id(lesson_id, session)
-    group_students = await UsersGroupsService.get_group_students(group_id, session)
+@router.get("/get_count_for_teacher", response_model=TaskCountForTeacherResponse, dependencies=[
+    Depends(get_user_group),
+    Depends(get_group_course),
+    Depends(get_course_lesson)
+])
+async def get_task_count_for_teacher(group_students: list[User] = Depends(get_group_students),
+                                     tasks: list[Task] = Depends(get_tasks_by_lesson_id),
+                                     solutions: dict[list[Solution]] = Depends(get_users_best_solutions)):
     students = list(map(lambda g_u: g_u.user, group_students))
-    students_count = len(students)
     students_with_all_completed_tasks = 0
-    if tasks:
-        for student in students:
-            student: User
-            is_all = True
 
-            for task in tasks:
-                best_solution = await SolutionService \
-                    .get_best_user_solution(group_id,
-                                            course_id,
-                                            task.id,
-                                            student.id,
-                                            session)
-                if best_solution and best_solution.status != SolutionStatus.COMPLETE:
-                    is_all = False
-                    break
-                elif not best_solution:
-                    is_all = False
-                    break
-            if is_all:
-                students_with_all_completed_tasks += 1
-    else:
-        students_with_all_completed_tasks = 0
+    if not tasks:
+        return TaskCountForTeacherResponse(
+            students_count=len(students),
+            students_with_all_completed_tasks=0
+        )
 
-    return TaskCountForTeacherResponse(students_count=students_count,
-                                       students_with_all_completed_tasks=students_with_all_completed_tasks)
+    for student in solutions:
+        is_all = True
+
+        for solution in solutions[student]:
+            if solution and solution.status != SolutionStatus.COMPLETE:
+                is_all = False
+                break
+            elif not solution:
+                is_all = False
+                break
+
+        if is_all:
+            students_with_all_completed_tasks += 1
+
+    return TaskCountForTeacherResponse(
+        students_count=len(students),
+        students_with_all_completed_tasks=students_with_all_completed_tasks
+    )

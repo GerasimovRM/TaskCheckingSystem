@@ -8,7 +8,6 @@ from pydantic import ValidationError
 from fastapi import APIRouter, status, HTTPException, Cookie, Depends, Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 
 from config import VK_CLIENT_ID, VK_CLIENT_SECRET, VK_REDIRECT_URI
 from database import User, RefreshToken, get_session
@@ -19,7 +18,6 @@ from models.site.token import TokenWithUserData
 from models.response_vk_access_token import ResponseVkAccessToken
 from services.auth_service import create_access_token_user, create_refresh_token_user, \
     authenticate_user
-from services.auth_service import get_password_hash
 from services.refresh_token_service import RefreshTokenService
 from services.user_service import UserService
 from services.vk_service import get_vk_user_with_photo

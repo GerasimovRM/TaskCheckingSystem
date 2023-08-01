@@ -1,23 +1,17 @@
 import logging
 
-from fastapi import Depends, APIRouter, HTTPException, status, Cookie
-from typing import Optional, List, Any
+from fastapi import Depends, APIRouter, HTTPException, status
+from typing import Optional, List
 
-from sqlalchemy import select, func, desc
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload, joinedload
 
-from database.users_groups import UserGroupRole
-from database import User, Group, UsersGroups, Course, CoursesLessons, Lesson, get_session, \
-    GroupsCourses, Solution
+from database import User, UsersGroups, get_session, Solution
 from models.pydantic_sqlalchemy_core import UserDto
 from models.site.user import StudentsWithSolution
 from services.auth_service import get_current_active_user, get_current_user, get_password_hash, \
-    get_admin
+    get_teacher_or_admin
 from services.auth_service import verify_password
-from services.solution_service import SolutionService
-from services.user_service import UserService
-from services.users_groups_service import UsersGroupsService
+from api.deps import get_user_by_id, get_user_group, get_best_solutions, get_group_students
 
 
 router = APIRouter(
@@ -26,29 +20,18 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=UserDto)
-async def get_user_by_id(user_id: int,
-                         current_user: User = Depends(get_current_active_user),
-                         session: AsyncSession = Depends(get_session)) -> UserDto:
-    user = await UserService.get_user_by_id(user_id, session)
+@router.get("/", response_model=UserDto, dependencies=[
+    Depends(get_current_active_user)
+])
+async def get_user_by_id(user: User = Depends(get_user_by_id)) -> UserDto:
     return UserDto.from_orm(user)
 
 
-@router.get("/students_with_solution", response_model=List[StudentsWithSolution])
-async def get_students_solution(group_id: int,
-                                course_id: int,
-                                task_id: int,
-                                current_user: User = Depends(get_current_active_user),
-                                session: AsyncSession = Depends(get_session)) -> List[StudentsWithSolution]:
-    group_user = await UsersGroupsService.get_user_group_teacher_or_admin(user_id=current_user.id,
-                                                                          group_id=group_id,
-                                                                          session=session)
-
-    solutions = await SolutionService.get_best_solutions(group_id,
-                                                         course_id,
-                                                         task_id,
-                                                         session)
-
+@router.get("/students_with_solution", response_model=List[StudentsWithSolution], dependencies=[
+    Depends(get_teacher_or_admin),
+    Depends(get_user_group)
+])
+async def get_students_solution(solutions: list[Solution] = Depends(get_best_solutions)) -> List[StudentsWithSolution]:
     return [StudentsWithSolution(user_id=solution.user_id,
                                  score=solution.score,
                                  time_start=solution.time_start,
@@ -56,16 +39,11 @@ async def get_students_solution(group_id: int,
                                  time_finish=solution.time_finish) for solution in solutions]
 
 
-@router.get("/students_group", response_model=List[UserDto])
-async def get_students_group(group_id: int,
-                             current_user: User = Depends(get_current_active_user),
-                             session: AsyncSession = Depends(get_session)) -> List[UserDto]:
-    group_user = await UsersGroupsService.get_user_group_teacher_or_admin(user_id=current_user.id,
-                                                                          group_id=group_id,
-                                                                          session=session)
-
-    group_users = await UsersGroupsService.get_group_students(group_id=group_id,
-                                                              session=session)
+@router.get("/students_group", response_model=List[UserDto], dependencies=[
+    Depends(get_teacher_or_admin),
+    Depends(get_user_group)
+])
+async def get_students_group(group_users: UsersGroups = Depends(get_group_students)) -> List[UserDto]:
     return list(map(UserDto.from_orm, map(lambda t: t.user, group_users)))
 
 
@@ -91,6 +69,7 @@ async def get_user_data(current_user: User = Depends(get_current_user)) -> UserD
     return UserDto.from_orm(current_user)
 
 
+# TODO: поменять под метод из кастомного базового класса
 @router.post("/change_data", response_model=UserDto)
 async def change_user_data(first_name: Optional[str] = None,
                            last_name: Optional[str] = None,

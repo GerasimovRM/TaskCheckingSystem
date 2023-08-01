@@ -1,12 +1,10 @@
-from fastapi import APIRouter, status, HTTPException, Depends
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import get_session, User, GroupsCourses
-from services.groups_courses_serivce import GroupsCoursesService
+from database import get_session, GroupsCourses
 from services.auth_service import get_current_active_user
-
 from models.pydantic_sqlalchemy_core import GroupsCoursesDto
-
+from api.deps import get_group_course
 
 router = APIRouter(
     prefix='/groups_courses',
@@ -14,9 +12,10 @@ router = APIRouter(
 )
 
 
-@router.post('/', response_model=GroupsCoursesDto)
+@router.post('/', response_model=GroupsCoursesDto, dependencies=[
+    Depends(get_current_active_user)
+])
 async def post_groups_courses(req: GroupsCoursesDto,
-                              current_user: User = Depends(get_current_active_user),
                               session: AsyncSession = Depends(get_session)):
     db_item = GroupsCourses(**req.dict())
 
@@ -25,23 +24,24 @@ async def post_groups_courses(req: GroupsCoursesDto,
     return GroupsCoursesDto.from_orm(db_item)
 
 
-@router.put('/', response_model=GroupsCoursesDto)
+# TODO: what to do with GET though? the only info stored is IDs
+
+
+@router.put('/', response_model=GroupsCoursesDto, dependencies=[
+    Depends(get_current_active_user)
+])
 async def put_groups_courses(req: GroupsCoursesDto,
-                             current_user: User = Depends(get_current_active_user),
-                             session: AsyncSession = Depends(get_session)):
-    db_item = await GroupsCoursesService.get_group_course(req.group_id, req.course_id, session)    
-    db_item.update_by_pydantic(req)
-
+                             group_course: GroupsCourses = Depends(get_group_course),
+                             session: AsyncSession = Depends(get_session)):    
+    group_course.update_by_pydantic(req)
     await session.commit()
-    return GroupsCoursesDto.from_orm(db_item)
+    return GroupsCoursesDto.from_orm(group_course)
 
 
-@router.delete('/')
-async def delete_groups_courses(group_id: int,
-                                course_id: int,
-                                current_user: User = Depends(get_current_active_user),
+@router.delete('/', dependencies=[
+    Depends(get_current_active_user)
+])
+async def delete_groups_courses(group_course: GroupsCourses = Depends(get_group_course),
                                 session: AsyncSession = Depends(get_session)):
-    db_item = await GroupsCoursesService.get_group_course(group_id, course_id, session)
-    
-    await session.delete(db_item)
+    await session.delete(group_course)
     return {'detail': 'ok'}
