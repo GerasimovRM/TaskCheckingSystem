@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  zookeeper:
+  zookeeper-test:
     image: confluentinc/cp-zookeeper:latest
     environment:
       ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_CLIENT_PORT}
@@ -11,53 +11,61 @@ services:
     networks:
       - zookeeper-kafka
     volumes:
-      - ~/Volumes/TCS/zookeeper/secrets:/etc/zookeeper/secrets
-      - ~/Volumes/TCS/zookeeper/data:/var/lib/zookeeper/data
-      - ~/Volumes/TCS/zookeeper/log:/var/lib/zookeeper/log
+      - ~/Volumes/TCS/zookeeper-test/secrets:/etc/zookeeper/secrets
+      - ~/Volumes/TCS/zookeeper-test/data:/var/lib/zookeeper/data
+      - ~/Volumes/TCS/zookeeper-test/log:/var/lib/zookeeper/log
+
+  postgres-db-test:
+    image: postgres
+    ports:
+      - ${DB_EXTERNAL_PORT}:5432
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_DATABASE}
+      - POSTGRES_HOST=${DB_HOST}
+    volumes:
+      - ~/Volumes/postgresql-test:/var/lib/postgresql/data
+    networks:
+      - backend-db
 
   # https://vinybrasil.github.io/portfolio/kafkafastapiasync/
-  kafka:
+  kafka-test:
     image: confluentinc/cp-kafka
     depends_on:
-      - zookeeper
+      - zookeeper-test
     ports:
       - ${KAFKA_PORT}:29092
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:${ZOOKEEPER_CLIENT_PORT}
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-test:9092,PLAINTEXT_HOST://localhost:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     networks:
       - zookeeper-kafka
     volumes:
-      - ~/Volumes/TCS/kafka/secrets:/etc/kafka/secrets
-      - ~/Volumes/TCS/kafka/data:/var/lib/kafka/data
+      - ~/Volumes/TCS/kafka-test/secrets:/etc/kafka/secrets
+      - ~/Volumes/TCS/kafka-test/data:/var/lib/kafka/data
 
-  backend:
+  backend-test:
+    depends_on:
+      - postgres-db-test
+      - kafka-test
     build: ./backend
     command: uvicorn api.server:app --host 0.0.0.0 --reload
     env_file:
       - .env
     ports:
       - "${BACKEND_PORT}:8000"
-    depends_on:
-      - kafka
     networks:
-        - zookeeper-kafka
+      - zookeeper-kafka
+      - backend-db
     volumes:
-      - ./backend:/code
+        - ./backend:/code
 
-  auth:
-    build:
-      dockerfile: Dockerfile.dev
-      context: ./auth-frontend
-    ports:
-      - 3340:3340
-    stdin_open: true
-
-  task-checker:
+  task-checker-test:
     build: ./TaskChecker
     command: python3 main.py
     volumes:
@@ -70,3 +78,4 @@ services:
 
 networks:
   zookeeper-kafka:
+  backend-db:

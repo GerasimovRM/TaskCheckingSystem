@@ -44,18 +44,6 @@ services:
       - db-backend
       - backend-frontend
 
-  postgres-db-test:
-    image: postgres
-    ports:
-      - ${DB_TEST_EXTERNAL_PORT}:5432
-    environment:
-      - POSTGRES_USER=${DB_TEST_USERNAME}
-      - POSTGRES_PASSWORD=${DB_TEST_PASSWORD}
-      - POSTGRES_DB=${DB_TEST_DATABASE}
-      - POSTGRES_HOST=${DB_TEST_HOST}
-    volumes:
-      - ~/Volumes/postgresql-test:/var/lib/postgresql/data
-
   backend:
     build: ./backend
     command: uvicorn api.server:app --host 0.0.0.0 --reload
@@ -100,7 +88,7 @@ services:
       - REACT_APP_DEV_VK_CLIENT_ID=${REACT_APP_DEV_VK_CLIENT_ID}
       - REACT_APP_SECRET=${REACT_APP_SECRET}
     ports:
-      - 443:443
+      - 10443:443
     volumes:
       - ./frontend:/usr/src/app
       - /usr/src/app/node_modules
